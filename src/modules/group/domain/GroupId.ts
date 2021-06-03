@@ -1,7 +1,11 @@
-import { UniqueEntityId } from "../../../shared/domain/UniqueEntityId";
+import { UniqueEntityId } from "../../../core/domain/UniqueEntityId";
 
 export class GroupId extends UniqueEntityId {
-  constructor(id: string) {
+  private constructor(id: string) {
     super(id);
+  }
+
+  public static create(id: string) {
+    return new GroupId(id);
   }
 }
