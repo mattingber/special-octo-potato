@@ -21,7 +21,6 @@ export class Identifier<T> {
   /**
    * Return raw value of identifier
    */
-
   toValue (): T {
     return this.value;
   }
