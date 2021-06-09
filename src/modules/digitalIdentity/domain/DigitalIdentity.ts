@@ -26,7 +26,6 @@ export class DigitalIdentity extends AggregateRoot {
   // private _uniqueId: string
   private _canConnectRole: boolean;
   private _entityId: string | null; // use value object EntityId
-  private _connectedRoleId: RoleId | null;
 
   private constructor(id: DigitalIdentityId, props: DigitalIdentityProps) {
     super(id);
@@ -35,12 +34,10 @@ export class DigitalIdentity extends AggregateRoot {
     this._mail = props.mail;
     this._canConnectRole = props.canConnectRole || true;
     this._entityId = props.entityId || null;
-    this._connectedRoleId = props.connectedRoleId || null;
   }
 
   disableRoleConnectable() {
-    if(this._connectedRoleId !== null)
-      this._canConnectRole = false;
+    this._canConnectRole = false;
   }
 
   connectToEntity(entityId: string) {
