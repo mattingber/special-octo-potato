@@ -2,6 +2,16 @@ import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 import { GroupId } from "./GroupId";
 import { Hierarchy } from "../../../shared/Hierarchy";
 
+type RootGroupProps = {
+  name: string;
+  // source: string;
+  akaUnit?: string;
+}
+
+type ChildGroupProps = RootGroupProps & {
+  parent: Group;
+}
+
 interface GroupProps {
   name: string;
   akaUnit?: string;
@@ -64,7 +74,20 @@ export class Group extends AggregateRoot {
     return this._status;
   }
 
-  static create(groupId: GroupId, props: GroupProps): Group {
+  static createRoot(groupId: GroupId, props: RootGroupProps) {
+    return Group._create(groupId, props)
+  }
+
+  static createChild(groupId: GroupId, props: ChildGroupProps) {
+    const child = Group._create(groupId, {
+      name: props.name,
+      akaUnit: props.akaUnit
+    });
+    child.moveToParent(props.parent);
+    return child;
+  }
+
+  static _create(groupId: GroupId, props: GroupProps): Group {
     // validate hierarchy & ancestors
     return new Group(groupId, props);
   }
