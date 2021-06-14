@@ -19,7 +19,7 @@ export class Role extends AggregateRoot {
   private _jobTitle: string;
   private _hierarchyIds: GroupId[];
   private _hierarchy: Hierarchy;
-  private _digitalIdentityUniqueId: DigitalIdentityId | null
+  private _digitalIdentityUniqueId?: DigitalIdentityId;
 
   private constructor(roleId: RoleId, props: RoleProps) {
     super(roleId);
@@ -28,7 +28,7 @@ export class Role extends AggregateRoot {
       jobTitle = '',
       hierarchy = Hierarchy.create(''),
       hierarchyIds = [],
-      digitalIdentityUniqueId = null,
+      digitalIdentityUniqueId,
     } = props;
     this._source = source;
     this._jobTitle = jobTitle;
@@ -45,6 +45,12 @@ export class Role extends AggregateRoot {
   public connectDigitalIdentity(digitalIdentity: DigitalIdentity) {
     if (digitalIdentity.canConnectRole)
       this._digitalIdentityUniqueId = digitalIdentity.uniqueId;
+    else 
+      return; //error
+  }
+
+  public disconnectDigitalItendity() {
+    this._digitalIdentityUniqueId = undefined;
   }
 
   get source() {
