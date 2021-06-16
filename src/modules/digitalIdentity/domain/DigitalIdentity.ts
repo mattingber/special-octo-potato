@@ -1,6 +1,5 @@
 import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 import { DigitalIdentityId } from "./DigitalIdentityId";
-import { RoleId } from "../../Role/domain/RoleId";
 import { EntityId } from "../../entity/domain/EntityId";
 import { Entity } from "../../entity/domain/Entity";
 
@@ -13,7 +12,7 @@ interface DigitalIdentityProps {
   type: DigitalIdentityType;
   source: string; // enum?
   mail: string; // use value Object
-  entityId?: EntityId
+  entityId?: EntityId;
   canConnectRole?: boolean;
 }
 
@@ -30,9 +29,12 @@ export class DigitalIdentity extends AggregateRoot {
     this._type = props.type;
     this._source = props.source;
     this._mail = props.mail;
-    this._canConnectRole = props.canConnectRole !== undefined ? props.canConnectRole 
-      : this._type === DigitalIdentityType.DomainUser ? true : false;
     this._entityId = props.entityId;
+    this._canConnectRole = props.canConnectRole !== undefined 
+      // if given in props - use it  
+      ? props.canConnectRole 
+      // else default to true if it is a domainUser type
+      : this._type === DigitalIdentityType.DomainUser; 
   }
 
   disableRoleConnectable() {
@@ -49,7 +51,7 @@ export class DigitalIdentity extends AggregateRoot {
     }
     this._entityId = undefined;
   }
-
+  // maybe need an Entity to create a 'kaki' DI
   static create(id: DigitalIdentityId, props: DigitalIdentityProps) {
     if (props.type === DigitalIdentityType.Kaki && props.canConnectRole) {
       return; //error
