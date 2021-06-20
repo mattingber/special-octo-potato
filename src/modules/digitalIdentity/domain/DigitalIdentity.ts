@@ -8,13 +8,14 @@ export enum DigitalIdentityType {
   Kaki = 'kaki'
 }
 
-interface DigitalIdentityProps {
+interface DigitalIdentityState {
   type: DigitalIdentityType;
   source: string; // enum?
   mail: string; // use value Object
   entityId?: EntityId;
   canConnectRole?: boolean;
 }
+ 
 
 export class DigitalIdentity extends AggregateRoot {
 
@@ -24,7 +25,7 @@ export class DigitalIdentity extends AggregateRoot {
   private _canConnectRole: boolean;
   private _entityId?: EntityId; 
 
-  private constructor(id: DigitalIdentityId, props: DigitalIdentityProps) {
+  private constructor(id: DigitalIdentityId, props: DigitalIdentityState) {
     super(id);
     this._type = props.type;
     this._source = props.source;
@@ -52,11 +53,33 @@ export class DigitalIdentity extends AggregateRoot {
     this._entityId = undefined;
   }
   // maybe need an Entity to create a 'kaki' DI
-  static create(id: DigitalIdentityId, props: DigitalIdentityProps) {
-    if (props.type === DigitalIdentityType.Kaki && props.canConnectRole) {
-      return; //error
+  static _create(id: DigitalIdentityId, state: DigitalIdentityState) {
+    if (state.type === DigitalIdentityType.Kaki && state.canConnectRole) {
+      return new DigitalIdentity(id, state);; //error
     }
-    return new DigitalIdentity(id, props);
+    return new DigitalIdentity(id, state);
+  }
+
+  static createDomainUser(uniqueId: DigitalIdentityId, props: Omit<DigitalIdentityState, 'type'>) {
+    return DigitalIdentity._create(
+      uniqueId,
+      { ...props, type: DigitalIdentityType.DomainUser }
+    );
+  }
+
+  static createKaki(
+    uniqueId: DigitalIdentityId,
+    connectedEntity: Entity,
+    props: Omit<DigitalIdentityState, 'type' | 'canConnectRole' | 'entityId'>
+  ) {
+    return DigitalIdentity._create(
+      uniqueId,
+      {
+        ...props,
+        entityId: connectedEntity.entityId,
+        type: DigitalIdentityType.Kaki,
+      }
+    )
   }
 
   get type() {
