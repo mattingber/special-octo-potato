@@ -16,8 +16,13 @@ export class Hierarchy {
       : value.split(this._separator);
   }
 
-  public concat(hierarchy: Hierarchy) {
-    this.h_splitted.push(...hierarchy.h_splitted);
+  public concat(hierarchy: Hierarchy | string): Hierarchy {
+    if (hierarchy instanceof Hierarchy) {
+      this.h_splitted.push(...hierarchy.h_splitted);
+    } else {
+      this.h_splitted.push(...Hierarchy.create(hierarchy).h_splitted);
+    }
+    return this;
   }
 
   public value() {
