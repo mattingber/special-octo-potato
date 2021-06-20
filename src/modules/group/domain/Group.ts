@@ -41,7 +41,7 @@ export class Group extends AggregateRoot {
 
   public moveToParent(parent: Group) {
     this._ancestors = [ parent.id, ...parent._ancestors ];
-    this._hierarchy.concat(parent._hierarchy);
+    this._hierarchy = Hierarchy.create(parent.hierarchy).concat(parent.name);
   }
 
   public addChild() {
@@ -65,7 +65,7 @@ export class Group extends AggregateRoot {
     return this._hierarchy.value();
   }
   get ancestors() {
-    return this._ancestors;
+    return [...this._ancestors]
   }
   get akaUnit() {
     return this._akaUnit;
