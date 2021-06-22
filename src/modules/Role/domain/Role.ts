@@ -6,7 +6,7 @@ import { Group } from "../../group/domain/Group";
 import { DigitalIdentity } from "../../digitalIdentity/domain/DigitalIdentity";
 import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
 
-interface RoleProps {
+export interface RoleProps {
   source: string;
   jobTitle?: string;
   hierarchyIds: GroupId[];
@@ -53,24 +53,24 @@ export class Role extends AggregateRoot {
     this._digitalIdentityUniqueId = undefined;
   }
 
-  public static createRoleInGroup(
-    roleId: RoleId, 
-    props: {
-      source: string;
-      jobTitle?: string;
-    },
-    parentGroup: Group
-  ) {
-    return new Role(
-      roleId,
-      {
-        source: props.source,
-        hierarchy: Hierarchy.create(parentGroup.hierarchy).concat(parentGroup.name),
-        hierarchyIds: parentGroup.ancestors.concat([parentGroup.id]),
-        jobTitle: props.jobTitle,
-      }
-    )
-  }
+  // public static createRoleInGroup(
+  //   roleId: RoleId, 
+  //   props: {
+  //     source: string;
+  //     jobTitle?: string;
+  //   },
+  //   parentGroup: Group
+  // ) {
+  //   return new Role(
+  //     roleId,
+  //     {
+  //       source: props.source,
+  //       hierarchy: Hierarchy.create(parentGroup.hierarchy).concat(parentGroup.name),
+  //       hierarchyIds: parentGroup.ancestors.concat([parentGroup.id]),
+  //       jobTitle: props.jobTitle,
+  //     }
+  //   )
+  // }
 
   public static _create(roleId: RoleId, state: RoleProps) {
     return new Role(roleId, state);

@@ -1,18 +1,20 @@
 import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 import { GroupId } from "./GroupId";
 import { Hierarchy } from "../../../shared/Hierarchy";
+import { RoleId } from "../../Role/domain/RoleId";
+import { RoleProps, Role } from "../../Role/domain/Role";
 
-type RootGroupProps = {
+type CreateGroupProps = {
   name: string;
   // source: string;
   akaUnit?: string;
 }
 
-type ChildGroupProps = RootGroupProps & {
+type ChildGroupProps = CreateGroupProps & {
   parent: Group;
 }
 
-interface GroupProps {
+interface GroupState {
   name: string;
   akaUnit?: string;
   hierarchy?: Hierarchy;
@@ -29,19 +31,18 @@ export class Group extends AggregateRoot {
   private _hierarchy: Hierarchy;
   private _childrenCount = 0; // maybe a read model concern (isLeaf)
 
-  private constructor(id: GroupId, props: GroupProps) {
+  private constructor(id: GroupId, props: GroupState) {
     super(id);
     this._name = props.name;
     this._akaUnit = props.akaUnit;
     this._status = props.status || 'active';
     this._hierarchy = props.hierarchy || Hierarchy.create('');
     this._ancestors = props.ancestors || [];
-    
   }
 
   public moveToParent(parent: Group) {
     this._ancestors = [ parent.id, ...parent._ancestors ];
-    this._hierarchy = Hierarchy.create(parent.hierarchy).concat(parent.name);
+    this._hierarchy = createChildHierarchy(parent);
   }
 
   public addChild() {
@@ -73,22 +74,39 @@ export class Group extends AggregateRoot {
   get status() {
     return this._status;
   }
-
-  static createRoot(groupId: GroupId, props: RootGroupProps) {
-    return Group._create(groupId, props)
-  }
-
-  static createChild(groupId: GroupId, props: ChildGroupProps) {
+  
+  public createChild(groupId: GroupId, props: CreateGroupProps) {
     const child = Group._create(groupId, {
       name: props.name,
       akaUnit: props.akaUnit
     });
-    child.moveToParent(props.parent);
+    child.moveToParent(this);
     return child;
   }
 
-  static _create(groupId: GroupId, props: GroupProps): Group {
+  public createRole(roleId: RoleId, props: Omit<RoleProps, 'hierarchyIds' | 'hierarchy'>) {
+    return Role._create(
+      roleId,
+      {
+        ...props,
+        hierarchy: createChildHierarchy(this),
+        hierarchyIds: this.ancestors,
+      }
+    );
+  }
+  
+  static createRoot(groupId: GroupId, props: CreateGroupProps) {
+    return Group._create(groupId, props)
+  }
+
+  static _create(groupId: GroupId, props: GroupState): Group {
     // validate hierarchy & ancestors
     return new Group(groupId, props);
   }
 }
+
+/***
+ * helpers
+ */
+
+const createChildHierarchy = (parent: Group) => Hierarchy.create(parent.hierarchy).concat(parent.name);
