@@ -8,44 +8,80 @@ enum EntityType {
   GoalUser = 'goalUser'
 }
 
+enum Sex {
+  Male = 'male',
+  Female = 'female'
+}
+
+// interface EntityState {
+//   firstName: string;
+//   lastName?: string;
+//   entityType: EntityType;
+//   hierarchy?: Hierarchy;
+//   personalNumber?: string; // use value object
+//   identityCard?: string;
+//   rank?: string; //use vale object / enum
+//   akaUnit?: string;
+//   clearance: number; // value object
+//   mail?: string; //value object
+//   sex?: Sex;
+//   serviceType?: string; //value object
+//   dischargeDate?: Date;
+//   birthDate?: Date;
+//   jobTitle?: string;
+//   address?: string; // value?
+// }
+
+
 type CommonEntityProps = {
+  firstName: string;
   entityType: EntityType;
   hierarchy?: Hierarchy;
   clearance: number;
+  mail?: string; //value object, should be required??
+  jobTitle?: string;
 }
 
 type PersonProps = {
   firstName: string;
-  lastName: string
+  lastName: string;
+  sex: Sex;
+  address?: string;
+  dischargeDate?: Date;
+  birthDate?: Date;
+  serviceType: string; //value object
 }
 
-type GoalUserEntityProps = CommonEntityProps & {
-  firstName: string;
-}
+type GoalUserEntityProps = CommonEntityProps
 
-type SoldierEntityProps = CommonEntityProps & PersonProps & {
+type SoldierEntityProps = {
   personalNumber: string; // use value object
   identityCard?: string;
   rank?: string; //use vale object / enum
   akaUnit?: string
 }
 
-type CivilianEntityProps = CommonEntityProps & PersonProps & {
+type CivilianEntityProps = {
   identityCard: string;
   personalNumber?: string;
 }
 
-interface EntityProps {
-  firstName: string;
-  lastName?: string;
-  entityType: EntityType;
-  hierarchy?: Hierarchy;
-  personalNumber?: string; // use value object
-  identityCard?: string;
-  rank?: string; //use vale object / enum
-  akaUnit?: string;
-  clearance: number; // value object
-}
+type EntityState = CommonEntityProps & 
+  Partial<PersonProps> & 
+  Partial<CivilianEntityProps> & 
+  Partial<SoldierEntityProps>
+
+type CreateSoldierProps = CommonEntityProps & PersonProps & SoldierEntityProps;
+type CreateCivilianProps = CommonEntityProps & PersonProps & CivilianEntityProps;
+
+
+// type yy =SoldierEntityProps & CivilianEntityProps
+
+// const s: yy = {
+
+// }
+
+
 
 export class Entity extends AggregateRoot {
   private _firstName: string;
@@ -57,8 +93,15 @@ export class Entity extends AggregateRoot {
   private _personalNumber?: string;
   private _akaUnit?: string;
   private _clearance: number;
+  private _mail?: string;
+  private _sex?: Sex;
+  private _serviceType?: string; //value object
+  private _dischargeDate?: Date;
+  private _birthDate?: Date;
+  private _jobTitle?: string;
+  private _address?: string; // value?
 
-  private constructor(id: EntityId, props: EntityProps) {
+  private constructor(id: EntityId, props: EntityState) {
     super(id);
     this._firstName = props.firstName;
     this._lastName = props.lastName || '';
@@ -69,6 +112,12 @@ export class Entity extends AggregateRoot {
     this._personalNumber = props.personalNumber;
     this._akaUnit = props.akaUnit;
     this._clearance = props.clearance;
+    this._sex = props.sex;
+    this. _serviceType = props.serviceType;
+    this. _dischargeDate = props.dischargeDate;
+    this. _birthDate = props.birthDate;
+    this. _jobTitle = props.jobTitle;
+    this. _address = props.address;
   }
 
   public setIdentityCard(identityCard: string) {
@@ -95,35 +144,35 @@ export class Entity extends AggregateRoot {
     this._hierarchy = hierarchy;
   }
 
-  private static isValidSoldierProps(props: EntityProps): props is SoldierEntityProps {
+  private static isValidSoldierProps(props: EntityState): props is CreateSoldierProps {
     const { entityType, personalNumber } = props;
     return Entity.isValidPerson(props) 
       && entityType === EntityType.Soldier 
       && !!personalNumber;
   }
 
-  private static isValidCivilianProps(props: EntityProps): props is CivilianEntityProps {
+  private static isValidCivilianProps(props: EntityState): props is CreateCivilianProps {
     const { identityCard, entityType } = props;
     return Entity.isValidPerson(props) 
       && entityType === EntityType.Civilian 
       && !!identityCard;
   }
 
-  private static isValidPerson(props: EntityProps) {
+  private static isValidPerson(props: EntityState) {
     const { entityType, firstName, lastName } = props;
     return (entityType === EntityType.Civilian || entityType === EntityType.Soldier)
       && !!firstName && !!lastName;
   }
 
-  private static createSoldier(id: EntityId, props: SoldierEntityProps) {
+  private static createSoldier(id: EntityId, props: CreateSoldierProps) {
     return new Entity(id, props);
   }
 
-  private static createCivilian(id: EntityId, props: CivilianEntityProps) {
+  private static createCivilian(id: EntityId, props: CreateCivilianProps) {
     return new Entity(id, props);
   }
 
-  static create(id: EntityId, props: EntityProps) {
+  static create(id: EntityId, props: EntityState) {
     let entity: Entity | null = null;
     switch(props.entityType) {
       case EntityType.Soldier: 
@@ -175,5 +224,6 @@ export class Entity extends AggregateRoot {
   get clearance() {
     return this._clearance;
   }
+  // todo: add more getters
 
 }
