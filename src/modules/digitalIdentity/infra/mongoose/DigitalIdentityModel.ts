@@ -10,14 +10,18 @@ export interface DigitalIdentityDoc {
 }
 
 const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, DigitalIdentityDoc> ({
-  // todo: unique id
+  uniqueId: { type: String, unique: true, required: true },
+  entityId: { type: Schema.Types.ObjectId, ref: () => 'Entity' }, // todo: model names provider?
   type: String,
   source: String,
   mail: String,
-  canConnectRole: String,
-  entityId: Schema.Types.ObjectId,
+  canConnectRole: Boolean,
+},{
+  _id: false,
+  versionKey: false,
+  timestamps: true,
 });
 
-const di_model = model<DigitalIdentityDoc>('DigitalIdentity', schema);
+const di_model = model('DigitalIdentity', schema); // todo: model names provider?
 
 export default di_model;
