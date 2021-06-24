@@ -5,6 +5,6 @@ import { EntityId } from "../../entity/domain/EntityId";
 
 export interface DigitalIdentityRepository extends Repository<DigitalIdentity> {
   save(digitalIdentity: DigitalIdentity): Promise<void>;
-  getByUniqueId(uniqueId: DigitalIdentityId): Promise<DigitalIdentity>;
-  getByEntityId(entityId: EntityId): Promise<DigitalIdentity>;
+  getByUniqueId(uniqueId: DigitalIdentityId): Promise<DigitalIdentity | null>;
+  getByEntityId(entityId: EntityId): Promise<DigitalIdentity | null>;
 }
