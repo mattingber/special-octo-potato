@@ -2,7 +2,7 @@ import { AggregateRoot } from "../../../core/domain/AggregateRoot";
 import { GroupId } from "./GroupId";
 import { Hierarchy } from "../../../shared/Hierarchy";
 import { RoleId } from "../../Role/domain/RoleId";
-import { RoleProps, Role } from "../../Role/domain/Role";
+import { RoleState, Role } from "../../Role/domain/Role";
 
 type CreateGroupProps = {
   name: string;
@@ -84,14 +84,15 @@ export class Group extends AggregateRoot {
     return child;
   }
 
-  public createRole(roleId: RoleId, props: Omit<RoleProps, 'hierarchyIds' | 'hierarchy'>) {
+  public createRole(roleId: RoleId, props: Omit<RoleState, 'hierarchyIds' | 'hierarchy'>) {
     return Role._create(
       roleId,
       {
         ...props,
         hierarchy: createChildHierarchy(this),
         hierarchyIds: this.ancestors,
-      }
+      },
+      { isNew: true }
     );
   }
   
@@ -99,7 +100,7 @@ export class Group extends AggregateRoot {
     return Group._create(groupId, props)
   }
 
-  static _create(groupId: GroupId, props: GroupState): Group {
+  static _create(groupId: GroupId, props: GroupState, opts: {}): Group {
     // validate hierarchy & ancestors
     return new Group(groupId, props);
   }
