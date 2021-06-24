@@ -1,4 +1,4 @@
-import { AggregateRoot } from "../../../core/domain/AggregateRoot";
+import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { DigitalIdentityId } from "./DigitalIdentityId";
 import { EntityId } from "../../entity/domain/EntityId";
 import { Entity } from "../../entity/domain/Entity";
@@ -15,7 +15,6 @@ interface DigitalIdentityState {
   entityId?: EntityId;
   canConnectRole?: boolean;
 }
- 
 
 export class DigitalIdentity extends AggregateRoot {
 
@@ -52,21 +51,23 @@ export class DigitalIdentity extends AggregateRoot {
     }
     this._entityId = undefined;
   }
-  // maybe need an Entity to create a 'kaki' DI
-  static _create(id: DigitalIdentityId, state: DigitalIdentityState) {
+
+  static _create(id: DigitalIdentityId, state: DigitalIdentityState, opts: CreateOpts) {
     if (state.type === DigitalIdentityType.Kaki && state.canConnectRole) {
-      return new DigitalIdentity(id, state);; //error
+      return new DigitalIdentity(id, state); //error
     }
     return new DigitalIdentity(id, state);
   }
-
+  
   static createDomainUser(uniqueId: DigitalIdentityId, props: Omit<DigitalIdentityState, 'type'>) {
     return DigitalIdentity._create(
       uniqueId,
-      { ...props, type: DigitalIdentityType.DomainUser }
-    );
-  }
-
+      { ...props, type: DigitalIdentityType.DomainUser },
+      { isNew: true },
+      );
+    }
+    
+  // maybe need an Entity to create a 'kaki' DI
   static createKaki(
     uniqueId: DigitalIdentityId,
     connectedEntity: Entity,
@@ -78,7 +79,8 @@ export class DigitalIdentity extends AggregateRoot {
         ...props,
         entityId: connectedEntity.entityId,
         type: DigitalIdentityType.Kaki,
-      }
+      },
+      { isNew: true },
     )
   }
 

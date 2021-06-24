@@ -6,7 +6,7 @@ import { Group } from "../../group/domain/Group";
 import { DigitalIdentity } from "../../digitalIdentity/domain/DigitalIdentity";
 import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
 
-export interface RoleProps {
+export interface RoleState {
   source: string;
   jobTitle?: string;
   hierarchyIds: GroupId[];
@@ -21,7 +21,7 @@ export class Role extends AggregateRoot {
   private _hierarchy: Hierarchy;
   private _digitalIdentityUniqueId?: DigitalIdentityId;
 
-  private constructor(roleId: RoleId, props: RoleProps) {
+  private constructor(roleId: RoleId, props: RoleState) {
     super(roleId);
     const {
       source,
@@ -72,7 +72,7 @@ export class Role extends AggregateRoot {
   //   )
   // }
 
-  public static _create(roleId: RoleId, state: RoleProps) {
+  public static _create(roleId: RoleId, state: RoleState, opts: { isNew: boolean }) {
     return new Role(roleId, state);
   }
 
