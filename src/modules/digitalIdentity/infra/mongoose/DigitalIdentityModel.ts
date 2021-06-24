@@ -1,21 +1,25 @@
 import { Schema, Model, Types, model } from 'mongoose';
+import { DigitalIdentityType } from '../../domain/DigitalIdentity';
 
 export interface DigitalIdentityDoc {
   uniqueId: string;
-  type: string;
+  type: DigitalIdentityType;
   source: string; // enum?
   mail: string; // use value Object
-  canConnectRole?: boolean;
+  isRoleAttachable?: boolean;
   entityId?: Types.ObjectId; // object Id 
 }
 
 const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, DigitalIdentityDoc> ({
   uniqueId: { type: String, unique: true, required: true },
   entityId: { type: Schema.Types.ObjectId, ref: () => 'Entity' }, // todo: model names provider?
-  type: String,
+  type: { 
+    type: String,
+    enum: [ DigitalIdentityType.DomainUser, DigitalIdentityType.Kaki ],
+  },
   source: String,
   mail: String,
-  canConnectRole: Boolean,
+  isRoleAttachable: Boolean,
 },{
   _id: false,
   versionKey: false,

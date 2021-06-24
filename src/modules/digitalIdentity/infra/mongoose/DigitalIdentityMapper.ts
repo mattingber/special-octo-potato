@@ -1,5 +1,7 @@
-import { DigitalIdentity } from "../../domain/DigitalIdentity";
+import { DigitalIdentity, DigitalIdentityType } from "../../domain/DigitalIdentity";
 import { DigitalIdentityId } from "../../domain/DigitalIdentityId";
+import { DigitalIdentityDoc } from "./DigitalIdentityModel";
+import { EntityId } from "../../../entity/domain/EntityId";
 
 export class DigitalIdentityMapper {
 
@@ -9,14 +11,24 @@ export class DigitalIdentityMapper {
       type: digitalIdentity.type,
       source: digitalIdentity.source,
       mail: digitalIdentity.mail,
-      canConnectRole: digitalIdentity.canConnectRole,
+      isRoleAttachable: digitalIdentity.canConnectRole,
       entityId: digitalIdentity.connectedEntityId?.toString(),
     }
   }
 
-  static toDoamin(raw: any): DigitalIdentity {
-    const di = DigitalIdentity._create(
-      DigitalIdentityId.create()
-    )
+  static toDomain(raw: DigitalIdentityDoc): DigitalIdentity {
+    const uid = DigitalIdentityId.create(raw.uniqueId);
+    const entityId = raw.entityId;
+    return DigitalIdentity._create(
+      uid,
+      {
+        mail: raw.mail,
+        source: raw.source,
+        type: raw.type,
+        canConnectRole: raw.isRoleAttachable,
+        entityId: !!entityId ? EntityId.create(entityId.toHexString()) : undefined,
+      },
+      { isNew: false },
+    );
   }
 }
