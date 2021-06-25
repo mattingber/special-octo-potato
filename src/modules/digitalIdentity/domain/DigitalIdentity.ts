@@ -64,8 +64,8 @@ export class DigitalIdentity extends AggregateRoot {
       uniqueId,
       { ...props, type: DigitalIdentityType.DomainUser },
       { isNew: true },
-      );
-    }
+    );
+  }
     
   // maybe need an Entity to create a 'kaki' DI
   static createKaki(
