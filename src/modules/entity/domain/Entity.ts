@@ -1,4 +1,4 @@
-import { AggregateRoot } from "../../../core/domain/AggregateRoot";
+import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { EntityId } from "./EntityId";
 import { Hierarchy } from "../../../shared/Hierarchy";
 
@@ -113,11 +113,11 @@ export class Entity extends AggregateRoot {
     this._akaUnit = props.akaUnit;
     this._clearance = props.clearance;
     this._sex = props.sex;
-    this. _serviceType = props.serviceType;
-    this. _dischargeDate = props.dischargeDate;
-    this. _birthDate = props.birthDate;
-    this. _jobTitle = props.jobTitle;
-    this. _address = props.address;
+    this._serviceType = props.serviceType;
+    this._dischargeDate = props.dischargeDate;
+    this._birthDate = props.birthDate;
+    this._jobTitle = props.jobTitle;
+    this._address = props.address;
   }
 
   public setIdentityCard(identityCard: string) {
@@ -172,7 +172,7 @@ export class Entity extends AggregateRoot {
     return new Entity(id, props);
   }
 
-  static create(id: EntityId, props: EntityState) {
+  static create(id: EntityId, props: EntityState, opts: CreateOpts) {
     let entity: Entity | null = null;
     switch(props.entityType) {
       case EntityType.Soldier: 
@@ -224,6 +224,25 @@ export class Entity extends AggregateRoot {
   get clearance() {
     return this._clearance;
   }
-  // todo: add more getters
-
+  get sex() {
+    return this._sex;
+  }
+  get serviceType() {
+    return this._serviceType;
+  }
+  get dischargeDate() {
+    return this._dischargeDate;
+  }
+  get birthDate() {
+    return this._birthDate;
+  }
+  get jobTitle() {
+    return this._jobTitle;
+  }
+  get address() {
+    return this._address;
+  }
+  get mail() {
+    return this._mail;
+  }
 }
