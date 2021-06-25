@@ -1,4 +1,4 @@
-import { AggregateRoot } from "../../../core/domain/AggregateRoot";
+import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { GroupId } from "../../group/domain/GroupId";
 import { Hierarchy } from "../../../shared/Hierarchy";
 import { RoleId } from "./RoleId";
@@ -72,7 +72,7 @@ export class Role extends AggregateRoot {
   //   )
   // }
 
-  public static _create(roleId: RoleId, state: RoleState, opts: { isNew: boolean }) {
+  public static _create(roleId: RoleId, state: RoleState, opts: CreateOpts) {
     return new Role(roleId, state);
   }
 
