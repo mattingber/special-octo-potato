@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
     "typescript": "^4.3.2"
   },
   "dependencies": {
-    "mongoose": "^5.12.14"
+    "mongoose": "^5.12.14",
+    "neverthrow": "^4.2.1"
   }
 }
