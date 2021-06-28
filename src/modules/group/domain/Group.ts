@@ -1,4 +1,4 @@
-import { AggregateRoot } from "../../../core/domain/AggregateRoot";
+import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { GroupId } from "./GroupId";
 import { Hierarchy } from "../../../shared/Hierarchy";
 import { RoleId } from "../../Role/domain/RoleId";
@@ -76,10 +76,14 @@ export class Group extends AggregateRoot {
   }
   
   public createChild(groupId: GroupId, props: CreateGroupProps) {
-    const child = Group._create(groupId, {
-      name: props.name,
-      akaUnit: props.akaUnit
-    });
+    const child = Group._create(
+      groupId, 
+      {
+        name: props.name,
+        akaUnit: props.akaUnit
+      },
+      { isNew: true }
+    );
     child.moveToParent(this);
     return child;
   }
@@ -97,10 +101,10 @@ export class Group extends AggregateRoot {
   }
   
   static createRoot(groupId: GroupId, props: CreateGroupProps) {
-    return Group._create(groupId, props)
+    return Group._create(groupId, props, { isNew: true })
   }
 
-  static _create(groupId: GroupId, props: GroupState, opts: {}): Group {
+  static _create(groupId: GroupId, props: GroupState, opts: CreateOpts): Group {
     // validate hierarchy & ancestors
     return new Group(groupId, props);
   }
