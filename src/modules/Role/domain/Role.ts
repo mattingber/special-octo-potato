@@ -5,6 +5,8 @@ import { RoleId } from "./RoleId";
 import { Group } from "../../group/domain/Group";
 import { DigitalIdentity } from "../../digitalIdentity/domain/DigitalIdentity";
 import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
+import { Result, ok, err } from "neverthrow";
+import { CannotConnectDigitalIdentityError } from "./errors/CannotConnectDigitalIdentityError";
 
 export interface RoleState {
   source: string;
@@ -39,14 +41,20 @@ export class Role extends AggregateRoot {
 
   public moveToGroup(group: Group) {
     this._hierarchy = Hierarchy.create(group.hierarchy);
-    this._hierarchyIds = [...group.ancestors];
+    this._hierarchyIds = group.ancestors;
   }
 
-  public connectDigitalIdentity(digitalIdentity: DigitalIdentity) {
-    if (digitalIdentity.canConnectRole)
+  public connectDigitalIdentity(
+    digitalIdentity: DigitalIdentity
+  ): Result<void, CannotConnectDigitalIdentityError> {
+    if (digitalIdentity.canConnectRole){
       this._digitalIdentityUniqueId = digitalIdentity.uniqueId;
-    else 
-      return; //error
+      return ok(undefined);
+    }
+    return err(
+      CannotConnectDigitalIdentityError.create(this.roleId.toString(), 
+      digitalIdentity.uniqueId.toString())
+    );
   }
 
   public disconnectDigitalItendity() {
