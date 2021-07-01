@@ -13,6 +13,7 @@ export class RoleMapper {
       source: role.source,
       jobTitle: role.jobTitle,
       hierarchyIds: role.hierarchyIds.map(gId => gId.toString()),
+      directGroup: role.directGroup.toString(),
       hierarchy: role.hierarchy,
       digitalIdentityUniqueId: role.digitalIdentityUniqueId?.toString(),
     }
