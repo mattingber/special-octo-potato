@@ -6,7 +6,7 @@ import { RoleState, Role } from "../../Role/domain/Role";
 
 type CreateGroupProps = {
   name: string;
-  // source: string;
+  source: string;
   akaUnit?: string;
 }
 
@@ -16,6 +16,7 @@ type ChildGroupProps = CreateGroupProps & {
 
 interface GroupState {
   name: string;
+  source: string; // todo: value object. 
   akaUnit?: string;
   hierarchy?: Hierarchy;
   ancestors?: GroupId[];
@@ -29,15 +30,17 @@ export class Group extends AggregateRoot {
   private _status: string; // maybe value object
   private _ancestors: GroupId[];
   private _hierarchy: Hierarchy;
+  private _source: string;
   private _childrenCount = 0; // maybe a read model concern (isLeaf)
 
-  private constructor(id: GroupId, props: GroupState) {
+  private constructor(id: GroupId, state: GroupState) {
     super(id);
-    this._name = props.name;
-    this._akaUnit = props.akaUnit;
-    this._status = props.status || 'active';
-    this._hierarchy = props.hierarchy || Hierarchy.create('');
-    this._ancestors = props.ancestors || [];
+    this._name = state.name;
+    this._akaUnit = state.akaUnit;
+    this._source = state.source;
+    this._status = state.status || 'active';
+    this._hierarchy = state.hierarchy || Hierarchy.create('');
+    this._ancestors = state.ancestors || [];
   }
 
   public moveToParent(parent: Group) {
@@ -53,7 +56,7 @@ export class Group extends AggregateRoot {
     this._childrenCount--;
   }
 
-  get id(): GroupId {
+  get groupId(): GroupId {
     return GroupId.create(this.id.toValue());
   }
   get name() {
@@ -74,13 +77,17 @@ export class Group extends AggregateRoot {
   get status() {
     return this._status;
   }
+  get source() {
+    return this._source;
+  }
   
   public createChild(groupId: GroupId, props: CreateGroupProps) {
     const child = Group._create(
       groupId, 
       {
         name: props.name,
-        akaUnit: props.akaUnit
+        akaUnit: props.akaUnit,
+        source: props.source,
       },
       { isNew: true }
     );
@@ -104,9 +111,9 @@ export class Group extends AggregateRoot {
     return Group._create(groupId, props, { isNew: true })
   }
 
-  static _create(groupId: GroupId, props: GroupState, opts: CreateOpts): Group {
+  static _create(groupId: GroupId, state: GroupState, opts: CreateOpts): Group {
     // validate hierarchy & ancestors
-    return new Group(groupId, props);
+    return new Group(groupId, state);
   }
 }
 
