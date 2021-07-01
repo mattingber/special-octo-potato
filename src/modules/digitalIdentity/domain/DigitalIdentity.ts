@@ -2,6 +2,8 @@ import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { DigitalIdentityId } from "./DigitalIdentityId";
 import { EntityId } from "../../entity/domain/EntityId";
 import { Entity } from "../../entity/domain/Entity";
+import { Result, err, ok } from "neverthrow";
+import { CannotConnectRoleError } from "./errors/CannotConnectRoleError";
 
 export enum DigitalIdentityType {
   DomainUser = 'domainUser',
@@ -47,16 +49,20 @@ export class DigitalIdentity extends AggregateRoot {
 
   disconnectEntity() {
     if (this.type === DigitalIdentityType.Kaki) {
-      return; //error??
+      return; //todo: is error?
     }
     this._entityId = undefined;
   }
 
-  static _create(id: DigitalIdentityId, state: DigitalIdentityState, opts: CreateOpts) {
+  static _create(
+    id: DigitalIdentityId, 
+    state: DigitalIdentityState, 
+    opts: CreateOpts
+  ): Result<DigitalIdentity, CannotConnectRoleError> {
     if (state.type === DigitalIdentityType.Kaki && state.canConnectRole) {
-      return new DigitalIdentity(id, state); //error
+      return err(CannotConnectRoleError.create(id.toString())); //error
     }
-    return new DigitalIdentity(id, state);
+    return ok(new DigitalIdentity(id, state));
   }
   
   static createDomainUser(uniqueId: DigitalIdentityId, props: Omit<DigitalIdentityState, 'type'>) {
