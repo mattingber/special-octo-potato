@@ -3,6 +3,8 @@ import { GroupId } from "./GroupId";
 import { Hierarchy } from "../../../shared/Hierarchy";
 import { RoleId } from "../../Role/domain/RoleId";
 import { RoleState, Role } from "../../Role/domain/Role";
+import { Result, err, ok } from "neverthrow";
+import { SameNameChildrenError } from "./errors/SameNameChildrenError";
 
 type CreateGroupProps = {
   name: string;
@@ -21,6 +23,7 @@ interface GroupState {
   hierarchy?: Hierarchy;
   ancestors?: GroupId[];
   status?: string;
+  childrenNames?: Set<string>;
 }
 
 export class Group extends AggregateRoot {
@@ -31,7 +34,7 @@ export class Group extends AggregateRoot {
   private _ancestors: GroupId[];
   private _hierarchy: Hierarchy;
   private _source: string;
-  private _childrenCount = 0; // maybe a read model concern (isLeaf)
+  private _childrenNames: Set<string>;
 
   private constructor(id: GroupId, state: GroupState) {
     super(id);
@@ -41,6 +44,7 @@ export class Group extends AggregateRoot {
     this._status = state.status || 'active';
     this._hierarchy = state.hierarchy || Hierarchy.create('');
     this._ancestors = state.ancestors || [];
+    this._childrenNames = state.childrenNames || new Set();
   }
 
   public moveToParent(parent: Group) {
@@ -48,12 +52,12 @@ export class Group extends AggregateRoot {
     this._hierarchy = createChildHierarchy(parent);
   }
 
-  public addChild() {
-    this._childrenCount++;
+  public addChild(child: Group) {
+    this._childrenNames.add(child.name);
   }
 
-  public removeChild() {
-    this._childrenCount--;
+  public removeChild(child: Group) {
+    this._childrenNames.delete(child.name);
   }
 
   get groupId(): GroupId {
@@ -63,7 +67,7 @@ export class Group extends AggregateRoot {
     return this._name;
   }
   get isLeaf() {
-    return this._childrenCount === 0;
+    return this._childrenNames.size === 0;
   }
   get hierarchy() {
     return this._hierarchy.value();
@@ -81,7 +85,10 @@ export class Group extends AggregateRoot {
     return this._source;
   }
   
-  public createChild(groupId: GroupId, props: CreateGroupProps) {
+  public createChild(groupId: GroupId, props: CreateGroupProps): Result<Group, SameNameChildrenError> {
+    if(this._childrenNames.has(props.name)) {
+      return err(SameNameChildrenError.create(props.name, this.hierarchy));
+    }
     const child = Group._create(
       groupId, 
       {
@@ -92,7 +99,7 @@ export class Group extends AggregateRoot {
       { isNew: true }
     );
     child.moveToParent(this);
-    return child;
+    return ok(child);
   }
 
   public createRole(roleId: RoleId, props: Omit<RoleState, 'hierarchyIds' | 'hierarchy'>) {
@@ -117,7 +124,7 @@ export class Group extends AggregateRoot {
   }
 }
 
-/***
+/*
  * helpers
  */
 
