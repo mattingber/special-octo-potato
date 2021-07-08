@@ -21,7 +21,6 @@ const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, Digital
   mail: String,
   isRoleAttachable: Boolean,
 },{
-  _id: false,
   versionKey: false,
   timestamps: true,
 });

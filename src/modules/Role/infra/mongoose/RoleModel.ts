@@ -22,7 +22,6 @@ const schema = new Schema<RoleDoc, Model<RoleDoc>, RoleDoc> ({
   hierarchy: String,
   jobTitle: String,
 },{
-  _id: false,
   versionKey: false,
   timestamps: true,
 });
