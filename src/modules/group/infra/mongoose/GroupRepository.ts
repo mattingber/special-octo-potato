@@ -1,7 +1,4 @@
 import { Model, Types } from "mongoose";
-import { DigitalIdentityId } from "../../../digitalIdentity/domain/DigitalIdentityId";
-import { Role } from "../../domain/Role";
-import { RoleId } from "../../domain/RoleId";
 import { GroupRepository as IGroupRepository } from "../../repository/GroupRepository"
 import { GroupMapper as Mapper} from "./GroupMapper";
 import { GroupDoc } from "./GroupModel";
