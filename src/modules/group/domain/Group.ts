@@ -4,7 +4,7 @@ import { Hierarchy } from "../../../shared/Hierarchy";
 import { RoleId } from "../../Role/domain/RoleId";
 import { RoleState, Role } from "../../Role/domain/Role";
 import { Result, err, ok } from "neverthrow";
-import { DuplicateChildrenError } from "./errors/SameNameChildrenError";
+import { DuplicateChildrenError } from "./errors/DuplicateChildrenError";
 
 type CreateGroupProps = {
   name: string;
@@ -47,9 +47,13 @@ export class Group extends AggregateRoot {
     this._childrenNames = state.childrenNames || new Set();
   }
 
-  public moveToParent(parent: Group) {
+  public moveToParent(parent: Group): Result<void, DuplicateChildrenError> {
+    if(parent._childrenNames.has(this._name)) {
+      return err(DuplicateChildrenError.create(this._name, this.hierarchy));
+    }
     this._ancestors = [ parent.id, ...parent._ancestors ];
     this._hierarchy = createChildHierarchy(parent);
+    return ok(undefined);
   }
 
   public addChild(child: Group) {
