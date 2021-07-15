@@ -6,6 +6,7 @@ export type OutboxMessage = {
   created: Date;
   occuredOn: Date;
   aggregateId: string;
+  payload: any;
 }
 
 const options: SchemaOptions = {
@@ -21,6 +22,7 @@ const outboxMessageSchema = new Schema<OutboxMessage, Model<OutboxMessage>, Outb
     required: true,
   },
   aggregateId: String,
+  payload: {},
 }, options);
 
 const outboxModel = model('eventMessage', outboxMessageSchema);
@@ -30,20 +32,20 @@ export class Outbox {
     private _model: Model<OutboxMessage> = outboxModel
   ){}
 
-  async put<T extends IDomainEvent>(event: T | T[], session: ClientSession) {
-    if(Array.isArray(event)) {
-      await this._model.insertMany(event.map(this.eventToMessage), { session });
+  async put<T extends IDomainEvent>(events: T | T[], session: ClientSession) {
+    if(Array.isArray(events)) {
+      await this._model.insertMany(events.map(this.eventToMessage), { session });
     } else {
-      await this._model.create([this.eventToMessage(event)], { session });
+      await this._model.create([this.eventToMessage(events)], { session });
     }
   }
 
   private eventToMessage(event: IDomainEvent) {
     return {
-      type: event.constructor.name,
+      type: event.eventName,
       occuredOn: event.occuredOn,
       aggregateId: event.aggregateId.toString(),
-      ...event.toPlainObject(),
-    }
+      payload: event.toPlainObject(),
+    };
   }
 }

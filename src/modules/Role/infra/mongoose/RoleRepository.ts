@@ -5,7 +5,8 @@ import { RoleId } from "../../domain/RoleId";
 import { RoleRepository as IRoleRepository } from "../../repository/RoleRepository"
 import { RoleMapper as Mapper} from "./RoleMapper";
 import { RoleDoc } from "./RoleModel";
-import { Outbox } from "../../../../shared/infra/mongoose/eventOutbox/OutBox";
+import { Outbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
+
 
 export class RoleRepository implements IRoleRepository {
 

@@ -5,6 +5,7 @@ import { RoleId } from "../../Role/domain/RoleId";
 import { RoleState, Role } from "../../Role/domain/Role";
 import { Result, err, ok } from "neverthrow";
 import { DuplicateChildrenError } from "./errors/DuplicateChildrenError";
+import { GroupMovedToParentEvent } from "./events/GroupMovedToParent";
 
 type CreateGroupProps = {
   name: string;
@@ -51,18 +52,34 @@ export class Group extends AggregateRoot {
     if(parent._childrenNames.has(this._name)) {
       return err(DuplicateChildrenError.create(this._name, this.hierarchy));
     }
+    const previousParentId = this.parentId;
     this._ancestors = [ parent.id, ...parent._ancestors ];
     this._hierarchy = createChildHierarchy(parent);
+    this.addDomainEvent(new GroupMovedToParentEvent(this.id, {
+      groupId: this.groupId,
+      ancestors: this._ancestors,
+      hierarchy: this._hierarchy,
+      previousParentId,
+      name: this._name,
+      source: this._source,
+      akaUnit: this._akaUnit,
+      status: this._status,
+    }));
     return ok(undefined);
   }
 
-  public addChild(child: Group) {
+  public addChild(child: Group): Result<void, DuplicateChildrenError> {
+    if(this._childrenNames.has(child.name)) {
+      return err(DuplicateChildrenError.create(child.name, this.hierarchy));
+    }
     this._childrenNames.add(child.name);
+    return ok(undefined);
   }
 
   public removeChild(child: Group) {
     this._childrenNames.delete(child.name);
   }
+
 
   get groupId(): GroupId {
     return GroupId.create(this.id.toValue());
@@ -80,7 +97,8 @@ export class Group extends AggregateRoot {
     return [...this._ancestors]
   }
   get parentId() {
-    return this.ancestors[0];
+    return this._ancestors.length > 0 ? 
+      this._ancestors[0] : undefined;
   }
   get akaUnit() {
     return this._akaUnit;

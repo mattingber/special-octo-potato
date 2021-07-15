@@ -29,6 +29,6 @@ export class DigitalIdentityMapper {
         entityId: !!entityId ? EntityId.create(entityId.toHexString()) : undefined,
       },
       { isNew: false },
-    );
+    )._unsafeUnwrap();
   }
 }

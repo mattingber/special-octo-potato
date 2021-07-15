@@ -26,4 +26,6 @@ const schema = new Schema<GroupDoc, Model<GroupDoc>, GroupDoc> ({
   timestamps: true,
 });
 
+schema.index({ hierarchy: 1, name: 1 }, { unique: true });
+
 export default model('Role', schema); // todo: model names provider?
