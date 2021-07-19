@@ -6,6 +6,11 @@ import { Result, err, ok } from "neverthrow";
 import { IllegalEntityStateError } from "./errors/IllegalEntityStateError";
 import { AppError } from "../../../core/logic/AppError";
 import { CannotChangeEntityTypeError } from "./errors/CannotChangeEntityTypeError";
+import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
+import { PersonalNumber } from "./PersonalNumber";
+import { IdentityCard } from "./IdentityCard";
+import { Rank } from "./Rank";
+import { Mail } from "../../digitalIdentity/domain/Mail";
 
 export enum EntityType {
   Soldier = 'soldier',
@@ -72,12 +77,12 @@ type EntityState = {
   entityType: EntityType;
   hierarchy?: Hierarchy;
   displayName?: string;
-  personalNumber?: string; // use value object
-  identityCard?: string;
-  rank?: string; //use vale object / enum
+  personalNumber?: PersonalNumber; // use value object
+  identityCard?: IdentityCard;
+  rank?: Rank; //use vale object / enum
   akaUnit?: string;
   clearance?: number; // value object
-  mail?: string; //value object
+  mail?: Mail; //value object
   sex?: Sex;
   serviceType?: string; //value object
   dischargeDate?: Date;
@@ -86,7 +91,7 @@ type EntityState = {
   address?: string; // value?
   phone?: Set<string>; //value object
   mobilePhone?: Set<string>; //value object
-  goalUserId?: string;
+  goalUserId?: DigitalIdentityId;
 }
 
 type CommonState = Pick<EntityState, 'firstName' | 'entityType' | 'hierarchy' | 'clearance' | 'mail' | 'jobTitle'>;
