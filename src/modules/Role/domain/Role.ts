@@ -2,11 +2,15 @@ import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { GroupId } from "../../group/domain/GroupId";
 import { Hierarchy } from "../../../shared/Hierarchy";
 import { RoleId } from "./RoleId";
-import { Group } from "../../group/domain/Group";
 import { DigitalIdentity } from "../../digitalIdentity/domain/DigitalIdentity";
 import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
 import { Result, ok, err } from "neverthrow";
-import { CannotConnectDigitalIdentityError } from "./errors/CannotConnectDigitalIdentityError";
+import { DigitalIdentityCannotBeConnected } from "./errors/DigitalIdentityCannotBeConnected";
+import { IGroup } from "../../group/domain/IGroup";
+import { RoleConnectedEvent } from "./events/RoleConnectedEvent";
+import { AlreadyConnectedToDigitalIdentity } from "./errors/AlreadyConnectedToDigitalIdentity";
+import { RoleDisconnectedEvent } from "./events/RoleDisconnectedEvent";
+import { RoleMovedGroupEvent } from "./events/RoleMovedGroupEvent";
 
 export interface RoleState {
   source: string;
@@ -14,6 +18,10 @@ export interface RoleState {
   hierarchyIds: GroupId[];
   hierarchy: Hierarchy;
   digitalIdentityUniqueId?: DigitalIdentityId
+}
+
+type CreateNewRoleProps =  Omit<RoleState, 'didigitalIdentityUniqueId'> & {
+  connectedDigitalIdentity: DigitalIdentity;
 }
 
 export class Role extends AggregateRoot {
@@ -39,25 +47,53 @@ export class Role extends AggregateRoot {
     this._digitalIdentityUniqueId = digitalIdentityUniqueId;
   }
 
-  public moveToGroup(group: Group) {
+  public moveToGroup(group: IGroup) {
+    this.addDomainEvent(new RoleMovedGroupEvent(this.id, {
+      roleId: this.roleId,
+      connectedDigitalIdentityId: this._digitalIdentityUniqueId,
+      hierarchy: this._hierarchy,
+      hierarchyIds: this._hierarchyIds,
+      jobTitle: this._jobTitle,
+    }));
     this._hierarchy = Hierarchy.create(group.hierarchy);
     this._hierarchyIds = group.ancestors;
   }
 
   public connectDigitalIdentity(
     digitalIdentity: DigitalIdentity
-  ): Result<void, CannotConnectDigitalIdentityError> {
+  ): Result<void, DigitalIdentityCannotBeConnected | AlreadyConnectedToDigitalIdentity> {
+    if (!!this._digitalIdentityUniqueId) {
+      return err(AlreadyConnectedToDigitalIdentity.create(
+        this.roleId.toString(), 
+        this._digitalIdentityUniqueId.toString()
+      ));
+    }
     if (digitalIdentity.canConnectRole){
       this._digitalIdentityUniqueId = digitalIdentity.uniqueId;
+      this.addDomainEvent(new RoleConnectedEvent(this.id, {
+        roleId: this.roleId,
+        connectedDigitalIdentityId: this._digitalIdentityUniqueId,
+        hierarchy: this._hierarchy,
+        hierarchyIds: this._hierarchyIds,
+        jobTitle: this._jobTitle,
+      }));
       return ok(undefined);
     }
     return err(
-      CannotConnectDigitalIdentityError.create(this.roleId.toString(), 
-      digitalIdentity.uniqueId.toString())
+      DigitalIdentityCannotBeConnected.create(digitalIdentity.uniqueId.toString())
     );
   }
 
-  public disconnectDigitalItendity() {
+  public disconnectDigitalIdentity() {
+    if (!!this._digitalIdentityUniqueId) {
+      this.addDomainEvent(new RoleDisconnectedEvent(this.id, {
+        disconnectedDigitalIdentityId: this._digitalIdentityUniqueId,
+        roleId: this.roleId,
+        hierarchy: this._hierarchy,
+        hierarchyIds: this._hierarchyIds,
+        jobTitle: this._jobTitle,
+      }));
+    }
     this._digitalIdentityUniqueId = undefined;
   }
 
@@ -82,6 +118,10 @@ export class Role extends AggregateRoot {
 
   public static _create(roleId: RoleId, state: RoleState, opts: CreateOpts) {
     return new Role(roleId, state);
+  }
+
+  public static createNew(roleId: RoleId, state: Omit<RoleState, 'digitalIdentityUniqueId'>) {
+    return Role._create(roleId, state, { isNew: true });
   }
 
   get source() {
