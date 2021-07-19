@@ -6,6 +6,7 @@ import { RoleState, Role } from "../../Role/domain/Role";
 import { Result, err, ok } from "neverthrow";
 import { DuplicateChildrenError } from "./errors/DuplicateChildrenError";
 import { GroupMovedToParentEvent } from "./events/GroupMovedToParent";
+import { IGroup } from "./IGroup";
 
 type CreateGroupProps = {
   name: string;
@@ -27,7 +28,10 @@ interface GroupState {
   childrenNames?: Set<string>;
 }
 
-export class Group extends AggregateRoot {
+export class Group 
+  extends AggregateRoot 
+  implements IGroup
+{
 
   private _name: string;
   private _akaUnit? : string; // maybe value object
@@ -63,12 +67,12 @@ export class Group extends AggregateRoot {
       name: this._name,
       source: this._source,
       akaUnit: this._akaUnit,
-      status: this._status,
+      status: this._status, 
     }));
     return ok(undefined);
   }
 
-  public addChild(child: Group): Result<void, DuplicateChildrenError> {
+  public addChild(child: IGroup): Result<void, DuplicateChildrenError> {
     if(this._childrenNames.has(child.name)) {
       return err(DuplicateChildrenError.create(child.name, this.hierarchy));
     }
@@ -76,7 +80,7 @@ export class Group extends AggregateRoot {
     return ok(undefined);
   }
 
-  public removeChild(child: Group) {
+  public removeChild(child: IGroup) {
     this._childrenNames.delete(child.name);
   }
 
@@ -130,15 +134,14 @@ export class Group extends AggregateRoot {
     return ok(child);
   }
 
-  public createRole(roleId: RoleId, props: Omit<RoleState, 'hierarchyIds' | 'hierarchy'>) {
-    return Role._create(
+  public createRole(roleId: RoleId, props: Omit<RoleState, 'hierarchyIds' | 'hierarchy' | 'digitalIdentityUniqueId'>) {
+    return Role.createNew(
       roleId,
       {
         ...props,
         hierarchy: createChildHierarchy(this),
         hierarchyIds: this.ancestors,
-      },
-      { isNew: true }
+      }
     );
   }
   
@@ -156,4 +159,4 @@ export class Group extends AggregateRoot {
  * helpers
  */
 
-const createChildHierarchy = (parent: Group) => Hierarchy.create(parent.hierarchy).concat(parent.name);
+const createChildHierarchy = (parent: IGroup) => Hierarchy.create(parent.hierarchy).concat(parent.name);
