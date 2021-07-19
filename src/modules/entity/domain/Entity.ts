@@ -7,13 +7,13 @@ import { IllegalEntityStateError } from "./errors/IllegalEntityStateError";
 import { AppError } from "../../../core/logic/AppError";
 import { CannotChangeEntityTypeError } from "./errors/CannotChangeEntityTypeError";
 
-enum EntityType {
+export enum EntityType {
   Soldier = 'soldier',
   Civilian = 'civilian',
   GoalUser = 'goalUser'
 }
 
-enum Sex {
+export enum Sex {
   Male = 'male',
   Female = 'female'
 }
@@ -252,7 +252,7 @@ export class Entity extends AggregateRoot {
     return this._state.akaUnit;
   }
   get hierarchy() {
-    return this._state.hierarchy;
+    return this._state.hierarchy?.value();
   }
   get clearance() {
     return this._state.clearance;
@@ -280,5 +280,14 @@ export class Entity extends AggregateRoot {
   }
   get displayName() {
     return this._state.displayName;
+  }
+  get phone() {
+    return Array.from(this._state.phone || []);
+  }
+  get mobilePhone() {
+    return Array.from(this._state.mobilePhone || []);
+  }
+  get goalUserId() {
+    return this._state.goalUserId;
   }
 }
