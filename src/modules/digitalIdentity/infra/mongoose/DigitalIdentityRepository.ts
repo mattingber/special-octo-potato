@@ -5,21 +5,28 @@ import { DigitalIdentity } from '../../domain/DigitalIdentity';
 import { DigitalIdentityMapper as Mapper } from './DigitalIdentityMapper';
 import { DigitalIdentityId } from '../../domain/DigitalIdentityId';
 import { EntityId } from "../../../entity/domain/EntityId";
+import { Outbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
 
 
 export class DigitalIdentityRepository implements IdigitalIdentityRepo {
 
   constructor (
-    private _model: Model<DigitalIdentityDoc>
+    private _model: Model<DigitalIdentityDoc>,
+    private _outbox: Outbox,
   ) {}
 
   async save(digitalIdentity: DigitalIdentity): Promise<void> {
     const persistanceState = Mapper.toPersistance(digitalIdentity);
-    await this._model.updateOne(
-      { uniqueId: persistanceState.uniqueId }, 
-      persistanceState, 
-      { upsert: true }
-    );
+    const session = await this._model.startSession();
+    await session.withTransaction(async () => {
+      await this._model.updateOne(
+        { uniqueId: persistanceState.uniqueId }, 
+        persistanceState, 
+        { upsert: true }
+      ).session(session);
+      await this._outbox.put(digitalIdentity.domainEvents, session);
+    });
+    session.endSession();
   }
 
   async getByUniqueId(uniqueId: DigitalIdentityId) {
