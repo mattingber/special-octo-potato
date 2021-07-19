@@ -13,7 +13,7 @@ export class GroupMapper {
       name: group.name,
       source: group.source,
       ancestors: group.ancestors.map(ancestorId => Types.ObjectId(ancestorId.toString())),
-      directGroup: Types.ObjectId(group.parentId.toString()),
+      directGroup: !!group.parentId ? Types.ObjectId(group.parentId.toString()) : undefined,
       hierarchy: group.hierarchy,
       childrenNames: group.childrenNames,
       akaUnit: group.akaUnit,
