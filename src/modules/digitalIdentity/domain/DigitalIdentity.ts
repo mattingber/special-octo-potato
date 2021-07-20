@@ -5,6 +5,7 @@ import { Entity } from "../../entity/domain/Entity";
 import { Result, err, ok } from "neverthrow";
 import { CannotConnectRoleError } from "./errors/CannotConnectRoleError";
 import { Mail } from "./Mail";
+import { Source } from "./Source";
 
 export enum DigitalIdentityType {
   DomainUser = 'domainUser',
@@ -13,7 +14,7 @@ export enum DigitalIdentityType {
 
 interface DigitalIdentityState {
   type: DigitalIdentityType;
-  source: string; // enum?
+  source: Source;
   mail: Mail; // use value Object
   entityId?: EntityId;
   canConnectRole?: boolean;
@@ -23,7 +24,7 @@ export class DigitalIdentity extends AggregateRoot {
 
   private _type: DigitalIdentityType;
   private _mail: Mail;
-  private _source: string;
+  private _source: Source;
   private _canConnectRole: boolean;
   private _entityId?: EntityId; 
 

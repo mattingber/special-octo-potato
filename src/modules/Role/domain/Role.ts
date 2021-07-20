@@ -11,9 +11,10 @@ import { RoleConnectedEvent } from "./events/RoleConnectedEvent";
 import { AlreadyConnectedToDigitalIdentity } from "./errors/AlreadyConnectedToDigitalIdentity";
 import { RoleDisconnectedEvent } from "./events/RoleDisconnectedEvent";
 import { RoleMovedGroupEvent } from "./events/RoleMovedGroupEvent";
+import { Source } from "../../digitalIdentity/domain/Source";
 
 export interface RoleState {
-  source: string;
+  source: Source;
   jobTitle?: string;
   hierarchyIds: GroupId[];
   hierarchy: Hierarchy;
@@ -25,7 +26,7 @@ type CreateNewRoleProps =  Omit<RoleState, 'didigitalIdentityUniqueId'> & {
 }
 
 export class Role extends AggregateRoot {
-  private _source: string;
+  private _source: Source;
   private _jobTitle: string;
   private _hierarchyIds: GroupId[];
   private _hierarchy: Hierarchy;

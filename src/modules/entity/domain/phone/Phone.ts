@@ -1,10 +1,9 @@
 import { Result, err, ok } from "neverthrow";
 
 /*
- * example of valid values: 02-123456/7, 02123456/7, *123, 1234/5
+ * example of valid values: 02-123456, 02-1234567, 02123456/7, *123, 1234/5
  */
 const re = /^\d{1,2}-?\d{6,7}$|^\*\d{3}$|^\d{4,5}$/;
-const FORMATTED_LENGTH = 10;
 
 export class Phone {
   constructor(

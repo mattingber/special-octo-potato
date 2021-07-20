@@ -1,12 +1,10 @@
 import { Result, err, ok } from "neverthrow";
+import { BasicValueObject } from "../../../core/domain/BasicValueObject";
 
 // TODO: replace this with value from config
 const ranks = ['rookie','yolyo']
 
-export class Rank {
-  private constructor(
-    private _value: string
-  ){}
+export class Rank extends BasicValueObject<string>{
 
   private static isValid(rank: string) {
     return ranks.includes(rank);
@@ -19,7 +17,4 @@ export class Rank {
     return ok(new Rank(rank));
   }
 
-  get value() {
-    return this._value;
-  }
 }

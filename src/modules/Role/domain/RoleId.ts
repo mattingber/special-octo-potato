@@ -5,7 +5,11 @@ export class RoleId extends UniqueEntityId {
     super(id);
   }
 
+  private static format(id: string) {
+    return id.trim();
+  }
+
   public static create(id: string) {
-    return new RoleId(id);
+    return new RoleId(RoleId.format(id));
   }
 }

@@ -5,9 +5,9 @@ export interface DigitalIdentityDoc {
   uniqueId: string;
   type: DigitalIdentityType;
   source: string; // enum?
-  mail: string; // use value Object
+  mail: string; 
   isRoleAttachable?: boolean;
-  entityId?: Types.ObjectId; // object Id 
+  entityId?: Types.ObjectId;
 }
 
 const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, DigitalIdentityDoc> ({

@@ -4,7 +4,7 @@ import { Role } from "../domain/Role";
 import { RoleId } from "../domain/RoleId";
 
 export interface RoleRepository extends Repository<Role> {
-  save(digitalIdentity: Role): Promise<void>;
+  save(role: Role): Promise<void>;
   getByRoleId(roleId: RoleId): Promise<Role | null>;
   getByDigitalIdentityId(digitalIdentityUniqueId: DigitalIdentityId): Promise<Role | null>;
 }

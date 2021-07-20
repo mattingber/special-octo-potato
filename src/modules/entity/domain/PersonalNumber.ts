@@ -13,7 +13,6 @@ export class PersonalNumber {
     if(!PersonalNumber.isValid(personalNumber)) {
       return err(`invalid personal number: ${personalNumber}`);
     }
-
     return ok(new PersonalNumber(personalNumber));
   }
 

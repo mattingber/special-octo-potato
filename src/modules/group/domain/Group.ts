@@ -84,7 +84,6 @@ export class Group
     this._childrenNames.delete(child.name);
   }
 
-
   get groupId(): GroupId {
     return GroupId.create(this.id.toValue());
   }

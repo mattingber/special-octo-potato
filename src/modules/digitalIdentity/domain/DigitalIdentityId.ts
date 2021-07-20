@@ -14,10 +14,14 @@ export class DigitalIdentityId extends UniqueEntityId {
     return re.test(id);
   }
 
+  private static format(id: string) {
+    return id.toLowerCase();
+  }
+
   public static create(id: string): Result<DigitalIdentityId, string> {
     if(!DigitalIdentityId.isValid(id)) {
       return err(`invalid digital identity unique id: ${id}`);
     }
-    return ok(new DigitalIdentityId(id));
+    return ok(new DigitalIdentityId(DigitalIdentityId.format(id)));
   }
 }

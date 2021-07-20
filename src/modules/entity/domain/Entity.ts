@@ -11,6 +11,9 @@ import { PersonalNumber } from "./PersonalNumber";
 import { IdentityCard } from "./IdentityCard";
 import { Rank } from "./Rank";
 import { Mail } from "../../digitalIdentity/domain/Mail";
+import { Phone, MobilePhone } from "./phone";
+import { UniqueArray } from "../../../utils/UniqueArray";
+import { ServiceType } from "./ServiceType";
 
 export enum EntityType {
   Soldier = 'soldier',
@@ -77,20 +80,20 @@ type EntityState = {
   entityType: EntityType;
   hierarchy?: Hierarchy;
   displayName?: string;
-  personalNumber?: PersonalNumber; // use value object
+  personalNumber?: PersonalNumber;
   identityCard?: IdentityCard;
-  rank?: Rank; //use vale object / enum
+  rank?: Rank;
   akaUnit?: string;
   clearance?: number; // value object
-  mail?: Mail; //value object
+  mail?: Mail;
   sex?: Sex;
-  serviceType?: string; //value object
+  serviceType?: ServiceType; 
   dischargeDate?: Date;
   birthDate?: Date;
   jobTitle?: string;
   address?: string; // value?
-  phone?: Set<string>; //value object
-  mobilePhone?: Set<string>; //value object
+  phone?: UniqueArray<Phone>; //value object
+  mobilePhone?: UniqueArray<MobilePhone>; //value object
   goalUserId?: DigitalIdentityId;
 }
 
@@ -287,10 +290,10 @@ export class Entity extends AggregateRoot {
     return this._state.displayName;
   }
   get phone() {
-    return Array.from(this._state.phone || []);
+    return this._state.phone?.toArray() || [];
   }
   get mobilePhone() {
-    return Array.from(this._state.mobilePhone || []);
+    return this._state.mobilePhone?.toArray() || [];
   }
   get goalUserId() {
     return this._state.goalUserId;

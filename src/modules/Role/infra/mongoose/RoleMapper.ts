@@ -4,13 +4,14 @@ import { GroupId } from "../../../group/domain/GroupId";
 import { Role } from "../../domain/Role";
 import { RoleId } from "../../domain/RoleId";
 import { RoleDoc } from "./RoleModel";
+import { Source } from "../../../digitalIdentity/domain/Source";
 
 export class RoleMapper {
 
-  static toPersistance(role: Role) {
+  static toPersistance(role: Role): RoleDoc {
     return {
       roleId: role.roleId.toString(),
-      source: role.source,
+      source: role.source.value,
       jobTitle: role.jobTitle,
       hierarchyIds: role.hierarchyIds.map(gId => gId.toString()),
       directGroup: role.directGroup.toString(),
@@ -27,9 +28,9 @@ export class RoleMapper {
       {
         hierarchy: Hierarchy.create(raw.hierarchy),
         hierarchyIds: raw.hierarchyIds.map(gId => GroupId.create(gId)),
-        source: raw.source,
+        source: Source.create (raw.source)._unsafeUnwrap(),
         jobTitle: raw.jobTitle,
-        digitalIdentityUniqueId: !!di_uid ? DigitalIdentityId.create(di_uid) : undefined,
+        digitalIdentityUniqueId: !!di_uid ? DigitalIdentityId.create(di_uid)._unsafeUnwrap() : undefined,
       },
       { isNew: false },
     );

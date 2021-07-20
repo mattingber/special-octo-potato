@@ -14,7 +14,7 @@ export class GroupRepository implements IGroupRepository {
   ) {}
 
   generateGroupId(): GroupId {
-    return  GroupId.create(new Types.ObjectId().toHexString());
+    return GroupId.create(new Types.ObjectId().toHexString());
   }
   
   async getByGroupId(groupId: GroupId): Promise<Group | null> {

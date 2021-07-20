@@ -1,8 +1,16 @@
 import { Hierarchy } from "../../../../shared/Hierarchy";
 import { Types } from "mongoose";
-import { EntityDoc } from "./entityModel";
 import { Entity } from "../../domain/Entity";
 import { EntityId } from "../../domain/EntityId";
+import { PersonalNumber } from "../../domain/PersonalNumber";
+import { IdentityCard } from "../../domain/IdentityCard";
+import { Rank } from "../../domain/Rank";
+import { ServiceType } from "../../domain/ServiceType";
+import { Mail } from "../../../digitalIdentity/domain/Mail";
+import { UniqueArray } from "../../../../utils/UniqueArray";
+import { Phone, MobilePhone } from "../../domain/phone";
+import { DigitalIdentityId } from "../../../digitalIdentity/domain/DigitalIdentityId";
+import { EntityDoc } from "./EntityModel";
 
 export class EntityMapper {
 
@@ -14,21 +22,21 @@ export class EntityMapper {
       entityType: entity.entityType,
       hierarchy: entity.hierarchy,
       displayName: entity.displayName,
-      personalNumber: entity.personalNumber, // use value object
-      identityCard: entity.identityCard,
-      rank: entity.rank, //use vale object / enum
+      personalNumber: entity.personalNumber?.value, 
+      identityCard: entity.identityCard?.value,
+      rank: entity.rank?.value, 
       akaUnit: entity.akaUnit,
       clearance: entity.clearance, // value object
-      mail: entity.mail, //value object
+      mail: entity.mail?.value, 
       sex: entity.sex,
-      serviceType: entity.serviceType, //value object
+      serviceType: entity.serviceType?.value,
       dischargeDate: entity.dischargeDate,
       birthDate: entity.birthDate,
       jobTitle: entity.jobTitle,
-      address: entity.address, // value
-      phone: entity.phone, //value object
-      mobilePhone: entity.mobilePhone, //value object
-      goalUserId: entity.goalUserId,
+      address: entity.address, // value?
+      phone: entity.phone.map(p => p.value), 
+      mobilePhone: entity.mobilePhone.map(p => p.value),
+      goalUserId: entity.goalUserId?.toString(),
     }
   }
 
@@ -42,21 +50,26 @@ export class EntityMapper {
         lastName: raw.lastName,
         hierarchy: !!raw.hierarchy ? Hierarchy.create(raw.hierarchy) : undefined,
         displayName: raw.displayName,
-        personalNumber: raw.personalNumber, // use value object
-        identityCard: raw.identityCard,
-        rank: raw.rank,
+        personalNumber: !!raw.personalNumber ? 
+          PersonalNumber.create(raw.personalNumber)._unsafeUnwrap() : undefined,
+        identityCard: !!raw.identityCard ? 
+          IdentityCard.create(raw.identityCard)._unsafeUnwrap() : undefined,
+        rank: !!raw.rank ? 
+          Rank.create(raw.rank)._unsafeUnwrap() : undefined,
         akaUnit: raw.akaUnit,
         clearance: raw.clearance,
-        mail: raw.mail, //value object
+        mail: !!raw.mail ? Mail.create(raw.mail)._unsafeUnwrap() : undefined, 
         sex: raw.sex,
-        serviceType: raw.serviceType, //value object
+        serviceType: !!raw.serviceType ? 
+          ServiceType.create(raw.serviceType)._unsafeUnwrap() : undefined,
         dischargeDate: raw.dischargeDate,
         birthDate: raw.birthDate,
         jobTitle: raw.jobTitle,
         address: raw.address, // value
-        phone: new Set(raw.phone), //value object
-        mobilePhone: new Set(raw.mobilePhone), //value object
-        goalUserId: raw.goalUserId,
+        phone: UniqueArray.fromArray((raw.phone || []).map(p => Phone.create(p)._unsafeUnwrap())),
+        mobilePhone: UniqueArray.fromArray((raw.phone || []).map(p => MobilePhone.create(p)._unsafeUnwrap())),
+        goalUserId: !!raw.goalUserId ? 
+          DigitalIdentityId.create(raw.goalUserId)._unsafeUnwrap() : undefined,
       },
       { isNew: false },
     )._unsafeUnwrap();
