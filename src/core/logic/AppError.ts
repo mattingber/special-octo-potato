@@ -27,4 +27,22 @@ export namespace AppError {
       return new CannotUpdateFieldError(fieldName);
     }
   }
+
+  export class ValueValidationError extends BaseError {
+    private constructor(msg: string) {
+      super(msg);
+    }
+    static create(msg: string) {
+      return new ValueValidationError(msg);
+    }
+  }
+
+  export class ResourceNotFound extends BaseError {
+    private constructor(resource: string, resourceType: string) {
+      super(`resource ${resourceType}: ${resource} does not exist`);
+    }
+    static create(resource: string, resourceType: string = '') {
+      return new ResourceNotFound(resource, resourceType);
+    }
+  }
 }
