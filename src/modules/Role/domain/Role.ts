@@ -18,8 +18,12 @@ export interface RoleState {
   jobTitle?: string;
   hierarchyIds: GroupId[];
   hierarchy: Hierarchy;
-  digitalIdentityUniqueId?: DigitalIdentityId
-}
+  digitalIdentityUniqueId?: DigitalIdentityId;
+};
+
+type UpdateDto = {
+  jobTitle: string;
+};
 
 type CreateNewRoleProps =  Omit<RoleState, 'didigitalIdentityUniqueId'> & {
   connectedDigitalIdentity: DigitalIdentity;
@@ -98,6 +102,9 @@ export class Role extends AggregateRoot {
     this._digitalIdentityUniqueId = undefined;
   }
 
+  public updateJob(jobTitle: string) {
+    this._jobTitle = jobTitle;
+  }
   // public static createRoleInGroup(
   //   roleId: RoleId, 
   //   props: {
