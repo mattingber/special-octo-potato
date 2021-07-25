@@ -14,65 +14,76 @@ import { Mail } from "../../digitalIdentity/domain/Mail";
 import { Phone, MobilePhone } from "./phone";
 import { UniqueArray } from "../../../utils/UniqueArray";
 import { ServiceType } from "./ServiceType";
+import { isSomeEnum } from "../../../utils/isSomeEnum";
 
 export enum EntityType {
   Soldier = 'soldier',
   Civilian = 'civilian',
   GoalUser = 'goalUser'
 }
+const isEntityType = isSomeEnum(EntityType);
+export const castToEntityType = (val: string): Result<EntityType, string> => {
+  if(isEntityType(val)) { return ok(val); }
+  return err(`${val} is invalid EntityType`);
+}
 
 export enum Sex {
   Male = 'male',
   Female = 'female'
 }
-
-// todo: add displayName
-
-type CommonEntityProps = {
-  firstName: string;
-  entityType: EntityType;
-  hierarchy?: Hierarchy;
-  clearance?: number; // value object
-  mail?: string; //value object, should be required??
-  jobTitle?: string;
+const isSex = isSomeEnum(Sex);
+export const castToSex = (val: string): Result<Sex, string> => {
+  if(isSex(val)) { return ok(val); }
+  return err(`${val} is invalid Sex`);
 }
 
-type PersonProps = {
-  firstName: string;
-  lastName: string;
-  clearance: number;
-  sex?: Sex;
-  address?: string;
-  dischargeDate?: Date;
-  birthDate?: Date;
-  serviceType: string; //value object
-  phone?: Set<string>; //value object
-  mobilePhone?: Set<string>; //value object
-}
+// TODO: add displayName
 
-type GoalUserEntityProps = CommonEntityProps & {
-  goalUserId: string;
-}
+// type CommonEntityProps = {
+//   firstName: string;
+//   entityType: EntityType;
+//   hierarchy?: Hierarchy;
+//   clearance?: number; // value object
+//   mail?: string; //value object, should be required??
+//   jobTitle?: string;
+// }
 
-type SoldierEntityProps = {
-  personalNumber: string; // use value object
-  identityCard?: string;
-  rank?: string; //use vale object / enum
-  akaUnit?: string
-}
+// type PersonProps = {
+//   firstName: string;
+//   lastName: string;
+//   clearance: number;
+//   sex?: Sex;
+//   address?: string;
+//   dischargeDate?: Date;
+//   birthDate?: Date;
+//   serviceType: string; //value object
+//   phone?: Set<string>; //value object
+//   mobilePhone?: Set<string>; //value object
+// }
 
-type CivilianEntityProps = {
-  identityCard: string;
-  personalNumber?: string;
-}
+// type GoalUserEntityProps = CommonEntityProps & {
+//   goalUserId: string;
+// }
 
-// type EntityState = CommonEntityProps & 
-//   Partial<PersonProps> & 
-//   Partial<CivilianEntityProps> & 
-//   Partial<SoldierEntityProps>
+// type SoldierEntityProps = {
+//   personalNumber: string; // use value object
+//   identityCard?: string;
+//   rank?: string; //use vale object / enum
+//   akaUnit?: string
+// }
 
-type CreateSoldierProps = CommonEntityProps & PersonProps & SoldierEntityProps;
-type CreateCivilianProps = CommonEntityProps & PersonProps & CivilianEntityProps;
+// type CivilianEntityProps = {
+//   identityCard: string;
+//   personalNumber?: string;
+// }
+
+// // type EntityState = CommonEntityProps & 
+// //   Partial<PersonProps> & 
+// //   Partial<CivilianEntityProps> & 
+// //   Partial<SoldierEntityProps>
+
+// type CreateSoldierProps = CommonEntityProps & PersonProps & SoldierEntityProps;
+// type CreateCivilianProps = CommonEntityProps & PersonProps & CivilianEntityProps;
 
 type EntityState = {
   firstName: string;
@@ -97,7 +108,18 @@ type EntityState = {
   goalUserId?: DigitalIdentityId;
 }
 
-type CommonState = Pick<EntityState, 'firstName' | 'entityType' | 'hierarchy' | 'clearance' | 'mail' | 'jobTitle'>;
+
+type CreatePersonProps = 
+  Required<Pick<EntityState, 'firstName' | 'lastName'>> &
+  Partial<Pick<EntityState, 'clearance' | 'phone' | 'mobilePhone' | 'address' 
+    | 'sex' | 'serviceType' | 'dischargeDate' | 'birthDate' | 'rank' | 'akaUnit'
+    | 'identityCard' | 'personalNumber'>>;
+type CreateSoldierProps = CreatePersonProps & Required<Pick<EntityState, 'personalNumber'>>;
+type CreateCivilianProps = CreatePersonProps & Required<Pick<EntityState, 'identityCard'>>;
+type CreateGoalUserProps = 
+  Required<Pick<EntityState, 'firstName' | 'goalUserId'>> &
+  Partial<Pick<EntityState, 'phone' | 'mobilePhone' | 'address' | 'clearance' | 'lastName'>>
+
 
 const REQUIRED_COMMON_FIELDS: (keyof EntityState)[] = ['firstName', 'entityType'];
 
@@ -233,6 +255,30 @@ export class Entity extends AggregateRoot {
       return ok(new Entity(id, state));
     }
     return err(isValid.error);
+  }
+
+  static createSoldier(id: EntityId, props: CreateSoldierProps) {
+    return Entity.create(
+      id, 
+      { ...props, entityType: EntityType.Soldier }, 
+      { isNew: true }
+    );
+  }
+
+  static createCivilian(id: EntityId, props: CreateCivilianProps) {
+    return Entity.create(
+      id, 
+      { ...props, entityType: EntityType.Civilian }, 
+      { isNew: true }
+    );
+  }
+
+  static createGoalUser(id: EntityId, props: CreateGoalUserProps) {
+    return Entity.create(
+      id, 
+      { ...props, entityType: EntityType.GoalUser }, 
+      { isNew: true }
+    );
   }
 
   get entityId() {
