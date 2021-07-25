@@ -2,7 +2,7 @@ import { GroupId } from "./GroupId";
 
 export interface IGroup {
   name: string;
-  source: string; // todo: value object. 
+  source: string; // TODO: value object. 
   akaUnit?: string;
   hierarchy: string;
   ancestors: GroupId[];

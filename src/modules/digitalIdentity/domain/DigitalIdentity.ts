@@ -6,6 +6,8 @@ import { Result, err, ok } from "neverthrow";
 import { CannotConnectRoleError } from "./errors/CannotConnectRoleError";
 import { Mail } from "./Mail";
 import { Source } from "./Source";
+import { DigitalIdentityConnectedEvent } from "./events/DigitalIdentityConnectedEvent";
+import { DigitalIdentityDisconnectedEvent } from "./events/DigitalIdentityDisconnectedEvent";
 
 export enum DigitalIdentityType {
   DomainUser = 'domainUser',
@@ -45,13 +47,31 @@ export class DigitalIdentity extends AggregateRoot {
     this._canConnectRole = false;
   }
 
+  // TODO: should we prevent if already connected? hsould replace EntityId ?
   connectToEntity(entity: Entity) {
+    this.addDomainEvent(new DigitalIdentityConnectedEvent(this.id, {
+      canConnectRole: this._canConnectRole,
+      mail: this._mail,
+      source: this._source,
+      type: this._type,
+      uniqueId: this.uniqueId,
+      connectedEntityId: entity.entityId,
+    }));
     this._entityId = entity.entityId
   }
 
   disconnectEntity() {
     if (this.type === DigitalIdentityType.Kaki) {
-      return; //todo: is error?
+      return; // TODO: is error?
+    }
+    if(!!this._entityId) {
+      this.addDomainEvent(new DigitalIdentityDisconnectedEvent(this.id, {
+        mail: this._mail,
+        source: this._source,
+        type: this._type,
+        uniqueId: this.uniqueId,
+        disconnectedEntityId: this._entityId,
+      }));
     }
     this._entityId = undefined;
   }
@@ -64,6 +84,7 @@ export class DigitalIdentity extends AggregateRoot {
     if (state.type === DigitalIdentityType.Kaki && state.canConnectRole) {
       return err(CannotConnectRoleError.create(id.toString())); //error
     }
+    // TODO: 
     return ok(new DigitalIdentity(id, state));
   }
   

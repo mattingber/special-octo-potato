@@ -6,5 +6,5 @@ import { GroupId } from "../domain/GroupId";
 export interface GroupRepository extends Repository<Group> {
   generateGroupId(): GroupId;
   save(digitalIdentity: Group): Promise<void>;
-  getByGroupId(roleId: GroupId): Promise<Group | null>;
+  getByGroupId(groupId: GroupId): Promise<Group | null>;
 }

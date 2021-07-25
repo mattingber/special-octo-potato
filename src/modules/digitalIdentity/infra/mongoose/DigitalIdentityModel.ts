@@ -12,7 +12,7 @@ export interface DigitalIdentityDoc {
 
 const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, DigitalIdentityDoc> ({
   uniqueId: { type: String, unique: true, required: true },
-  entityId: { type: Schema.Types.ObjectId, ref: () => 'Entity' }, // todo: model names provider?
+  entityId: { type: Schema.Types.ObjectId, ref: () => 'Entity' }, // TODO: model names provider?
   type: { 
     type: String,
     enum: [ DigitalIdentityType.DomainUser, DigitalIdentityType.Kaki ],
@@ -25,6 +25,6 @@ const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, Digital
   timestamps: true,
 });
 
-const di_model = model('DigitalIdentity', schema); // todo: model names provider?
+const di_model = model('DigitalIdentity', schema); // TODO: model names provider?
 
 export default di_model;

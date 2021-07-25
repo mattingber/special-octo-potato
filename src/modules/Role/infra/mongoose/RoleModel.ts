@@ -14,7 +14,7 @@ const schema = new Schema<RoleDoc, Model<RoleDoc>, RoleDoc> ({
   roleId: { type: String, unique: true, required: true },
   digitalIdentityUniqueId: { 
     type: String, 
-    ref: () => 'DigitalIdentity', // todo: model names provider?
+    ref: () => 'DigitalIdentity', // TODO: model names provider?
   }, 
   source: String,
   hierarchyIds: [String],
@@ -26,4 +26,4 @@ const schema = new Schema<RoleDoc, Model<RoleDoc>, RoleDoc> ({
   timestamps: true,
 });
 
-export default model('Role', schema); // todo: model names provider?
+export default model('Role', schema); // TODO: model names provider?

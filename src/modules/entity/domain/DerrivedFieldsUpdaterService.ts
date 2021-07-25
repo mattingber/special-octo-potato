@@ -8,7 +8,7 @@ export class DerrivedFieldsUpdaterService {
 
   }
   private isPrimaryDigitalIdentity(entity: Entity, digitalIdentity: DigitalIdentity) {
-    return entity.akaUnit === digitalIdentity.source; // todo: implement the real condition
+    return entity.akaUnit === digitalIdentity.source; // TODO: implement the real condition
   }
   public update_entity_derrived_fields_when_primary(
     entity: Entity,

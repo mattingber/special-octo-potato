@@ -3,11 +3,13 @@ import { DomainEvent } from "../../../../core/domain/event/DomainEvent";
 import { DigitalIdentityType } from "../DigitalIdentity";
 import { DigitalIdentityId } from "../DigitalIdentityId";
 import { EntityId } from "../../../entity/domain/EntityId";
+import { Mail } from "../Mail";
+import { Source } from "../Source";
 
 type DIEventPayload = {
   uniqueId: DigitalIdentityId;
-  source: string;
-  mail: string;
+  source: Source;
+  mail: Mail;
   type: DigitalIdentityType;
   disconnectedEntityId: EntityId;
 }
@@ -23,10 +25,10 @@ export class DigitalIdentityDisconnectedEvent extends DomainEvent<DIEventPayload
       uniqueId,
     } = this.payload;
     return {
-      source,
-      mail,
       type,
-      connectedEntityId: disconnectedEntityId.toString(),
+      source: source.value,
+      mail: mail.value,
+      disconnectedEntityId: disconnectedEntityId.toString(),
       uniqueId: uniqueId.toString(),
     };
   }

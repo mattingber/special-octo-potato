@@ -20,7 +20,7 @@ type ChildGroupProps = CreateGroupProps & {
 
 interface GroupState {
   name: string;
-  source: string; // todo: value object. 
+  source: string; // TODO: value object. 
   akaUnit?: string;
   hierarchy?: Hierarchy;
   ancestors?: GroupId[];
