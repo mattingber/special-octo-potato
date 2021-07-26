@@ -164,7 +164,7 @@ const ENTITY_TYPE_VALID_STATE: {
 const SET_ONLY_ONCE_FIELDS = new Set(['sex', 'identityCard', 'personalNumber', 'birthDate'] as (keyof EntityState)[]);
 
 type UpdateDto = Partial<Omit<EntityState, 'hierarchy' | 'displayName'>>;
-type UpdateResult = Result<
+export type UpdateResult = Result<
   void,
   IllegalEntityStateError |
   CannotChangeEntityTypeError |
