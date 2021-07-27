@@ -32,4 +32,8 @@ export class IdentityCard {
   get value() {
     return this._value;
   }
+
+  public equals(other: IdentityCard) {
+    return this._value === other.value;
+  }
 }

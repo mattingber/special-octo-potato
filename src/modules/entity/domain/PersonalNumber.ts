@@ -19,4 +19,8 @@ export class PersonalNumber {
   get value() {
     return this._value;
   }
+
+  public equals(other: PersonalNumber) {
+    return this._value === other.value;
+  }
 }
