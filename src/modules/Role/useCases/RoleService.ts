@@ -103,7 +103,9 @@ export class RoleService {
       return err(AppError.ResourceNotFound.create(disconnectDTO.roleId, 'role'));
     }
     if(!role.digitalIdentityUniqueId?.equals(uidOrError.value)) {
-      // TODO: error
+      return err(AppError.ValueValidationError
+        .create(`provided digital identity id: ${uidOrError.value} does not match Role: ${disconnectDTO.roleId}`));
+      // TODO: better error type 
     }
     role.disconnectDigitalIdentity();
     return ok(undefined);
