@@ -18,6 +18,7 @@ import { IllegalEntityStateError } from "../domain/errors/IllegalEntityStateErro
 import { DigitalIdentityRepository } from "../../digitalIdentity/repository/DigitalIdentityRepository";
 import { ConnectDigitalIdentityDTO } from "./dtos/ConnectDigitalIdentityDTO";
 import { UpdateEntityDTO } from "./dtos/UpdateEntityDTO";
+import { CannotChangeEntityTypeError } from "../domain/errors/CannotChangeEntityTypeError";
 
 export class EntityService {
   constructor(
@@ -102,6 +103,14 @@ export class EntityService {
     if(result.isErr()) {
       return err(result.error)
     }
+    // check entity existance 
+    if(await this.entityRepository.exists({
+      identityCard: identityCard?.value, 
+      personalNumber: personalNumber?.value,
+      goalUserId: goalUserId?.value
+    })) {
+      // TODO: error for this
+    }
     await this.entityRepository.save(result.value);
     return ok(undefined);
   }
@@ -153,9 +162,11 @@ export class EntityService {
 
   async updateEntity(updateDTO: UpdateEntityDTO): Promise<Result<
     void,
-    AppError.ResourceNotFound,
-    AppError.ValueValidationError,
-    
+    AppError.ResourceNotFound |
+    AppError.ValueValidationError | 
+    AppError.CannotUpdateFieldError | 
+    CannotChangeEntityTypeError |
+    IllegalEntityStateError
   >> {
     let changes: UpdateResult[] = [];
     const entityId = EntityId.create(updateDTO.entityId);
@@ -168,6 +179,7 @@ export class EntityService {
       const personalNumber = PersonalNumber.create(updateDTO.personalNumber)
         .mapErr(AppError.ValueValidationError.create);
       if(personalNumber.isOk()) {
+        if(entity.personalNumber)
         changes.push(entity.updateDetails({ personalNumber: personalNumber.value }));
       } else {
         return err(personalNumber.error);
@@ -237,10 +249,16 @@ export class EntityService {
         return err(mobilePhone.error);
       }
     }
+    // check that all entity update calls returned success result
     const result = combine(changes);
     if(result.isErr()) {
       return err(result.error);
     }
+    // finally, save the entity
+    await this.entityRepository.save(entity);
+    return ok(undefined);
   }
+
+  // TODO: implement delete entity
 
 }
