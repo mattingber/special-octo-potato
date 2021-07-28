@@ -19,6 +19,9 @@ import { DigitalIdentityRepository } from "../../digitalIdentity/repository/Digi
 import { ConnectDigitalIdentityDTO } from "./dtos/ConnectDigitalIdentityDTO";
 import { UpdateEntityDTO } from "./dtos/UpdateEntityDTO";
 import { CannotChangeEntityTypeError } from "../domain/errors/CannotChangeEntityTypeError";
+import { GoalUserIdAlreadyExistsError } from "./errors/GoalUserIdAlreadyExistsError";
+import { IdentityCardAlreadyExistsError } from "./errors/IdentityCardAlreadyExistsError";
+import { PersonalNumberAlreadyExistsError } from "./errors/PersonalNumberAlreadyExistsError";
 
 export class EntityService {
   constructor(
@@ -160,13 +163,20 @@ export class EntityService {
     return ok(undefined);
   }
 
+  /**
+   * 
+   * @param updateDTO 
+   */
   async updateEntity(updateDTO: UpdateEntityDTO): Promise<Result<
     void,
     AppError.ResourceNotFound |
     AppError.ValueValidationError | 
     AppError.CannotUpdateFieldError | 
     CannotChangeEntityTypeError |
-    IllegalEntityStateError
+    IllegalEntityStateError |
+    GoalUserIdAlreadyExistsError |
+    IdentityCardAlreadyExistsError |
+    PersonalNumberAlreadyExistsError
   >> {
     let changes: UpdateResult[] = [];
     const entityId = EntityId.create(updateDTO.entityId);
@@ -178,20 +188,38 @@ export class EntityService {
     if(has(updateDTO, 'personalNumber')) {
       const personalNumber = PersonalNumber.create(updateDTO.personalNumber)
         .mapErr(AppError.ValueValidationError.create);
-      if(personalNumber.isOk()) {
-        if(entity.personalNumber)
+      if(personalNumber.isErr()) { return err(personalNumber.error); }
+      if(!entity.personalNumber?.equals(personalNumber.value)) {
+        if(await this.entityRepository.exists({ personalNumber: personalNumber.value })) {
+          return err(PersonalNumberAlreadyExistsError.create(personalNumber.value.toString()));
+        }
         changes.push(entity.updateDetails({ personalNumber: personalNumber.value }));
-      } else {
-        return err(personalNumber.error);
       }
     }
     if(has(updateDTO, 'identityCard')) {
       const identityCard = IdentityCard.create(updateDTO.identityCard)
         .mapErr(AppError.ValueValidationError.create);
-      if(identityCard.isOk()) {
-        changes.push(entity.updateDetails({ identityCard: identityCard.value }));
-      } else {
+      if(identityCard.isErr()) {
         return err(identityCard.error);
+      }
+      if(!entity.identityCard?.equals(identityCard.value)) {
+        if(await this.entityRepository.exists({ identityCard: identityCard.value })) {
+          return err(IdentityCardAlreadyExistsError.create(identityCard.value.toString()));
+        }
+        changes.push(entity.updateDetails({ identityCard: identityCard.value }));
+      }
+    }
+    if(has(updateDTO, 'goalUserId')) {
+      const goalUserId = DigitalIdentityId.create(updateDTO.goalUserId)
+        .mapErr(AppError.ValueValidationError.create);
+      if(goalUserId.isErr()) {
+        return err(goalUserId.error);
+      }
+      if(!entity.goalUserId?.equals(goalUserId.value)) {
+        if(await this.entityRepository.exists({ goalUserId: goalUserId.value })) {
+          return err(GoalUserIdAlreadyExistsError.create(goalUserId.value.toString()));
+        }
+        changes.push(entity.updateDetails({ goalUserId: goalUserId.value }));
       }
     }
     if(has(updateDTO, 'serviceType')) {
@@ -212,15 +240,7 @@ export class EntityService {
         return err(rank.error);
       }
     }
-    if(has(updateDTO, 'goalUserId')) {
-      const goalUserId = DigitalIdentityId.create(updateDTO.goalUserId)
-        .mapErr(AppError.ValueValidationError.create);
-      if(goalUserId.isOk()) {
-        changes.push(entity.updateDetails({ goalUserId: goalUserId.value }));
-      } else {
-        return err(goalUserId.error);
-      }
-    }
+    
     if(has(updateDTO, 'sex')) {
       const sex = castToSex(updateDTO.sex).mapErr(AppError.ValueValidationError.create);
       if(sex.isOk()) {
@@ -256,6 +276,7 @@ export class EntityService {
     }
     // finally, save the entity
     await this.entityRepository.save(entity);
+    entity.goalUserId?.equals()
     return ok(undefined);
   }
 
