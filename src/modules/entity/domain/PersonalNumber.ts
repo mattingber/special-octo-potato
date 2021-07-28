@@ -1,9 +1,7 @@
 import { Result, err, ok } from "neverthrow";
+import { Identifier } from "../../../core/domain/Identifier";
 
-export class PersonalNumber {
-  constructor(
-    private _value: string
-  ){}
+export class PersonalNumber extends Identifier<string> {
 
   private static isValid(personalNumber: string) {
     return /^\d{6,9}$/.test(personalNumber);
@@ -16,11 +14,4 @@ export class PersonalNumber {
     return ok(new PersonalNumber(personalNumber));
   }
 
-  get value() {
-    return this._value;
-  }
-
-  public equals(other: PersonalNumber) {
-    return this._value === other.value;
-  }
 }
