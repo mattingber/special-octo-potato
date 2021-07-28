@@ -8,10 +8,16 @@ import { Mail } from "./Mail";
 import { Source } from "./Source";
 import { DigitalIdentityConnectedEvent } from "./events/DigitalIdentityConnectedEvent";
 import { DigitalIdentityDisconnectedEvent } from "./events/DigitalIdentityDisconnectedEvent";
+import { isSomeEnum } from "../../../utils/isSomeEnum";
 
 export enum DigitalIdentityType {
   DomainUser = 'domainUser',
   Kaki = 'kaki'
+}
+const isDiType = isSomeEnum(DigitalIdentityType);
+export const castToDigitalIdentityType = (val: string): Result<DigitalIdentityType, string> => {
+  if(isDiType(val)) { return ok(val); }
+  return err(`${val} is invalid Digital Identity type`);
 }
 
 interface DigitalIdentityState {
