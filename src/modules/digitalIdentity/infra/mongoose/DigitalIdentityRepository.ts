@@ -6,6 +6,7 @@ import { DigitalIdentityMapper as Mapper } from './DigitalIdentityMapper';
 import { DigitalIdentityId } from '../../domain/DigitalIdentityId';
 import { EntityId } from "../../../entity/domain/EntityId";
 import { Outbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
+import { Mail } from "../../domain/Mail";
 
 
 export class DigitalIdentityRepository implements IdigitalIdentityRepo {
@@ -15,6 +16,14 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
     private _outbox: Outbox,
   ) {}
 
+  async exists(identifier: Mail | DigitalIdentityId) {
+    if(identifier instanceof Mail) {
+      return !!(await this._model.findOne({ mail: identifier.value }).lean());
+    } else { // is DigitalIdentityId
+      return !!(await this._model.findOne({ uniqueId: identifier.toString() }).lean());
+    }
+  }
+  
   async save(digitalIdentity: DigitalIdentity): Promise<void> {
     const persistanceState = Mapper.toPersistance(digitalIdentity);
     const session = await this._model.startSession();
