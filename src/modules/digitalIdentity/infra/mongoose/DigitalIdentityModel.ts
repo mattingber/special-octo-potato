@@ -5,7 +5,7 @@ export interface DigitalIdentityDoc {
   uniqueId: string;
   type: DigitalIdentityType;
   source: string; // enum?
-  mail: string; 
+  mail?: string; 
   isRoleAttachable?: boolean;
   entityId?: Types.ObjectId;
 }

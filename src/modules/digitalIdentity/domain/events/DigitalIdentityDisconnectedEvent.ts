@@ -9,7 +9,7 @@ import { Source } from "../Source";
 type DIEventPayload = {
   uniqueId: DigitalIdentityId;
   source: Source;
-  mail: Mail;
+  mail?: Mail;
   type: DigitalIdentityType;
   disconnectedEntityId: EntityId;
 }
@@ -27,9 +27,9 @@ export class DigitalIdentityDisconnectedEvent extends DomainEvent<DIEventPayload
     return {
       type,
       source: source.value,
-      mail: mail.value,
       disconnectedEntityId: disconnectedEntityId.toString(),
       uniqueId: uniqueId.toString(),
+      ...!!mail && { mail: mail.value }
     };
   }
 

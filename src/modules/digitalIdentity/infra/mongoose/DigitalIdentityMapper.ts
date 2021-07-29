@@ -13,7 +13,7 @@ export class DigitalIdentityMapper {
       uniqueId: digitalIdentity.uniqueId.toString(),
       type: digitalIdentity.type,
       source: digitalIdentity.source.value,
-      mail: digitalIdentity.mail.value,
+      mail: digitalIdentity.mail?.value,
       isRoleAttachable: digitalIdentity.canConnectRole,
       entityId: Types.ObjectId(digitalIdentity.connectedEntityId?.toString()),
     }
@@ -22,10 +22,10 @@ export class DigitalIdentityMapper {
   static toDomain(raw: DigitalIdentityDoc): DigitalIdentity {
     const uid = DigitalIdentityId.create(raw.uniqueId)._unsafeUnwrap();
     const entityId = raw.entityId;
-    return DigitalIdentity._create(
+    return DigitalIdentity.create(
       uid,
       {
-        mail: Mail.create(raw.mail)._unsafeUnwrap(),
+        mail: !!raw.mail ? Mail.create(raw.mail)._unsafeUnwrap() : undefined,
         source: Source.create(raw.source)._unsafeUnwrap(),
         type: raw.type,
         canConnectRole: raw.isRoleAttachable,

@@ -23,7 +23,7 @@ export const castToDigitalIdentityType = (val: string): Result<DigitalIdentityTy
 interface DigitalIdentityState {
   type: DigitalIdentityType;
   source: Source;
-  mail: Mail; // use value Object
+  mail?: Mail; // use value Object
   entityId?: EntityId;
   canConnectRole?: boolean;
 }
@@ -31,7 +31,7 @@ interface DigitalIdentityState {
 export class DigitalIdentity extends AggregateRoot {
 
   private _type: DigitalIdentityType;
-  private _mail: Mail;
+  private _mail?: Mail;
   private _source: Source;
   private _canConnectRole: boolean;
   private _entityId?: EntityId; 
@@ -53,7 +53,11 @@ export class DigitalIdentity extends AggregateRoot {
     this._canConnectRole = false;
   }
 
-  // TODO: should we prevent if already connected? hsould replace EntityId ?
+  updateMail(mail: Mail) {
+    this._mail = mail;
+  }
+
+  // TODO: should we prevent if already connected? hsould replace EntityId ? / add disconnect event
   connectToEntity(entity: Entity) {
     this.addDomainEvent(new DigitalIdentityConnectedEvent(this.id, {
       canConnectRole: this._canConnectRole,
@@ -82,7 +86,7 @@ export class DigitalIdentity extends AggregateRoot {
     this._entityId = undefined;
   }
 
-  static _create(
+  static create(
     id: DigitalIdentityId, 
     state: DigitalIdentityState, 
     opts: CreateOpts
@@ -94,30 +98,30 @@ export class DigitalIdentity extends AggregateRoot {
     return ok(new DigitalIdentity(id, state));
   }
   
-  static createDomainUser(uniqueId: DigitalIdentityId, props: Omit<DigitalIdentityState, 'type'>) {
-    return DigitalIdentity._create(
-      uniqueId,
-      { ...props, type: DigitalIdentityType.DomainUser },
-      { isNew: true },
-    );
-  }
+  // static createDomainUser(uniqueId: DigitalIdentityId, props: Omit<DigitalIdentityState, 'type'>) {
+  //   return DigitalIdentity._create(
+  //     uniqueId,
+  //     { ...props, type: DigitalIdentityType.DomainUser },
+  //     { isNew: true },
+  //   );
+  // }
     
   // maybe need an Entity to create a 'kaki' DI
-  static createKaki(
-    uniqueId: DigitalIdentityId,
-    connectedEntity: Entity,
-    props: Omit<DigitalIdentityState, 'type' | 'canConnectRole' | 'entityId'>
-  ) {
-    return DigitalIdentity._create(
-      uniqueId,
-      {
-        ...props,
-        entityId: connectedEntity.entityId,
-        type: DigitalIdentityType.Kaki,
-      },
-      { isNew: true },
-    )
-  }
+  // static createKaki(
+  //   uniqueId: DigitalIdentityId,
+  //   connectedEntity: Entity,
+  //   props: Omit<DigitalIdentityState, 'type' | 'canConnectRole' | 'entityId'>
+  // ) {
+  //   return DigitalIdentity._create(
+  //     uniqueId,
+  //     {
+  //       ...props,
+  //       entityId: connectedEntity.entityId,
+  //       type: DigitalIdentityType.Kaki,
+  //     },
+  //     { isNew: true },
+  //   )
+  // }
 
   get type() {
     return this._type;
