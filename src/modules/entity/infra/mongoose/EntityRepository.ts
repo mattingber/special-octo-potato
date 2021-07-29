@@ -16,13 +16,14 @@ export class EntityRepository implements IEntityRepository {
     private _model: Model<EntityDoc>,
     private _outbox: Outbox
   ) {}
+
   async exists(entity: IhaveEntityIdentifiers): Promise<boolean> {
     let query: FilterQuery<any>[] = [];
     if(has(entity, 'identityCard')) {
-      query.push({ identityCard: entity.identityCard.value });
+      query.push({ identityCard: entity.identityCard.toString() });
     }
     if(has(entity, 'personalNumber')) {
-      query.push({ personalNumber: entity.personalNumber.value });
+      query.push({ personalNumber: entity.personalNumber.toString() });
     } 
     if(has(entity, 'goalUserId')) {
       query.push({ goalUserId: entity.goalUserId.toString() });
