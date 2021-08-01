@@ -9,6 +9,7 @@ import { castToDigitalIdentityType, DigitalIdentity } from "../domain/DigitalIde
 import { has } from "../../../utils/ObjectUtils";
 import { MailAlreadyExistsError } from "./errors/MailAlreadyExistsError";
 import { DigitalIdentityAlreadyExistsError } from "./errors/DigitalIdentityAlreadyExistsError";
+import { UpdateDigitalIdentityDTO } from "./dtos/UpdateDigitalIdentityDTO";
 
 export class DigitalIdentityService {
   constructor(
@@ -71,4 +72,34 @@ export class DigitalIdentityService {
     await this.diRepository.save(digitalIdentity.value);
     return ok(undefined);
   }
+
+  async updateDigitalIdentity(updateDTO: UpdateDigitalIdentityDTO): Promise<Result<
+    void,
+    AppError.ValueValidationError | 
+    AppError.ResourceNotFound
+  >> {
+    const uid = DigitalIdentityId.create(updateDTO.uniqueId)
+      .mapErr(AppError.ValueValidationError.create);
+    if(uid.isErr()) { return err(uid.error); }
+    const digitalIdentity = await this.diRepository.getByUniqueId(uid.value);
+    if(!digitalIdentity) {
+      return err(AppError.ResourceNotFound.create(updateDTO.uniqueId, 'digital identity'));
+    }
+    if(has(updateDTO, 'mail')) {
+      const mail = Mail.create(updateDTO.mail)
+        .mapErr(AppError.ValueValidationError.create);
+      if(mail.isErr()) { return err(mail.error); }
+      digitalIdentity.updateMail(mail.value);
+    }
+    if(has(updateDTO, 'isRoleAttachable')) {
+      if(updateDTO.isRoleAttachable === false) {
+        digitalIdentity.disableRoleConnectable();
+      }
+    }
+
+    await this.diRepository.save(digitalIdentity);
+    return ok(undefined);
+  }
+
+  // TODO: implement delete and maybe move connect/disconnect entity service methods to this class
 }
