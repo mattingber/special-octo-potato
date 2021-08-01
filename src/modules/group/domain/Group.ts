@@ -7,10 +7,11 @@ import { Result, err, ok } from "neverthrow";
 import { DuplicateChildrenError } from "./errors/DuplicateChildrenError";
 import { GroupMovedToParentEvent } from "./events/GroupMovedToParent";
 import { IGroup } from "./IGroup";
+import { Source } from "../../digitalIdentity/domain/Source";
 
 type CreateGroupProps = {
   name: string;
-  source: string;
+  source: Source;
   akaUnit?: string;
 }
 
@@ -20,7 +21,7 @@ type ChildGroupProps = CreateGroupProps & {
 
 interface GroupState {
   name: string;
-  source: string; // TODO: value object. 
+  source: Source; // TODO: value object. 
   akaUnit?: string;
   hierarchy?: Hierarchy;
   ancestors?: GroupId[];
@@ -38,7 +39,7 @@ export class Group
   private _status: string; // maybe value object
   private _ancestors: GroupId[];
   private _hierarchy: Hierarchy;
-  private _source: string;
+  private _source: Source;
   private _childrenNames: Set<string>;
 
   private constructor(id: GroupId, state: GroupState) {
@@ -50,6 +51,10 @@ export class Group
     this._hierarchy = state.hierarchy || Hierarchy.create('');
     this._ancestors = state.ancestors || [];
     this._childrenNames = state.childrenNames || new Set();
+  }
+
+  public rename() {
+    
   }
 
   public moveToParent(parent: Group): Result<void, DuplicateChildrenError> {
