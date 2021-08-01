@@ -22,6 +22,7 @@ import { CannotChangeEntityTypeError } from "../domain/errors/CannotChangeEntity
 import { GoalUserIdAlreadyExistsError } from "./errors/GoalUserIdAlreadyExistsError";
 import { IdentityCardAlreadyExistsError } from "./errors/IdentityCardAlreadyExistsError";
 import { PersonalNumberAlreadyExistsError } from "./errors/PersonalNumberAlreadyExistsError";
+import { EntityIsNotConnectedError } from "./errors/EntityIsNotConnectedError";
 
 export class EntityService {
   constructor(
@@ -32,7 +33,10 @@ export class EntityService {
   async createEntity(createEntityDTO: CreateEntityDTO): Promise<Result<
     void,
     AppError.ValueValidationError | 
-    IllegalEntityStateError
+    IllegalEntityStateError | 
+    IdentityCardAlreadyExistsError | 
+    PersonalNumberAlreadyExistsError | 
+    GoalUserIdAlreadyExistsError
   >> {
     let personalNumber, identityCard, serviceType, rank, goalUserId, phone, mobilePhone, sex;
     // check entity type
@@ -44,11 +48,17 @@ export class EntityService {
       personalNumber = PersonalNumber.create(createEntityDTO.personalNumber)
         .mapErr(AppError.ValueValidationError.create);
       if(personalNumber.isErr()) { return err(personalNumber.error); }
+      if(await this.entityRepository.exists(personalNumber.value)) {
+        return err(PersonalNumberAlreadyExistsError.create(createEntityDTO.personalNumber))
+      }
     }
     if(has(createEntityDTO, 'identityCard')) {
       identityCard = IdentityCard.create(createEntityDTO.identityCard)
         .mapErr(AppError.ValueValidationError.create);
       if(identityCard.isErr()) { return err(identityCard.error); }
+      if(await this.entityRepository.exists(identityCard.value)) {
+        return err(IdentityCardAlreadyExistsError.create(createEntityDTO.identityCard))
+      }
     }
     if(has(createEntityDTO, 'serviceType')) {
       serviceType = ServiceType.create(createEntityDTO.serviceType)
@@ -64,6 +74,9 @@ export class EntityService {
       goalUserId = DigitalIdentityId.create(createEntityDTO.goalUserId)
         .mapErr(AppError.ValueValidationError.create);
       if(goalUserId.isErr()) { return err(goalUserId.error); }
+      if(await this.entityRepository.exists(goalUserId.value)) {
+        return err(GoalUserIdAlreadyExistsError.create(createEntityDTO.goalUserId))
+      }
     }
     if(has(createEntityDTO, 'sex')) {
       sex = castToSex(createEntityDTO.sex).mapErr(AppError.ValueValidationError.create);
@@ -106,14 +119,6 @@ export class EntityService {
     if(result.isErr()) {
       return err(result.error)
     }
-    // check entity existance 
-    if(await this.entityRepository.exists({
-      identityCard: identityCard?.value, 
-      personalNumber: personalNumber?.value,
-      goalUserId: goalUserId?.value
-    })) {
-      // TODO: error for this
-    }
     await this.entityRepository.save(result.value);
     return ok(undefined);
   }
@@ -138,13 +143,15 @@ export class EntityService {
     }
     // connect the digital identity to the entity
     di.connectToEntity(entity);
+    await this.diRepository.save(di);
     return ok(undefined);
   }
 
   async disconnectDigitalIdentity(disconnectDTO: ConnectDigitalIdentityDTO): Promise<Result<
     void,
     AppError.ValueValidationError |
-    AppError.ResourceNotFound
+    AppError.ResourceNotFound | 
+    EntityIsNotConnectedError
   >> {
     const entityId = EntityId.create(disconnectDTO.entityId);
     const uidOrError = DigitalIdentityId.create(disconnectDTO.digitalIdentityUniqueId)
@@ -156,10 +163,14 @@ export class EntityService {
       return err(AppError.ResourceNotFound.create(disconnectDTO.digitalIdentityUniqueId, 'digital identity'));
     }
     if(!di.connectedEntityId?.equals(entityId)) {
-      // TODO: add error for this case
+      return err(EntityIsNotConnectedError.create(
+        disconnectDTO.entityId, 
+        disconnectDTO.digitalIdentityUniqueId
+      ));
     }
-    // connect the digital identity to the entity
+    // disconnect the digital identity from the entity
     di.disconnectEntity();
+    await this.diRepository.save(di);
     return ok(undefined);
   }
 
@@ -190,7 +201,7 @@ export class EntityService {
         .mapErr(AppError.ValueValidationError.create);
       if(personalNumber.isErr()) { return err(personalNumber.error); }
       if(!entity.personalNumber?.equals(personalNumber.value)) {
-        if(await this.entityRepository.exists({ personalNumber: personalNumber.value })) {
+        if(await this.entityRepository.exists(personalNumber.value)) {
           return err(PersonalNumberAlreadyExistsError.create(personalNumber.value.toString()));
         }
         changes.push(entity.updateDetails({ personalNumber: personalNumber.value }));
@@ -203,7 +214,7 @@ export class EntityService {
         return err(identityCard.error);
       }
       if(!entity.identityCard?.equals(identityCard.value)) {
-        if(await this.entityRepository.exists({ identityCard: identityCard.value })) {
+        if(await this.entityRepository.exists(identityCard.value)) {
           return err(IdentityCardAlreadyExistsError.create(identityCard.value.toString()));
         }
         changes.push(entity.updateDetails({ identityCard: identityCard.value }));
@@ -216,7 +227,7 @@ export class EntityService {
         return err(goalUserId.error);
       }
       if(!entity.goalUserId?.equals(goalUserId.value)) {
-        if(await this.entityRepository.exists({ goalUserId: goalUserId.value })) {
+        if(await this.entityRepository.exists(goalUserId.value)) {
           return err(GoalUserIdAlreadyExistsError.create(goalUserId.value.toString()));
         }
         changes.push(entity.updateDetails({ goalUserId: goalUserId.value }));
