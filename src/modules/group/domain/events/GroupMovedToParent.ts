@@ -1,12 +1,13 @@
 import { DomainEvent } from "../../../../core/domain/event/DomainEvent";
 import { GroupId } from "../GroupId";
 import { Hierarchy } from "../../../../shared/Hierarchy";
+import { Source } from "../../../digitalIdentity/domain/Source";
 
 type GroupEventPayload = {
   previousParentId?: GroupId;
   groupId: GroupId;
   name: string;
-  source: string; // TODO: value object. 
+  source: Source; // TODO: value object. 
   akaUnit?: string;
   hierarchy: Hierarchy;
   ancestors: GroupId[];
@@ -21,9 +22,9 @@ export class GroupMovedToParentEvent extends DomainEvent<GroupEventPayload> {
 
     return {
       name,
-      source,
       hierarchy,
       ancestors,
+      source: source.value,
       groupId: groupId.toString(),
       ...!!akaUnit && { akaUnit },
       ...!!status && { status },

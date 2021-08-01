@@ -4,6 +4,7 @@ import { GroupId } from "../../../group/domain/GroupId";
 import { Group } from "../../domain/Group";
 import { GroupDoc } from "./GroupModel";
 import { Types } from "mongoose";
+import { Source } from "../../../digitalIdentity/domain/Source";
 
 export class GroupMapper {
 
@@ -11,7 +12,7 @@ export class GroupMapper {
     return {
       _id: Types.ObjectId(group.groupId.toString()),
       name: group.name,
-      source: group.source,
+      source: group.source.value,
       ancestors: group.ancestors.map(ancestorId => Types.ObjectId(ancestorId.toString())),
       directGroup: !!group.parentId ? Types.ObjectId(group.parentId.toString()) : undefined,
       hierarchy: group.hierarchy,
@@ -27,7 +28,7 @@ export class GroupMapper {
       groupId,
       {
         name: raw.name,
-        source: raw.source,
+        source: Source.create(raw.source)._unsafeUnwrap(),
         ancestors: raw.ancestors.map(ancestorId => GroupId.create(ancestorId.toHexString())),
         childrenNames: new Set(raw.childrenNames),
         akaUnit: raw.akaUnit,

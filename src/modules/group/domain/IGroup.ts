@@ -1,8 +1,9 @@
 import { GroupId } from "./GroupId";
+import { Source } from "../../digitalIdentity/domain/Source";
 
 export interface IGroup {
   name: string;
-  source: string; // TODO: value object. 
+  source: Source; // TODO: value object. 
   akaUnit?: string;
   hierarchy: string;
   ancestors: GroupId[];

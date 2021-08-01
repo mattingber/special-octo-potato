@@ -5,6 +5,6 @@ import { GroupId } from "../domain/GroupId";
 
 export interface GroupRepository extends Repository<Group> {
   generateGroupId(): GroupId;
-  save(digitalIdentity: Group): Promise<void>;
+  save(group: Group): Promise<void>;
   getByGroupId(groupId: GroupId): Promise<Group | null>;
 }
