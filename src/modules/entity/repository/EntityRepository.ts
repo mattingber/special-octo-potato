@@ -11,6 +11,8 @@ export type IhaveEntityIdentifiers = Partial<{
   goalUserId: DigitalIdentityId;
 }>
 
+export type EntityIdentifier = IdentityCard | PersonalNumber | DigitalIdentityId;
+
 type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U]
 
 
@@ -18,5 +20,5 @@ export interface EntityRepository extends Repository<Entity> {
   save(entity: Entity): Promise<void>;
   getByEntityId(enityId: EntityId): Promise<Entity | null>;
   generateEntityId(): EntityId;
-  exists(entity: IhaveEntityIdentifiers): Promise<boolean>;
+  exists(identifier: EntityIdentifier): Promise<boolean>;
 }

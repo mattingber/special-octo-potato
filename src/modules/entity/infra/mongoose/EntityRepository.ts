@@ -1,5 +1,5 @@
 import { Model, Types, FilterQuery } from "mongoose";
-import { EntityRepository as IEntityRepository, IhaveEntityIdentifiers } from "../../repository/EntityRepository"
+import { EntityRepository as IEntityRepository, IhaveEntityIdentifiers, EntityIdentifier } from "../../repository/EntityRepository"
 import { EntityMapper as Mapper} from "./EntityMapper";
 import { Outbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
 import { EntityDoc } from "./entityModel";
@@ -17,18 +17,12 @@ export class EntityRepository implements IEntityRepository {
     private _outbox: Outbox
   ) {}
 
-  async exists(entity: IhaveEntityIdentifiers): Promise<boolean> {
-    let query: FilterQuery<any>[] = [];
-    if(has(entity, 'identityCard')) {
-      query.push({ identityCard: entity.identityCard.toString() });
-    }
-    if(has(entity, 'personalNumber')) {
-      query.push({ personalNumber: entity.personalNumber.toString() });
-    } 
-    if(has(entity, 'goalUserId')) {
-      query.push({ goalUserId: entity.goalUserId.toString() });
-    } 
-    const res = await this._model.findOne({ $or: query }).lean().select('_id');
+  async exists(identifier: EntityIdentifier): Promise<boolean> {
+    let identifierName: 'personalNumber' | 'identityCard' | 'goalUserId';
+    if(identifier instanceof PersonalNumber) { identifierName = 'personalNumber'; }
+    else if(identifier instanceof IdentityCard) { identifierName = 'identityCard'; }
+    else { identifierName = 'goalUserId'; }
+    const res = await this._model.findOne({ [identifierName]: identifier.toString() }).lean().select('_id');
     return !!res;
   }
 
