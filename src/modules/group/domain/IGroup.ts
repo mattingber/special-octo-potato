@@ -5,7 +5,7 @@ export interface IGroup {
   name: string;
   source: Source; // TODO: value object. 
   akaUnit?: string;
-  hierarchy: string;
+  // hierarchy: string;
   ancestors: GroupId[];
   status?: string;
   isLeaf: boolean;

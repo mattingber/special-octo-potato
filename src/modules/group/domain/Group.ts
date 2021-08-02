@@ -8,6 +8,7 @@ import { DuplicateChildrenError } from "./errors/DuplicateChildrenError";
 import { GroupMovedToParentEvent } from "./events/GroupMovedToParent";
 import { IGroup } from "./IGroup";
 import { Source } from "../../digitalIdentity/domain/Source";
+import { TreeCycleError } from "./errors/TreeCycleError";
 
 type CreateGroupProps = {
   name: string;
@@ -23,7 +24,7 @@ interface GroupState {
   name: string;
   source: Source; // TODO: value object. 
   akaUnit?: string;
-  hierarchy?: Hierarchy;
+  // hierarchy?: Hierarchy;
   ancestors?: GroupId[];
   status?: string;
   childrenNames?: Set<string>;
@@ -38,7 +39,7 @@ export class Group
   private _akaUnit? : string; // maybe value object
   private _status: string; // maybe value object
   private _ancestors: GroupId[];
-  private _hierarchy: Hierarchy;
+  // private _hierarchy: Hierarchy;
   private _source: Source;
   private _childrenNames: Set<string>;
 
@@ -48,26 +49,27 @@ export class Group
     this._akaUnit = state.akaUnit;
     this._source = state.source;
     this._status = state.status || 'active';
-    this._hierarchy = state.hierarchy || Hierarchy.create('');
+    // this._hierarchy = state.hierarchy || Hierarchy.create('');
     this._ancestors = state.ancestors || [];
     this._childrenNames = state.childrenNames || new Set();
   }
 
-  public rename() {
-    
-  }
 
-  public moveToParent(parent: Group): Result<void, DuplicateChildrenError> {
+  public moveToParent(parent: Group): Result<void, DuplicateChildrenError | TreeCycleError> {
     if(parent._childrenNames.has(this._name)) {
-      return err(DuplicateChildrenError.create(this._name, this.hierarchy));
+      return err(DuplicateChildrenError.create(this._name, parent.name));
+    }
+    // check for cycles: if 'parent' is actually a decendant of this group
+    if(!!parent.ancestors.find(ancestorId => ancestorId.equals(this.id))) {
+      return err(TreeCycleError.create(this.name, parent.name));
     }
     const previousParentId = this.parentId;
     this._ancestors = [ parent.id, ...parent._ancestors ];
-    this._hierarchy = createChildHierarchy(parent);
+    // this._hierarchy = createChildHierarchy(parent);
     this.addDomainEvent(new GroupMovedToParentEvent(this.id, {
       groupId: this.groupId,
       ancestors: this._ancestors,
-      hierarchy: this._hierarchy,
+      // hierarchy: this._hierarchy,
       previousParentId,
       name: this._name,
       source: this._source,
@@ -79,7 +81,7 @@ export class Group
 
   public addChild(child: IGroup): Result<void, DuplicateChildrenError> {
     if(this._childrenNames.has(child.name)) {
-      return err(DuplicateChildrenError.create(child.name, this.hierarchy));
+      return err(DuplicateChildrenError.create(child.name, this.name));
     }
     this._childrenNames.add(child.name);
     return ok(undefined);
@@ -98,9 +100,9 @@ export class Group
   get isLeaf() {
     return this._childrenNames.size === 0;
   }
-  get hierarchy() {
-    return this._hierarchy.value();
-  }
+  // get hierarchy() {
+  //   return this._hierarchy.value();
+  // }
   get ancestors() {
     return [...this._ancestors]
   }

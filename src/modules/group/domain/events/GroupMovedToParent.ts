@@ -9,7 +9,7 @@ type GroupEventPayload = {
   name: string;
   source: Source; // TODO: value object. 
   akaUnit?: string;
-  hierarchy: Hierarchy;
+  // hierarchy: Hierarchy;
   ancestors: GroupId[];
   status?: string;
 }
@@ -17,12 +17,12 @@ type GroupEventPayload = {
 export class GroupMovedToParentEvent extends DomainEvent<GroupEventPayload> {
   toPlainObject(): object {
     const {
-      groupId, name, source, akaUnit, ancestors, hierarchy, status, previousParentId
+      groupId, name, source, akaUnit, ancestors, status, previousParentId
     } = this.payload;
 
     return {
       name,
-      hierarchy,
+      // hierarchy,
       ancestors,
       source: source.value,
       groupId: groupId.toString(),
@@ -44,9 +44,9 @@ export class GroupMovedToParentEvent extends DomainEvent<GroupEventPayload> {
   get akaUnit() {
     return this.payload.akaUnit;
   }
-  get hierarchy() {
-    return this.payload.hierarchy;
-  }
+  // get hierarchy() {
+  //   return this.payload.hierarchy;
+  // }
   get ancestors() {
     return this.payload.ancestors;
   }
