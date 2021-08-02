@@ -18,9 +18,33 @@ export class GroupRepository implements IGroupRepository {
   }
   
   async getByGroupId(groupId: GroupId): Promise<Group | null> {
-    const raw = await this._model.findOne({ _id: groupId.toString() }).lean();
+    const [raw, ancestors] = await Promise.all([
+      this._model.findOne({ _id: groupId.toString() }).lean(),
+      this.calculateAncestors(groupId)
+    ])
+    // const raw = await this._model.findOne({ _id: groupId.toString() }).lean();
     if (!raw) return null;
-    return Mapper.toDomain(raw);
+    return Mapper.toDomain({ ...raw, ancestors });
+  }
+
+  private async calculateAncestors(groupId: GroupId) {
+    const res = await this._model.aggregate([
+      { $match: { _id: groupId.toString() } },
+      {
+        $graphLookup: {
+          from: 'groups',
+          startWith: '$directGroup',
+          connectFromField: 'directGroup',
+          connectToField: '_id',
+          as: 'ancestors',
+          depthField: 'searchDepth'
+        }
+      },
+      { $unwind: '$ancestors' },
+      { $sort: { searchDepth: 1 } },
+      { $project: {} } // TODO: does it work?
+    ]);
+    return res.map(doc => doc._id) as Types.ObjectId[];
   }
 
   async save(group: Group) {

@@ -4,8 +4,8 @@ export interface GroupDoc {
   _id: Types.ObjectId;
   source: string;
   name: string;
-  ancestors: Types.ObjectId[];
-  hierarchy: string;
+  // ancestors: Types.ObjectId[];
+  // hierarchy: string;
   directGroup?: Types.ObjectId;
   childrenNames: string[];
   status?: string;
@@ -15,11 +15,11 @@ export interface GroupDoc {
 const schema = new Schema<GroupDoc, Model<GroupDoc>, GroupDoc> ({
   name: String,
   source: String,
-  hierarchy: String,
+  // hierarchy: String,
   status: String,
   akaUnit: String,
   childrenNames: [String],
-  ancestors: [Schema.Types.ObjectId],
+  // ancestors: [Schema.Types.ObjectId],
   directGroup: Schema.Types.ObjectId,
 },{
   versionKey: false,

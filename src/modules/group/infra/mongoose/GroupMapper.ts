@@ -13,16 +13,16 @@ export class GroupMapper {
       _id: Types.ObjectId(group.groupId.toString()),
       name: group.name,
       source: group.source.value,
-      ancestors: group.ancestors.map(ancestorId => Types.ObjectId(ancestorId.toString())),
+      // ancestors: group.ancestors.map(ancestorId => Types.ObjectId(ancestorId.toString())),
       directGroup: !!group.parentId ? Types.ObjectId(group.parentId.toString()) : undefined,
-      hierarchy: group.hierarchy,
+      // hierarchy: group.hierarchy,
       childrenNames: group.childrenNames,
       akaUnit: group.akaUnit,
       status: group.status,
     }
   }
 
-  static toDomain(raw: GroupDoc): Group {
+  static toDomain(raw: GroupDoc & { ancestors: Types.ObjectId[] }): Group {
     const groupId = GroupId.create(raw._id.toHexString());
     return Group._create(
       groupId,
@@ -33,7 +33,7 @@ export class GroupMapper {
         childrenNames: new Set(raw.childrenNames),
         akaUnit: raw.akaUnit,
         status: raw.status,
-        hierarchy: Hierarchy.create(raw.hierarchy),
+        // hierarchy: Hierarchy.create(raw.hierarchy),
       },
       { isNew: false },
     );
