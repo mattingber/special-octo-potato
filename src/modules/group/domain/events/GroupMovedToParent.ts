@@ -1,6 +1,5 @@
 import { DomainEvent } from "../../../../core/domain/event/DomainEvent";
 import { GroupId } from "../GroupId";
-import { Hierarchy } from "../../../../shared/Hierarchy";
 import { Source } from "../../../digitalIdentity/domain/Source";
 
 type GroupEventPayload = {

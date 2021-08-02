@@ -7,6 +7,7 @@ export interface IGroup {
   akaUnit?: string;
   // hierarchy: string;
   ancestors: GroupId[];
+  groupId: GroupId;
   status?: string;
   isLeaf: boolean;
 }

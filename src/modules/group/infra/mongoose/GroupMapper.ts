@@ -1,4 +1,3 @@
-import { Hierarchy } from "../../../../shared/Hierarchy";
 import { DigitalIdentityId } from "../../../digitalIdentity/domain/DigitalIdentityId";
 import { GroupId } from "../../../group/domain/GroupId";
 import { Group } from "../../domain/Group";

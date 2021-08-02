@@ -1,6 +1,5 @@
 import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { GroupId } from "./GroupId";
-import { Hierarchy } from "../../../shared/Hierarchy";
 import { RoleId } from "../../Role/domain/RoleId";
 import { RoleState, Role } from "../../Role/domain/Role";
 import { Result, err, ok } from "neverthrow";
@@ -125,7 +124,7 @@ export class Group
   
   public createChild(groupId: GroupId, props: CreateGroupProps): Result<Group, DuplicateChildrenError> {
     if(this._childrenNames.has(props.name)) {
-      return err(DuplicateChildrenError.create(props.name, this.hierarchy));
+      return err(DuplicateChildrenError.create(props.name, this.name));
     }
     const child = Group._create(
       groupId, 
@@ -140,13 +139,12 @@ export class Group
     return ok(child);
   }
 
-  public createRole(roleId: RoleId, props: Omit<RoleState, 'hierarchyIds' | 'hierarchy' | 'digitalIdentityUniqueId'>) {
+  public createRole(roleId: RoleId, props: Omit<RoleState, 'directGroup' |'digitalIdentityUniqueId'>) {
     return Role.createNew(
       roleId,
       {
         ...props,
-        hierarchy: createChildHierarchy(this),
-        hierarchyIds: this.ancestors,
+        directGroup: this.groupId,
       }
     );
   }
@@ -165,4 +163,4 @@ export class Group
  * helpers
  */
 
-const createChildHierarchy = (parent: IGroup) => Hierarchy.create(parent.hierarchy).concat(parent.name);
+// const createChildHierarchy = (parent: IGroup) => Hierarchy.create(parent.hierarchy).concat(parent.name);
