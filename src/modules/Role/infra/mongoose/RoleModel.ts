@@ -1,13 +1,13 @@
-import { Schema, Model, model } from "mongoose";
+import { Schema, Model, model, Types } from "mongoose";
 
 export interface RoleDoc {
   roleId: string;
   source: string;
   jobTitle?: string;
-  hierarchyIds: string[];
-  directGroup: string;
-  hierarchy: string;
+  directGroup: Types.ObjectId;
   digitalIdentityUniqueId?: string;
+  // hierarchyIds: string[];
+  // hierarchy: string;
 }
 
 const schema = new Schema<RoleDoc, Model<RoleDoc>, RoleDoc> ({
@@ -17,9 +17,7 @@ const schema = new Schema<RoleDoc, Model<RoleDoc>, RoleDoc> ({
     ref: () => 'DigitalIdentity', // TODO: model names provider?
   }, 
   source: String,
-  hierarchyIds: [String],
-  directGroup: String,
-  hierarchy: String,
+  directGroup: Schema.Types.ObjectId,
   jobTitle: String,
 },{
   versionKey: false,

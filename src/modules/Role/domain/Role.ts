@@ -1,6 +1,5 @@
 import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { GroupId } from "../../group/domain/GroupId";
-import { Hierarchy } from "../../../shared/Hierarchy";
 import { RoleId } from "./RoleId";
 import { DigitalIdentity } from "../../digitalIdentity/domain/DigitalIdentity";
 import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
@@ -16,8 +15,9 @@ import { Source } from "../../digitalIdentity/domain/Source";
 export interface RoleState {
   source: Source;
   jobTitle?: string;
-  hierarchyIds: GroupId[];
-  hierarchy: Hierarchy;
+  // hierarchyIds: GroupId[];
+  directGroup: GroupId;
+  // hierarchy: Hierarchy;
   digitalIdentityUniqueId?: DigitalIdentityId;
 };
 
@@ -32,23 +32,22 @@ type CreateNewRoleProps =  Omit<RoleState, 'didigitalIdentityUniqueId'> & {
 export class Role extends AggregateRoot {
   private _source: Source;
   private _jobTitle: string;
-  private _hierarchyIds: GroupId[];
-  private _hierarchy: Hierarchy;
+  private _directGroup: GroupId;
+  // private _hierarchyIds: GroupId[];
+  // private _hierarchy: Hierarchy;
   private _digitalIdentityUniqueId?: DigitalIdentityId;
 
   private constructor(roleId: RoleId, props: RoleState) {
     super(roleId);
     const {
       source,
-      hierarchyIds,
-      hierarchy,
+      directGroup,
       jobTitle = '',
       digitalIdentityUniqueId,
     } = props;
     this._source = source;
     this._jobTitle = jobTitle;
-    this._hierarchy = hierarchy;
-    this._hierarchyIds = hierarchyIds;
+    this._directGroup = directGroup;
     this._digitalIdentityUniqueId = digitalIdentityUniqueId;
   }
 
@@ -56,12 +55,14 @@ export class Role extends AggregateRoot {
     this.addDomainEvent(new RoleMovedGroupEvent(this.id, {
       roleId: this.roleId,
       connectedDigitalIdentityId: this._digitalIdentityUniqueId,
-      hierarchy: this._hierarchy,
-      hierarchyIds: this._hierarchyIds,
+      directGroup: group.groupId,
       jobTitle: this._jobTitle,
+      // hierarchy: this._hierarchy,
+      // hierarchyIds: this._hierarchyIds,
     }));
-    this._hierarchy = Hierarchy.create(group.hierarchy);
-    this._hierarchyIds = group.ancestors;
+    // this._hierarchy = Hierarchy.create(group.hierarchy);
+    // this._hierarchyIds = group.ancestors;
+    this._directGroup = group.groupId;
   }
 
   public connectDigitalIdentity(
@@ -78,9 +79,10 @@ export class Role extends AggregateRoot {
       this.addDomainEvent(new RoleConnectedEvent(this.id, {
         roleId: this.roleId,
         connectedDigitalIdentityId: this._digitalIdentityUniqueId,
-        hierarchy: this._hierarchy,
-        hierarchyIds: this._hierarchyIds,
         jobTitle: this._jobTitle,
+        directGroup: this._directGroup,
+        // hierarchy: this._hierarchy,
+        // hierarchyIds: this._hierarchyIds,
       }));
       return ok(undefined);
     }
@@ -94,9 +96,10 @@ export class Role extends AggregateRoot {
       this.addDomainEvent(new RoleDisconnectedEvent(this.id, {
         disconnectedDigitalIdentityId: this._digitalIdentityUniqueId,
         roleId: this.roleId,
-        hierarchy: this._hierarchy,
-        hierarchyIds: this._hierarchyIds,
         jobTitle: this._jobTitle,
+        directGroup: this._directGroup,
+        // hierarchy: this._hierarchy,
+        // hierarchyIds: this._hierarchyIds,
       }));
     }
     this._digitalIdentityUniqueId = undefined;
@@ -145,13 +148,13 @@ export class Role extends AggregateRoot {
     return RoleId.create(this.id.toValue());
   }
   get directGroup() {
-    return this._hierarchyIds[0];
+    return this._directGroup;
   }
-  get hierarchyIds() {
-    return this._hierarchyIds;
-  }
-  get hierarchy() {
-    return this._hierarchy.value();
-  }
+  // get hierarchyIds() {
+  //   return this._hierarchyIds;
+  // }
+  // get hierarchy() {
+  //   return this._hierarchy.value();
+  // }
 
 }
