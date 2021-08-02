@@ -8,6 +8,7 @@ import { has } from "../../../utils/ObjectUtils";
 import { Group } from "../domain/Group";
 import { DuplicateChildrenError } from "../domain/errors/DuplicateChildrenError";
 import { MoveGroupDTO } from "./dto/MoveGroupDTO";
+import { TreeCycleError } from "../domain/errors/TreeCycleError";
 
 export class GroupService {
   constructor(
@@ -55,7 +56,8 @@ export class GroupService {
   async moveGroup(moveGroupDTO: MoveGroupDTO): Promise<Result<
     void,
     AppError.ResourceNotFound | 
-    DuplicateChildrenError
+    DuplicateChildrenError | 
+    TreeCycleError
   >> {
     const groupId = GroupId.create(moveGroupDTO.groupId);
     const parentId = GroupId.create(moveGroupDTO.parentId);
