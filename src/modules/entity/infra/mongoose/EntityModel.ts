@@ -6,7 +6,6 @@ export interface EntityDoc {
   firstName: string;
   lastName?: string;
   entityType: EntityType;
-  hierarchy?: string;
   displayName?: string;
   personalNumber?: string; // use value object
   identityCard?: string;
@@ -29,7 +28,6 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc> ({
   firstName: String,
   lastName: String,
   entityType: String,
-  hierarchy: String,
   displayName: String,
   personalNumber: String, // use value object
   identityCard: String,

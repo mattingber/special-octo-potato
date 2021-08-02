@@ -1,4 +1,3 @@
-import { Hierarchy } from "../../../../shared/Hierarchy";
 import { Types } from "mongoose";
 import { Entity } from "../../domain/Entity";
 import { EntityId } from "../../domain/EntityId";
@@ -20,10 +19,9 @@ export class EntityMapper {
       firstName: entity.name.firstName,
       lastName: entity.name.lastName,
       entityType: entity.entityType,
-      hierarchy: entity.hierarchy,
       displayName: entity.displayName,
-      personalNumber: entity.personalNumber?.value, 
-      identityCard: entity.identityCard?.value,
+      personalNumber: entity.personalNumber?.toString(), 
+      identityCard: entity.identityCard?.toString(),
       rank: entity.rank?.value, 
       akaUnit: entity.akaUnit,
       clearance: entity.clearance, // value object
@@ -48,7 +46,6 @@ export class EntityMapper {
         entityType: raw.entityType,
         firstName: raw.firstName,
         lastName: raw.lastName,
-        hierarchy: !!raw.hierarchy ? Hierarchy.create(raw.hierarchy) : undefined,
         displayName: raw.displayName,
         personalNumber: !!raw.personalNumber ? 
           PersonalNumber.create(raw.personalNumber)._unsafeUnwrap() : undefined,

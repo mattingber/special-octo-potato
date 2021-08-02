@@ -1,6 +1,5 @@
 import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { EntityId } from "./EntityId";
-import { Hierarchy } from "../../../shared/Hierarchy";
 import { has } from "../../../utils/ObjectUtils";
 import { Result, err, ok } from "neverthrow";
 import { IllegalEntityStateError } from "./errors/IllegalEntityStateError";
@@ -89,7 +88,6 @@ type EntityState = {
   firstName: string;
   lastName?: string;
   entityType: EntityType;
-  hierarchy?: Hierarchy;
   displayName?: string;
   personalNumber?: PersonalNumber;
   identityCard?: IdentityCard;
@@ -163,7 +161,7 @@ const ENTITY_TYPE_VALID_STATE: {
 
 const SET_ONLY_ONCE_FIELDS = new Set(['sex', 'identityCard', 'personalNumber', 'birthDate'] as (keyof EntityState)[]);
 
-type UpdateDto = Partial<Omit<EntityState, 'hierarchy' | 'displayName'>>;
+type UpdateDto = Partial<Omit<EntityState, 'displayName'>>;
 export type UpdateResult = Result<
   void,
   IllegalEntityStateError |
@@ -180,9 +178,9 @@ export class Entity extends AggregateRoot {
     this._state = props;
   }
 
-  public setHierarchy(hierarchy: Hierarchy) {
-    this._state.hierarchy = hierarchy;
-  }
+  // public setHierarchy(hierarchy: Hierarchy) {
+  //   this._state.hierarchy = hierarchy;
+  // }
 
   /**
    * todo: are undefined fields should be ignored?
@@ -305,9 +303,6 @@ export class Entity extends AggregateRoot {
   get akaUnit() {
     return this._state.akaUnit;
   }
-  get hierarchy() {
-    return this._state.hierarchy?.value();
-  }
   get clearance() {
     return this._state.clearance;
   }
@@ -344,4 +339,7 @@ export class Entity extends AggregateRoot {
   get goalUserId() {
     return this._state.goalUserId;
   }
+  // get hierarchy() {
+  //   return this._state.hierarchy?.value();
+  // }
 }
