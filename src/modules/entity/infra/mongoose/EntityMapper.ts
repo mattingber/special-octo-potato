@@ -9,7 +9,7 @@ import { Mail } from "../../../digitalIdentity/domain/Mail";
 import { UniqueArray } from "../../../../utils/UniqueArray";
 import { Phone, MobilePhone } from "../../domain/phone";
 import { DigitalIdentityId } from "../../../digitalIdentity/domain/DigitalIdentityId";
-import { EntityDoc } from "./EntityModel";
+import { EntityDoc } from "./EntitySchema";
 
 export class EntityMapper {
 

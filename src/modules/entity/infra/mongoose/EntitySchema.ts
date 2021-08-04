@@ -49,4 +49,4 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc> ({
   timestamps: true,
 });
 
-export default model('Entity', schema); // TODO: model names provider?
+export default schema;

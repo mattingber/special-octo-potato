@@ -24,4 +24,4 @@ const schema = new Schema<RoleDoc, Model<RoleDoc>, RoleDoc> ({
   timestamps: true,
 });
 
-export default model('Role', schema); // TODO: model names provider?
+export default schema;

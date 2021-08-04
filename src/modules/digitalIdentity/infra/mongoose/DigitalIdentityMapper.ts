@@ -1,6 +1,6 @@
 import { DigitalIdentity, DigitalIdentityType } from "../../domain/DigitalIdentity";
 import { DigitalIdentityId } from "../../domain/DigitalIdentityId";
-import { DigitalIdentityDoc } from "./DigitalIdentityModel";
+import { DigitalIdentityDoc } from "./DigitalIdentitySchema";
 import { EntityId } from "../../../entity/domain/EntityId";
 import { Types } from "mongoose";
 import { Mail } from "../../domain/Mail";

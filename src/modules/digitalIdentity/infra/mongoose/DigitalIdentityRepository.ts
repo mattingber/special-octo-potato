@@ -1,20 +1,26 @@
-import { Model } from "mongoose";
+import { Connection, Model } from "mongoose";
 import { DigitalIdentityRepository as IdigitalIdentityRepo } from '../../repository/DigitalIdentityRepository';
-import { DigitalIdentityDoc } from './DigitalIdentityModel';
+import { default as DigitalIdentitySchema, DigitalIdentityDoc } from './DigitalIdentitySchema';
 import { DigitalIdentity } from '../../domain/DigitalIdentity';
 import { DigitalIdentityMapper as Mapper } from './DigitalIdentityMapper';
 import { DigitalIdentityId } from '../../domain/DigitalIdentityId';
 import { EntityId } from "../../../entity/domain/EntityId";
-import { Outbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
+import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
 import { Mail } from "../../domain/Mail";
 
-
+const modelName = 'DigitalIdentity'; // TODO: get from config
 export class DigitalIdentityRepository implements IdigitalIdentityRepo {
+  private _model: Model<DigitalIdentityDoc>;
+  private _eventOutbox: EventOutbox;
 
-  constructor (
-    private _model: Model<DigitalIdentityDoc>,
-    private _outbox: Outbox,
-  ) {}
+  constructor (db: Connection, eventOutbox: EventOutbox) {
+    if(db.modelNames().includes(modelName)) {
+      this._model = db.model(modelName);
+    } else {
+      this._model = db.model(modelName, DigitalIdentitySchema);
+    }
+    this._eventOutbox = eventOutbox;    
+  }
 
   async exists(identifier: Mail | DigitalIdentityId) {
     if(identifier instanceof Mail) {
@@ -33,7 +39,7 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
         persistanceState, 
         { upsert: true }
       ).session(session);
-      await this._outbox.put(digitalIdentity.domainEvents, session);
+      await this._eventOutbox.put(digitalIdentity.domainEvents, session);
     });
     session.endSession();
   }

@@ -1,17 +1,26 @@
-import { Model, Types } from "mongoose";
+import { Collection, Connection, default as mongoose ,Model, Types } from "mongoose";
 import { GroupRepository as IGroupRepository } from "../../repository/GroupRepository"
 import { GroupMapper as Mapper} from "./GroupMapper";
-import { GroupDoc } from "./GroupModel";
+import { default as GroupSchema, GroupDoc } from "./GroupSchema";
 import { GroupId } from "../../domain/GroupId";
 import { Group } from "../../domain/Group";
-import { Outbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
+import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
 
+
+const modelName = 'Group'; // TODO: get from config
 export class GroupRepository implements IGroupRepository {
 
-  constructor(
-    private _model: Model<GroupDoc>,
-    private _outbox: Outbox
-  ) {}
+  private _model: Model<GroupDoc>;
+  private _eventOutbox: EventOutbox;
+
+  constructor(db: Connection, eventOutbox: EventOutbox) {
+    if(db.modelNames().includes(modelName)) {
+      this._model = db.model(modelName);
+    } else {
+      this._model = db.model(modelName, GroupSchema);
+    }
+    this._eventOutbox = eventOutbox;
+  }
 
   generateGroupId(): GroupId {
     return GroupId.create(new Types.ObjectId().toHexString());
@@ -42,7 +51,7 @@ export class GroupRepository implements IGroupRepository {
       },
       { $unwind: '$ancestors' },
       { $sort: { searchDepth: 1 } },
-      { $project: {} } // TODO: does it work?
+      { $project: { _id: 1 } } // TODO: does it work?
     ]);
     return res.map(doc => doc._id) as Types.ObjectId[];
   }
@@ -56,7 +65,7 @@ export class GroupRepository implements IGroupRepository {
         persistanceState, 
         { upsert: true }
       ).session(session);
-      await this._outbox.put(group.domainEvents, session);
+      await this._eventOutbox.put(group.domainEvents, session);
     });
     session.endSession();
   }

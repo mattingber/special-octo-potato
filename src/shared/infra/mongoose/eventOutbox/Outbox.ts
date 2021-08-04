@@ -1,4 +1,4 @@
-import { Schema, Model, SchemaOptions, model, ClientSession } from "mongoose"
+import { Schema, Model, SchemaOptions, model, ClientSession, Connection } from "mongoose"
 import { IDomainEvent } from "../../../../core/domain/event/IDomainEvent";
 
 export type OutboxMessage = {
@@ -17,7 +17,7 @@ const options: SchemaOptions = {
   }
 };
 
-const outboxMessageSchema = new Schema<OutboxMessage, Model<OutboxMessage>, OutboxMessage>({
+export const outboxMessageSchema = new Schema<OutboxMessage, Model<OutboxMessage>, OutboxMessage>({
   type: {
     type: String,
     required: true,
@@ -28,12 +28,18 @@ const outboxMessageSchema = new Schema<OutboxMessage, Model<OutboxMessage>, Outb
   payload: {},
 }, options);
 
-const outboxModel = model('eventMessage', outboxMessageSchema);
+const modelName = 'eventMessage'; // TODO: get name from config
 
-export class Outbox {
-  constructor(
-    private _model: Model<OutboxMessage> = outboxModel
-  ){}
+export class EventOutbox {
+  private _model: Model<OutboxMessage>;
+
+  constructor(db: Connection) {
+    if(db.modelNames().includes(modelName)) {
+      this._model = db.model(modelName); 
+    } else {
+      this._model = db.model(modelName, outboxMessageSchema);
+    }
+  }
 
   async put<T extends IDomainEvent>(events: T | T[], session: ClientSession) {
     if(Array.isArray(events)) {

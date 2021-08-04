@@ -1,8 +1,8 @@
-import { Model, Types, FilterQuery } from "mongoose";
+import { Model, Types, FilterQuery, Connection } from "mongoose";
 import { EntityRepository as IEntityRepository, IhaveEntityIdentifiers, EntityIdentifier } from "../../repository/EntityRepository"
 import { EntityMapper as Mapper} from "./EntityMapper";
-import { Outbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
-import { EntityDoc } from "./entityModel";
+import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
+import { default as EntitySchema, EntityDoc } from "./EntitySchema";
 import { EntityId } from "../../domain/EntityId";
 import { Entity } from "../../domain/Entity";
 import { PersonalNumber } from "../../domain/PersonalNumber";
@@ -10,12 +10,19 @@ import { IdentityCard } from "../../domain/IdentityCard";
 import { DigitalIdentityId } from "../../../digitalIdentity/domain/DigitalIdentityId";
 import { has } from "../../../../utils/ObjectUtils";
 
+const modelName = 'Entity'; // TODO: get from config
 export class EntityRepository implements IEntityRepository {
+  private _model: Model<EntityDoc>;
+  private _eventOutbox: EventOutbox
 
-  constructor(
-    private _model: Model<EntityDoc>,
-    private _outbox: Outbox
-  ) {}
+  constructor(db: Connection, eventOutbox: EventOutbox) {
+    if(db.modelNames().includes(modelName)) {
+      this._model = db.model(modelName);
+    } else {
+      this._model = db.model(modelName, EntitySchema);
+    }
+    this._eventOutbox = eventOutbox;
+  }
 
   async exists(identifier: EntityIdentifier): Promise<boolean> {
     let identifierName: 'personalNumber' | 'identityCard' | 'goalUserId';
@@ -45,7 +52,7 @@ export class EntityRepository implements IEntityRepository {
         persistanceState, 
         { upsert: true }
       ).session(session);
-      await this._outbox.put(entity.domainEvents, session);
+      await this._eventOutbox.put(entity.domainEvents, session);
     });
     session.endSession();
   }

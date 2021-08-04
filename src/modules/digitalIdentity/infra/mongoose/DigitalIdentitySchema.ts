@@ -25,6 +25,4 @@ const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, Digital
   timestamps: true,
 });
 
-const di_model = model('DigitalIdentity', schema); // TODO: model names provider?
-
-export default di_model;
+export default schema;

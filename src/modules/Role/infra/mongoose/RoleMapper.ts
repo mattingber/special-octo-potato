@@ -2,7 +2,7 @@ import { DigitalIdentityId } from "../../../digitalIdentity/domain/DigitalIdenti
 import { GroupId } from "../../../group/domain/GroupId";
 import { Role } from "../../domain/Role";
 import { RoleId } from "../../domain/RoleId";
-import { RoleDoc } from "./RoleModel";
+import { RoleDoc } from "./RoleSchema";
 import { Source } from "../../../digitalIdentity/domain/Source";
 import { Types } from "mongoose";
 

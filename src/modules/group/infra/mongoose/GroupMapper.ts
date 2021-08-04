@@ -1,7 +1,7 @@
 import { DigitalIdentityId } from "../../../digitalIdentity/domain/DigitalIdentityId";
 import { GroupId } from "../../../group/domain/GroupId";
 import { Group } from "../../domain/Group";
-import { GroupDoc } from "./GroupModel";
+import { GroupDoc } from "./GroupSchema";
 import { Types } from "mongoose";
 import { Source } from "../../../digitalIdentity/domain/Source";
 
