@@ -7,6 +7,7 @@ export type OutboxMessage = {
   occuredOn: Date;
   aggregateId: string;
   payload: any;
+  published: boolean;
 }
 
 const options: SchemaOptions = {
@@ -22,6 +23,8 @@ const outboxMessageSchema = new Schema<OutboxMessage, Model<OutboxMessage>, Outb
     required: true,
   },
   aggregateId: String,
+  published: Boolean,
+  occuredOn: Date,
   payload: {},
 }, options);
 
