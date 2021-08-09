@@ -22,6 +22,7 @@ export interface EntityDoc {
   phone?: string[]; //value object
   mobilePhone?: string[]; //value object
   goalUserId?: string;
+  primaryDigitalIdentityId?: string;
 }
 
 const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc> ({
@@ -44,6 +45,7 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc> ({
   phone: [String], //value object
   mobilePhone: [String], //value object
   goalUserId: String,
+  primaryDigitalIdentityId: String,
 },{
   versionKey: false,
   timestamps: true,

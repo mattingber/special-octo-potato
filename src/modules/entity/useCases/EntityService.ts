@@ -94,7 +94,7 @@ export class EntityService {
         .map(UniqueArray.fromArray);
       if(mobilePhone.isErr()) { return err(mobilePhone.error); }
     }
-    const result = Entity.create(
+    const result = Entity.createNew(
       this.entityRepository.generateEntityId(), 
       {
         entityType: entityType.value,
@@ -114,7 +114,6 @@ export class EntityService {
         mobilePhone: mobilePhone?.value,
         phone: phone?.value,
       },
-      { isNew: true }
     );
     if(result.isErr()) {
       return err(result.error)

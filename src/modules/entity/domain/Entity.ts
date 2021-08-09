@@ -36,7 +36,6 @@ export const castToSex = (val: string): Result<Sex, string> => {
   return err(`${val} is invalid Sex`);
 }
 
-// TODO: add displayName
 
 // type CommonEntityProps = {
 //   firstName: string;
@@ -88,7 +87,7 @@ type EntityState = {
   firstName: string;
   lastName?: string;
   entityType: EntityType;
-  displayName?: string;
+  displayName?: string; // TODO maybe remove thid field
   personalNumber?: PersonalNumber;
   identityCard?: IdentityCard;
   rank?: Rank;
@@ -104,7 +103,10 @@ type EntityState = {
   phone?: UniqueArray<Phone>; //value object
   mobilePhone?: UniqueArray<MobilePhone>; //value object
   goalUserId?: DigitalIdentityId;
+  primaryDigitalIdentityId?: DigitalIdentityId;
 }
+
+type CreateEntityProps = Omit<EntityState, 'mail' | 'primaryDigitalIdentity'>;
 
 
 type CreatePersonProps = 
@@ -233,6 +235,18 @@ export class Entity extends AggregateRoot {
         return err(IllegalEntityStateError.create(`${state.entityType} cannot have field: ${k}`));
       }
     }
+    // specific Rules:
+    // goalUserId must equal PrimaryDigitalIdentityId when both are defined
+    if(state.entityType === EntityType.GoalUser) {
+      if(
+        !!state.goalUserId && 
+        !!state.primaryDigitalIdentityId &&
+        ~state.goalUserId.equals(state.primaryDigitalIdentityId)
+      ) {
+        return err(IllegalEntityStateError.create(
+          `goalUserId must be the same as primaryDigitalIdentityId`));
+      }
+    }
     return ok(undefined);
   }
 
@@ -247,7 +261,8 @@ export class Entity extends AggregateRoot {
     return true;
   }
 
-  static create(id: EntityId, state: EntityState, opts: CreateOpts): Result<Entity, IllegalEntityStateError> {
+
+  static _create(id: EntityId, state: EntityState, opts: CreateOpts): Result<Entity, IllegalEntityStateError> {
     const isValid = Entity.isValidEntityState(state);
     if (isValid.isOk()) {
       return ok(new Entity(id, state));
@@ -255,29 +270,33 @@ export class Entity extends AggregateRoot {
     return err(isValid.error);
   }
 
-  static createSoldier(id: EntityId, props: CreateSoldierProps) {
-    return Entity.create(
-      id, 
-      { ...props, entityType: EntityType.Soldier }, 
-      { isNew: true }
-    );
+  static createNew(id: EntityId, props: CreateEntityProps) {
+    return Entity._create(id, props, { isNew: true });
   }
 
-  static createCivilian(id: EntityId, props: CreateCivilianProps) {
-    return Entity.create(
-      id, 
-      { ...props, entityType: EntityType.Civilian }, 
-      { isNew: true }
-    );
-  }
+  // static createSoldier(id: EntityId, props: CreateSoldierProps) {
+  //   return Entity.create(
+  //     id, 
+  //     { ...props, entityType: EntityType.Soldier }, 
+  //     { isNew: true }
+  //   );
+  // }
 
-  static createGoalUser(id: EntityId, props: CreateGoalUserProps) {
-    return Entity.create(
-      id, 
-      { ...props, entityType: EntityType.GoalUser }, 
-      { isNew: true }
-    );
-  }
+  // static createCivilian(id: EntityId, props: CreateCivilianProps) {
+  //   return Entity.create(
+  //     id, 
+  //     { ...props, entityType: EntityType.Civilian }, 
+  //     { isNew: true }
+  //   );
+  // }
+
+  // static createGoalUser(id: EntityId, props: CreateGoalUserProps) {
+  //   return Entity.create(
+  //     id, 
+  //     { ...props, entityType: EntityType.GoalUser }, 
+  //     { isNew: true }
+  //   );
+  // }
 
   get entityId() {
     return EntityId.create(this.id.toValue());
@@ -338,6 +357,9 @@ export class Entity extends AggregateRoot {
   }
   get goalUserId() {
     return this._state.goalUserId;
+  }
+  get primaryDigitalIdentityId() {
+    return this._state.primaryDigitalIdentityId;
   }
   // get hierarchy() {
   //   return this._state.hierarchy?.value();

@@ -35,12 +35,13 @@ export class EntityMapper {
       phone: entity.phone.map(p => p.value), 
       mobilePhone: entity.mobilePhone.map(p => p.value),
       goalUserId: entity.goalUserId?.toString(),
+      primaryDigitalIdentityId: entity.primaryDigitalIdentityId?.toString(),
     }
   }
 
   static toDomain(raw: EntityDoc): Entity {
     const entityId = EntityId.create(raw._id.toHexString());
-    return Entity.create(
+    return Entity._create(
       entityId,
       {
         entityType: raw.entityType,
@@ -67,6 +68,8 @@ export class EntityMapper {
         mobilePhone: UniqueArray.fromArray((raw.phone || []).map(p => MobilePhone.create(p)._unsafeUnwrap())),
         goalUserId: !!raw.goalUserId ? 
           DigitalIdentityId.create(raw.goalUserId)._unsafeUnwrap() : undefined,
+        primaryDigitalIdentityId: !!raw.primaryDigitalIdentityId ? 
+          DigitalIdentityId.create(raw.primaryDigitalIdentityId)._unsafeUnwrap() : undefined,
       },
       { isNew: false },
     )._unsafeUnwrap();
