@@ -38,9 +38,17 @@ export namespace AppError {
   }
 
   export class ResourceNotFound extends BaseError {
+    private _resource: string;
+
     private constructor(resource: string, resourceType: string) {
       super(`resource ${resourceType}: ${resource} does not exist`);
+      this._resource = resource;
     }
+
+    get resource() {
+      return this._resource;
+    }
+
     static create(resource: string, resourceType: string = '') {
       return new ResourceNotFound(resource, resourceType);
     }
