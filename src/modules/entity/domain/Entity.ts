@@ -1,6 +1,6 @@
 import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { EntityId } from "./EntityId";
-import { has } from "../../../utils/ObjectUtils";
+import { has, hasAll } from "../../../utils/ObjectUtils";
 import { Result, err, ok } from "neverthrow";
 import { IllegalEntityStateError } from "./errors/IllegalEntityStateError";
 import { AppError } from "../../../core/logic/AppError";
@@ -83,6 +83,12 @@ export const castToSex = (val: string): Result<Sex, string> => {
 // type CreateSoldierProps = CommonEntityProps & PersonProps & SoldierEntityProps;
 // type CreateCivilianProps = CommonEntityProps & PersonProps & CivilianEntityProps;
 
+type PictureData = {
+  path: string;
+  updatedAt?: Date;
+  createdAt: Date;
+}
+
 type EntityState = {
   firstName: string;
   lastName?: string;
@@ -104,21 +110,22 @@ type EntityState = {
   mobilePhone?: UniqueArray<MobilePhone>; //value object
   goalUserId?: DigitalIdentityId;
   primaryDigitalIdentityId?: DigitalIdentityId;
+  profilePicture?: PictureData;
 }
 
 type CreateEntityProps = Omit<EntityState, 'mail' | 'primaryDigitalIdentity'>;
 
 
-type CreatePersonProps = 
-  Required<Pick<EntityState, 'firstName' | 'lastName'>> &
-  Partial<Pick<EntityState, 'clearance' | 'phone' | 'mobilePhone' | 'address' 
-    | 'sex' | 'serviceType' | 'dischargeDate' | 'birthDate' | 'rank' | 'akaUnit'
-    | 'identityCard' | 'personalNumber'>>;
-type CreateSoldierProps = CreatePersonProps & Required<Pick<EntityState, 'personalNumber'>>;
-type CreateCivilianProps = CreatePersonProps & Required<Pick<EntityState, 'identityCard'>>;
-type CreateGoalUserProps = 
-  Required<Pick<EntityState, 'firstName' | 'goalUserId'>> &
-  Partial<Pick<EntityState, 'phone' | 'mobilePhone' | 'address' | 'clearance' | 'lastName'>>
+// type CreatePersonProps = 
+//   Required<Pick<EntityState, 'firstName' | 'lastName'>> &
+//   Partial<Pick<EntityState, 'clearance' | 'phone' | 'mobilePhone' | 'address' 
+//     | 'sex' | 'serviceType' | 'dischargeDate' | 'birthDate' | 'rank' | 'akaUnit'
+//     | 'identityCard' | 'personalNumber'>>;
+// type CreateSoldierProps = CreatePersonProps & Required<Pick<EntityState, 'personalNumber'>>;
+// type CreateCivilianProps = CreatePersonProps & Required<Pick<EntityState, 'identityCard'>>;
+// type CreateGoalUserProps = 
+//   Required<Pick<EntityState, 'firstName' | 'goalUserId'>> &
+//   Partial<Pick<EntityState, 'phone' | 'mobilePhone' | 'address' | 'clearance' | 'lastName'>>
 
 
 const REQUIRED_COMMON_FIELDS: (keyof EntityState)[] = ['firstName', 'entityType'];
@@ -163,7 +170,7 @@ const ENTITY_TYPE_VALID_STATE: {
 
 const SET_ONLY_ONCE_FIELDS = new Set(['sex', 'identityCard', 'personalNumber', 'birthDate'] as (keyof EntityState)[]);
 
-type UpdateDto = Partial<Omit<EntityState, 'displayName'>>;
+type UpdateDto = Partial<Omit<EntityState, 'displayName' | 'profilePicture'>>;
 export type UpdateResult = Result<
   void,
   IllegalEntityStateError |
@@ -185,7 +192,8 @@ export class Entity extends AggregateRoot {
   // }
 
   /**
-   * todo: are undefined fields should be ignored?
+   * //TODO: are undefined fields should be ignored?
+   * //TODO: probably should break this into many small update methods like 'updatePictureData' below
    * phone should override or add ?
    * @param updateDto 
    */
@@ -212,6 +220,16 @@ export class Entity extends AggregateRoot {
       this._state = newState;
     }
     return isValid;
+  }
+
+  public updatePictureData(update: Partial<PictureData>): Result<void, IllegalEntityStateError> {
+    const pictureData = { ...this._state.profilePicture, ...update };
+    // update only if the resulting data has the required keys
+    if(hasAll(pictureData, ['path', 'createdAt'])) {
+      this._state.profilePicture = pictureData;
+      return ok(undefined);
+    }
+    return err(IllegalEntityStateError.create('illegal picture data update'));
   }
 
   private static isValidEntityState(state: EntityState): 
