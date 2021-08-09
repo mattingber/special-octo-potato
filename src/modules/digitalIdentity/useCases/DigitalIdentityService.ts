@@ -58,7 +58,7 @@ export class DigitalIdentityService {
         mail: mail?.value,
         source: source.value,
         type: type.value,
-        canConnectRole: createDTO.canConnectRole,
+        canConnectRole: createDTO.isRoleAttachable,
       },
       { isNew: true }
     );
