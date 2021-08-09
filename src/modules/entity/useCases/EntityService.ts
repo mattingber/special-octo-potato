@@ -43,7 +43,7 @@ export class EntityService {
     const entityType = castToEntityType(createEntityDTO.entityType)
       .mapErr(AppError.ValueValidationError.create);
     if(entityType.isErr()) { return err(entityType.error); }
-    // extract all other existing fields
+    // extract all identifiers and check for duplicates for each one:
     if(has(createEntityDTO, 'personalNumber')) {
       personalNumber = PersonalNumber.create(createEntityDTO.personalNumber)
         .mapErr(AppError.ValueValidationError.create);
@@ -60,6 +60,15 @@ export class EntityService {
         return err(IdentityCardAlreadyExistsError.create(createEntityDTO.identityCard))
       }
     }
+    if(has(createEntityDTO, 'goalUserId')) {
+      goalUserId = DigitalIdentityId.create(createEntityDTO.goalUserId)
+        .mapErr(AppError.ValueValidationError.create);
+      if(goalUserId.isErr()) { return err(goalUserId.error); }
+      if(await this.entityRepository.exists(goalUserId.value)) {
+        return err(GoalUserIdAlreadyExistsError.create(createEntityDTO.goalUserId))
+      }
+    }
+    // extract all other existing fields
     if(has(createEntityDTO, 'serviceType')) {
       serviceType = ServiceType.create(createEntityDTO.serviceType)
         .mapErr(AppError.ValueValidationError.create);
@@ -69,14 +78,6 @@ export class EntityService {
       rank = Rank.create(createEntityDTO.rank)
         .mapErr(AppError.ValueValidationError.create);
       if(rank.isErr()) { return err(rank.error); }
-    }
-    if(has(createEntityDTO, 'goalUserId')) {
-      goalUserId = DigitalIdentityId.create(createEntityDTO.goalUserId)
-        .mapErr(AppError.ValueValidationError.create);
-      if(goalUserId.isErr()) { return err(goalUserId.error); }
-      if(await this.entityRepository.exists(goalUserId.value)) {
-        return err(GoalUserIdAlreadyExistsError.create(createEntityDTO.goalUserId))
-      }
     }
     if(has(createEntityDTO, 'sex')) {
       sex = castToSex(createEntityDTO.sex).mapErr(AppError.ValueValidationError.create);
