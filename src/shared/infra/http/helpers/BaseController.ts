@@ -1,6 +1,6 @@
 import { Response } from "express";
 
-export abstract class ControllerHelper {
+export abstract class ResponseHandler {
 
   static ok<T>(res: Response, dto?: T) {
     if(!!dto) {

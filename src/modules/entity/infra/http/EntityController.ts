@@ -1,4 +1,4 @@
-import { ControllerHelper } from "../../../../shared/infra/http/helpers/BaseController";
+import { ResponseHandler } from "../../../../shared/infra/http/helpers/BaseController";
 import { EntityService } from "../../useCases/EntityService";
 import { Response, Request } from "express";
 import { AppError } from "../../../../core/logic/AppError";
@@ -28,13 +28,13 @@ export class EntityController {
   async createEntity(req: Request, res: Response) {
     const { error, value } = CreateEntitySchema.validate(req.body);
     if(!!error) {
-      return ControllerHelper.clientError(res, error.message);
+      return ResponseHandler.clientError(res, error.message);
     }
     const result = await this._entityService.createEntity(value as CreateEntityDTO);
     if(result.isErr()) {
-      return ControllerHelper.clientError(res, result.error.message);
+      return ResponseHandler.clientError(res, result.error.message);
     }
-    return ControllerHelper.ok(res);
+    return ResponseHandler.ok(res);
   }
 
   /**
@@ -43,13 +43,13 @@ export class EntityController {
   async connectDigitalIdentity(req: Request, res: Response) {
     const { error, value } = ConnectDigitalIdentitySchema.validate(req.params);
     if(!!error) {
-      return ControllerHelper.clientError(res, error.message);
+      return ResponseHandler.clientError(res, error.message);
     }    
     const result = await this._entityService.connectDigitalIdentity(value as ConnectDigitalIdentityDTO);
     if(result.isErr()) { // TODO: maybe return 404 on not found?
-      return ControllerHelper.clientError(res, result.error.message);
+      return ResponseHandler.clientError(res, result.error.message);
     }
-    return ControllerHelper.ok(res);
+    return ResponseHandler.ok(res);
   }
 
   /**
@@ -58,13 +58,13 @@ export class EntityController {
   async disconnectDigitalIdentity(req: Request, res: Response) {
     const { error, value } = ConnectDigitalIdentitySchema.validate(req.params);
     if(!!error) {
-      return ControllerHelper.clientError(res, error.message);
+      return ResponseHandler.clientError(res, error.message);
     }  
     const result = await this._entityService.disconnectDigitalIdentity(value as ConnectDigitalIdentityDTO);
     if(result.isErr()) { // TODO: maybe return 404 on not found?
-      return ControllerHelper.clientError(res, result.error.message);
+      return ResponseHandler.clientError(res, result.error.message);
     }
-    return ControllerHelper.ok(res);
+    return ResponseHandler.ok(res);
   }
 
   /**
@@ -76,17 +76,17 @@ export class EntityController {
       entityId: req.params.id
     });
     if(!!error) {
-      return ControllerHelper.clientError(res, error.message);
+      return ResponseHandler.clientError(res, error.message);
     }
     const result = await this._entityService.updateEntity(value as UpdateEntityDTO);
     if(result.isErr()) {
       if(result.error instanceof AppError.ResourceNotFound) {
-        return ControllerHelper.notFound(res, result.error.message);
+        return ResponseHandler.notFound(res, result.error.message);
       } else { // all other errors are 400 validation error
-        return ControllerHelper.clientError(res, result.error.message);
+        return ResponseHandler.clientError(res, result.error.message);
       }
     }
-    return ControllerHelper.ok(res);
+    return ResponseHandler.ok(res);
   }
 
 }
