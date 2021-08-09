@@ -15,8 +15,8 @@ export type CreateEntityDTO = {
   birthDate?: Date;
   jobTitle?: string;
   address?: string; // value?
-  phone?: string[]; //value object
-  mobilePhone?: string[]; //value object
+  phone?: string | string[]; //value object
+  mobilePhone?: string | string[]; //value object
   goalUserId?: string;
 }
 

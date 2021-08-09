@@ -11,7 +11,7 @@ import { Rank } from "../domain/Rank";
 import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
 import { Phone, MobilePhone } from "../domain/phone";
 import { UniqueArray } from "../../../utils/UniqueArray";
-import { filterNullOrUndefined } from "../../../utils/arrayUtils";
+import { filterNullOrUndefined, toArray } from "../../../utils/arrayUtils";
 import { has } from "../../../utils/ObjectUtils";
 import { AppError } from "../../../core/logic/AppError";
 import { IllegalEntityStateError } from "../domain/errors/IllegalEntityStateError";
@@ -83,13 +83,13 @@ export class EntityService {
       if(sex.isErr()) { return err(sex.error); }
     }
     if(has(createEntityDTO, 'phone')) {
-      phone = combine(createEntityDTO.phone.map(Phone.create))
+      phone = combine(toArray(createEntityDTO.phone).map(Phone.create))
         .mapErr(AppError.ValueValidationError.create)
         .map(UniqueArray.fromArray);
       if(phone.isErr()) { return err(phone.error); }
     }
     if(has(createEntityDTO, 'mobilePhone')) {
-      mobilePhone = combine(createEntityDTO.mobilePhone.map(MobilePhone.create))
+      mobilePhone = combine(toArray(createEntityDTO.mobilePhone).map(MobilePhone.create))
         .mapErr(AppError.ValueValidationError.create)
         .map(UniqueArray.fromArray);
       if(mobilePhone.isErr()) { return err(mobilePhone.error); }
@@ -260,7 +260,7 @@ export class EntityService {
       }
     }
     if(has(updateDTO, 'phone')) {
-      const phone = combine(updateDTO.phone.map(Phone.create))
+      const phone = combine(toArray(updateDTO.phone).map(Phone.create))
         .mapErr(AppError.ValueValidationError.create)
         .map(UniqueArray.fromArray);
       if(phone.isOk()) {
@@ -270,7 +270,7 @@ export class EntityService {
       }
     }
     if(has(updateDTO, 'mobilePhone')) {
-      const mobilePhone = combine(updateDTO.mobilePhone.map(MobilePhone.create))
+      const mobilePhone = combine(toArray(updateDTO.mobilePhone).map(MobilePhone.create))
         .mapErr(AppError.ValueValidationError.create)
         .map(UniqueArray.fromArray);
       if(mobilePhone.isOk()) {
