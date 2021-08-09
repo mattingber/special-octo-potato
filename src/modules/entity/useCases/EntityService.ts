@@ -38,7 +38,8 @@ export class EntityService {
     PersonalNumberAlreadyExistsError | 
     GoalUserIdAlreadyExistsError
   >> {
-    let personalNumber, identityCard, serviceType, rank, goalUserId, phone, mobilePhone, sex;
+    let personalNumber, identityCard, serviceType, 
+      rank, goalUserId, phone, mobilePhone, sex, profilePicture;
     // check entity type
     const entityType = castToEntityType(createEntityDTO.entityType)
       .mapErr(AppError.ValueValidationError.create);
@@ -57,7 +58,7 @@ export class EntityService {
         .mapErr(AppError.ValueValidationError.create);
       if(identityCard.isErr()) { return err(identityCard.error); }
       if(await this.entityRepository.exists(identityCard.value)) {
-        return err(IdentityCardAlreadyExistsError.create(createEntityDTO.identityCard))
+        return err(IdentityCardAlreadyExistsError.create(createEntityDTO.identityCard));
       }
     }
     if(has(createEntityDTO, 'goalUserId')) {
@@ -65,7 +66,7 @@ export class EntityService {
         .mapErr(AppError.ValueValidationError.create);
       if(goalUserId.isErr()) { return err(goalUserId.error); }
       if(await this.entityRepository.exists(goalUserId.value)) {
-        return err(GoalUserIdAlreadyExistsError.create(createEntityDTO.goalUserId))
+        return err(GoalUserIdAlreadyExistsError.create(createEntityDTO.goalUserId));
       }
     }
     // extract all other existing fields
@@ -95,6 +96,17 @@ export class EntityService {
         .map(UniqueArray.fromArray);
       if(mobilePhone.isErr()) { return err(mobilePhone.error); }
     }
+    if(
+      has(createEntityDTO, 'pictures') &&
+      has(createEntityDTO.pictures, 'profile')
+    ) {
+      const { url: path, meta: { createdAt, updatedAt } } = createEntityDTO.pictures.profile;
+      profilePicture = {
+        path,
+        createdAt,
+        updatedAt
+      }
+    }
     const result = Entity.createNew(
       this.entityRepository.generateEntityId(), 
       {
@@ -114,6 +126,7 @@ export class EntityService {
         sex: sex?.value,
         mobilePhone: mobilePhone?.value,
         phone: phone?.value,
+        profilePicture,
       },
     );
     if(result.isErr()) {
