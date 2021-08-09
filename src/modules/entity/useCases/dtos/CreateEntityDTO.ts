@@ -18,6 +18,15 @@ export type CreateEntityDTO = {
   phone?: string | string[]; //value object
   mobilePhone?: string | string[]; //value object
   goalUserId?: string;
+  pictures?: {
+    profile?: {
+      url: string;
+      meta: {
+        createdAt: Date;
+        updatedAt?: Date
+      }
+    }
+  }
 }
 
 export const joiSchema =  Joi.object({
@@ -38,4 +47,13 @@ export const joiSchema =  Joi.object({
   jobTitle: Joi.string(),
   dischargeDate: Joi.date(),
   birthDate: Joi.date(),
+  pictures: Joi.object({
+    profile: Joi.object({
+      url: Joi.string(),
+      meta: Joi.object({
+        createdAt: Joi.date(),
+        updatedAt: Joi.date(),
+      }).and('url', 'meta'),
+    }),
+  }),
 });
