@@ -23,6 +23,15 @@ export interface EntityDoc {
   mobilePhone?: string[]; //value object
   goalUserId?: string;
   primaryDigitalIdentityId?: string;
+  pictures?: {
+    profile?: {
+      path: string,
+      meta: {
+        createdAt: Date,
+        updatedAt?: Date,
+      }
+    }
+  }
 }
 
 const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc> ({
@@ -46,6 +55,15 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc> ({
   mobilePhone: [String], //value object
   goalUserId: String,
   primaryDigitalIdentityId: String,
+  pictures: {
+    profile: {
+      path: String,
+      meta: {
+        createdAt: Date,
+        updatedAt: Date,
+      }
+    }
+  }
 },{
   versionKey: false,
   timestamps: true,

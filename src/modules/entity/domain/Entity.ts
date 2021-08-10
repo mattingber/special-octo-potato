@@ -379,6 +379,9 @@ export class Entity extends AggregateRoot {
   get primaryDigitalIdentityId() {
     return this._state.primaryDigitalIdentityId;
   }
+  get profilePicture() {
+    return this._state.profilePicture;
+  }
   // get hierarchy() {
   //   return this._state.hierarchy?.value();
   // }

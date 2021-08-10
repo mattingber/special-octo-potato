@@ -36,6 +36,15 @@ export class EntityMapper {
       mobilePhone: entity.mobilePhone.map(p => p.value),
       goalUserId: entity.goalUserId?.toString(),
       primaryDigitalIdentityId: entity.primaryDigitalIdentityId?.toString(),
+      pictures: entity.profilePicture ? {
+        profile: {
+          path: entity.profilePicture.path,
+          meta: {
+            createdAt: entity.profilePicture.createdAt,
+            updatedAt: entity.profilePicture.updatedAt,
+          }
+        }
+      } : undefined,
     }
   }
 
@@ -70,6 +79,10 @@ export class EntityMapper {
           DigitalIdentityId.create(raw.goalUserId)._unsafeUnwrap() : undefined,
         primaryDigitalIdentityId: !!raw.primaryDigitalIdentityId ? 
           DigitalIdentityId.create(raw.primaryDigitalIdentityId)._unsafeUnwrap() : undefined,
+        profilePicture: !!raw.pictures?.profile ? {
+          path: raw.pictures.profile.path,
+          ...raw.pictures.profile.meta,
+        } : undefined,
       },
       { isNew: false },
     )._unsafeUnwrap();
