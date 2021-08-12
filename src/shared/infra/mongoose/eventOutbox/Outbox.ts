@@ -51,7 +51,7 @@ export class EventOutbox {
 
   private eventToMessage(event: IDomainEvent) {
     return {
-      type: event.eventName,
+      type: event.eventType,
       occuredOn: event.occuredOn,
       aggregateId: event.aggregateId.toString(),
       payload: event.toPlainObject(),
