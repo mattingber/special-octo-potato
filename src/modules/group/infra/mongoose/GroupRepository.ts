@@ -1,4 +1,4 @@
-import { Collection, Connection, default as mongoose ,Model, Types } from "mongoose";
+import { ClientSession, Collection, Connection, default as mongoose ,Model, Types } from "mongoose";
 import { GroupRepository as IGroupRepository } from "../../repository/GroupRepository"
 import { GroupMapper as Mapper} from "./GroupMapper";
 import { default as GroupSchema, GroupDoc } from "./GroupSchema";
@@ -27,16 +27,28 @@ export class GroupRepository implements IGroupRepository {
   }
   
   async getByGroupId(groupId: GroupId): Promise<Group | null> {
-    const [raw, ancestors] = await Promise.all([
-      this._model.findOne({ _id: groupId.toString() }).lean(),
-      this.calculateAncestors(groupId)
-    ])
-    // const raw = await this._model.findOne({ _id: groupId.toString() }).lean();
-    if (!raw) return null;
-    return Mapper.toDomain({ ...raw, ancestors });
+    let groupOrNull: Group | null = null;
+    // calculate all group's fields in one transaction to preserve consistency
+    /*
+     // TODO: maybe can be done in one aggregate query 
+      (maybe with virtual populate in addition) without transaction!
+    */ 
+    const session = await this._model.startSession();
+    await session.withTransaction(async () => {
+      const [raw, ancestors, childrenNames] = await Promise.all([
+        this._model.findOne({ _id: groupId.toString() }).lean().session(session),
+        this.calculateAncestors(groupId, session),
+        this.calculateChildrenNames(groupId, session) 
+      ]);
+      if(!!raw) {
+        groupOrNull = Mapper.toDomain({ ...raw, ancestors, childrenNames });
+      }
+    });
+    session.endSession();
+    return groupOrNull;
   }
 
-  private async calculateAncestors(groupId: GroupId) {
+  private async calculateAncestors(groupId: GroupId, session?: ClientSession) {
     const res = await this._model.aggregate([
       { $match: { _id: groupId.toString() } },
       {
@@ -46,14 +58,20 @@ export class GroupRepository implements IGroupRepository {
           connectFromField: 'directGroup',
           connectToField: '_id',
           as: 'ancestors',
-          depthField: 'searchDepth'
+          depthField: 'searchDepth',
         }
       },
       { $unwind: '$ancestors' },
       { $sort: { searchDepth: 1 } },
       { $project: { _id: 1 } } // TODO: does it work?
-    ]);
+    ]).session(session || null);
     return res.map(doc => doc._id) as Types.ObjectId[];
+  }
+
+  private async calculateChildrenNames(groupId: GroupId, session?: ClientSession) {
+    const children = await this._model.find({ directGroup: groupId.toString() })
+      .lean().select({ name: 1 }).session(session || null);
+    return children.map(g => g.name);
   }
 
   async save(group: Group) {

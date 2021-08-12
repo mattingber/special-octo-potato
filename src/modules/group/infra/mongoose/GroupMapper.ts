@@ -15,13 +15,17 @@ export class GroupMapper {
       // ancestors: group.ancestors.map(ancestorId => Types.ObjectId(ancestorId.toString())),
       directGroup: !!group.parentId ? Types.ObjectId(group.parentId.toString()) : undefined,
       // hierarchy: group.hierarchy,
-      childrenNames: group.childrenNames,
       akaUnit: group.akaUnit,
       status: group.status,
     }
   }
 
-  static toDomain(raw: GroupDoc & { ancestors: Types.ObjectId[] }): Group {
+  static toDomain(
+    raw: GroupDoc & { 
+      ancestors: Types.ObjectId[],
+      childrenNames: string[],
+    } 
+  ): Group {
     const groupId = GroupId.create(raw._id.toHexString());
     return Group._create(
       groupId,
