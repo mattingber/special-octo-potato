@@ -6,18 +6,18 @@ import { Mail } from "../../digitalIdentity/domain/Mail";
 import { EntityId } from "./EntityId";
 import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
 
-type DigitalIdentityObject = {
+export type DigitalIdentityObject = {
   type: DigitalIdentityType;
   source: Source;
   mail?: Mail; // use value Object
-  entityId: EntityId;
+  connectedEntityId: EntityId;
   canConnectRole?: boolean;
   uniqueId: DigitalIdentityId;
 };
 
-const OT_STRONG_SOURCE = 'OT';
+const OT_STRONG_SOURCE = 'OT'; // TODO: from config?
 
-export class PrimaryDigitalIdentityService {
+export class PrimaryDigitalIdentityService { // TODO: should be "static" class
   private _primarySourceMap: Map<string, Source>;
 
   constructor() {
@@ -55,7 +55,7 @@ export class PrimaryDigitalIdentityService {
   // }
 
   public choosePrimaryDigitalIdentity(entity: Entity, digitalIdentities: DigitalIdentityObject[]) {
-    const connected = digitalIdentities.filter(di => di.entityId.equals(entity.entityId));
+    const connected = digitalIdentities.filter(di => di.connectedEntityId.equals(entity.entityId));
     // no connected DIs, set primary to undefined
     if(connected.length === 0) {
       entity.updateDetails({ primaryDigitalIdentityId: undefined });
@@ -72,7 +72,7 @@ export class PrimaryDigitalIdentityService {
     // find if one of the other DIs has the strongest source
     const strongSourceDI = connected.find(PrimaryDigitalIdentityService.haveStrongSource);
     if(!!strongSourceDI) {
-      entity.updateDetails({ primaryDigitalIdentityId: strongSourceDI.entityId });
+      entity.updateDetails({ primaryDigitalIdentityId: strongSourceDI.connectedEntityId });
       return;
     }
     // check for primary source DI (and the current primary has not)
@@ -81,12 +81,12 @@ export class PrimaryDigitalIdentityService {
       (!currentPrimary || !this.havePrimarySource(entity, currentPrimary)) &&
       !!primarySourceDI
     ) {
-      entity.updateDetails({ primaryDigitalIdentityId: primarySourceDI.entityId });
+      entity.updateDetails({ primaryDigitalIdentityId: primarySourceDI.connectedEntityId });
       return;
     }
     // connect one of the DIs
     if(!currentPrimary) {
-      entity.updateDetails({ primaryDigitalIdentityId: connected[0].entityId });
+      entity.updateDetails({ primaryDigitalIdentityId: connected[0].connectedEntityId });
       return;
     }
     // else, the current primary
