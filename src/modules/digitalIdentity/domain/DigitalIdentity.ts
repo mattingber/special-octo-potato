@@ -57,8 +57,19 @@ export class DigitalIdentity extends AggregateRoot {
     this._mail = mail;
   }
 
-  // TODO: should we prevent if already connected? hsould replace EntityId ? / add disconnect event
   connectToEntity(entity: Entity) {
+    // if currently connected - emmit disconnected event
+
+    // if(!!this._entityId) {
+    //   this.addDomainEvent(new DigitalIdentityDisconnectedEvent(this.id, {
+    //     disconnectedEntityId: this._entityId,
+    //     source: this._source,
+    //     type: this._type,
+    //     uniqueId: this.uniqueId,
+    //     mail: this._mail,
+    //   }));
+    // }
+    
     this.addDomainEvent(new DigitalIdentityConnectedEvent(this.id, {
       canConnectRole: this._canConnectRole,
       mail: this._mail,
