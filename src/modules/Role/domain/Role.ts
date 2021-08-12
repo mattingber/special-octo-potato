@@ -15,10 +15,11 @@ import { Source } from "../../digitalIdentity/domain/Source";
 export interface RoleState {
   source: Source;
   jobTitle?: string;
-  // hierarchyIds: GroupId[];
   directGroup: GroupId;
-  // hierarchy: Hierarchy;
   digitalIdentityUniqueId?: DigitalIdentityId;
+  // TODO: add clearance field?
+  // hierarchyIds: GroupId[];
+  // hierarchy: Hierarchy;
 };
 
 type UpdateDto = {
