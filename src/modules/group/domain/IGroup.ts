@@ -3,7 +3,7 @@ import { Source } from "../../digitalIdentity/domain/Source";
 
 export interface IGroup {
   name: string;
-  source: Source; // TODO: value object. 
+  source: Source; 
   akaUnit?: string;
   // hierarchy: string;
   ancestors: GroupId[];

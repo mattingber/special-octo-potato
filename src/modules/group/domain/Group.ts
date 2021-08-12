@@ -21,7 +21,7 @@ type ChildGroupProps = CreateGroupProps & {
 
 interface GroupState {
   name: string;
-  source: Source; // TODO: value object. 
+  source: Source;
   akaUnit?: string;
   // hierarchy?: Hierarchy;
   ancestors?: GroupId[];
