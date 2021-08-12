@@ -7,6 +7,6 @@ import { Mail } from "../domain/Mail";
 export interface DigitalIdentityRepository extends Repository<DigitalIdentity> {
   save(digitalIdentity: DigitalIdentity): Promise<void>;
   getByUniqueId(uniqueId: DigitalIdentityId): Promise<DigitalIdentity | null>;
-  getByEntityId(entityId: EntityId): Promise<DigitalIdentity | null>;
+  getByEntityId(entityId: EntityId): Promise<DigitalIdentity[]>;
   exists(identifier: Mail | DigitalIdentityId): Promise<boolean>;
 }

@@ -51,9 +51,8 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
   }
 
   async getByEntityId(entityId: EntityId) {
-    const raw = await this._model.findOne({ entityId: entityId.toString() }).lean();
-    if(!raw) return null;
-    return Mapper.toDomain(raw);
+    const raw = await this._model.find({ entityId: entityId.toString() }).lean();
+    return raw.map(Mapper.toDomain);
   }
 
 }
