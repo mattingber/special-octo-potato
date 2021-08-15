@@ -182,8 +182,8 @@ export class Entity extends AggregateRoot {
  
   private _state: EntityState;
 
-  private constructor(id: EntityId, props: EntityState) {
-    super(id);
+  private constructor(id: EntityId, props: EntityState, opts: CreateOpts) {
+    super(id, opts);
     this._state = props;
   }
 
@@ -283,7 +283,7 @@ export class Entity extends AggregateRoot {
   static _create(id: EntityId, state: EntityState, opts: CreateOpts): Result<Entity, IllegalEntityStateError> {
     const isValid = Entity.isValidEntityState(state);
     if (isValid.isOk()) {
-      return ok(new Entity(id, state));
+      return ok(new Entity(id, state, opts));
     }
     return err(isValid.error);
   }

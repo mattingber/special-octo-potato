@@ -38,8 +38,8 @@ export class Role extends AggregateRoot {
   // private _hierarchy: Hierarchy;
   private _digitalIdentityUniqueId?: DigitalIdentityId;
 
-  private constructor(roleId: RoleId, props: RoleState) {
-    super(roleId);
+  private constructor(roleId: RoleId, props: RoleState, opts: CreateOpts) {
+    super(roleId, opts);
     const {
       source,
       directGroup,
@@ -129,7 +129,7 @@ export class Role extends AggregateRoot {
   // }
 
   public static _create(roleId: RoleId, state: RoleState, opts: CreateOpts) {
-    return new Role(roleId, state);
+    return new Role(roleId, state, opts);
   }
 
   public static createNew(roleId: RoleId, state: Omit<RoleState, 'digitalIdentityUniqueId'>) {

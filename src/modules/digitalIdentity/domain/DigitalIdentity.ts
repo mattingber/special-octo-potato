@@ -36,8 +36,8 @@ export class DigitalIdentity extends AggregateRoot {
   private _canConnectRole: boolean;
   private _entityId?: EntityId; 
 
-  private constructor(id: DigitalIdentityId, props: DigitalIdentityState) {
-    super(id);
+  private constructor(id: DigitalIdentityId, props: DigitalIdentityState, opts: CreateOpts) {
+    super(id, opts);
     this._type = props.type;
     this._source = props.source;
     this._mail = props.mail;
@@ -106,7 +106,7 @@ export class DigitalIdentity extends AggregateRoot {
       return err(CannotConnectRoleError.create(id.toString())); //error
     }
     // TODO: 
-    return ok(new DigitalIdentity(id, state));
+    return ok(new DigitalIdentity(id, state, opts));
   }
   
   // static createDomainUser(uniqueId: DigitalIdentityId, props: Omit<DigitalIdentityState, 'type'>) {

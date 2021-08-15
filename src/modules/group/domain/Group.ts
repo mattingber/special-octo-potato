@@ -42,8 +42,8 @@ export class Group
   private _source: Source;
   private _childrenNames: Set<string>;
 
-  private constructor(id: GroupId, state: GroupState) {
-    super(id);
+  private constructor(id: GroupId, state: GroupState, opts: CreateOpts) {
+    super(id, opts);
     this._name = state.name;
     this._akaUnit = state.akaUnit;
     this._source = state.source;
@@ -155,7 +155,7 @@ export class Group
 
   static _create(groupId: GroupId, state: GroupState, opts: CreateOpts): Group {
     // validate hierarchy & ancestors
-    return new Group(groupId, state);
+    return new Group(groupId, state, opts);
   }
 }
 
