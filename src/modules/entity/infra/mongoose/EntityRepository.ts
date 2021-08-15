@@ -7,8 +7,8 @@ import { EntityId } from "../../domain/EntityId";
 import { Entity } from "../../domain/Entity";
 import { PersonalNumber } from "../../domain/PersonalNumber";
 import { IdentityCard } from "../../domain/IdentityCard";
-import { DigitalIdentityId } from "../../../digitalIdentity/domain/DigitalIdentityId";
-import { has } from "../../../../utils/ObjectUtils";
+import { err, ok, Result } from "neverthrow";
+import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
 
 const modelName = 'Entity'; // TODO: get from config
 export class EntityRepository implements IEntityRepository {
@@ -34,7 +34,7 @@ export class EntityRepository implements IEntityRepository {
   }
 
   generateEntityId(): EntityId {
-    return  EntityId.create(new Types.ObjectId().toHexString());
+    return EntityId.create(new Types.ObjectId().toHexString());
   }
   
   async getByEntityId(entityId: EntityId): Promise<Entity | null> {
@@ -43,17 +43,28 @@ export class EntityRepository implements IEntityRepository {
     return Mapper.toDomain(raw);
   }
 
-  async save(entity: Entity) {
+  async save(entity: Entity): Promise<Result<void, AggregateVersionError>> {
     const persistanceState = Mapper.toPersistance(entity);
     const session = await this._model.startSession();
+    let result: Result<void, AggregateVersionError> = ok(undefined);
     await session.withTransaction(async () => {
-      await this._model.updateOne(
-        { _id: entity.entityId.toString() }, 
-        persistanceState, 
-        { upsert: true }
-      ).session(session);
+      if(!!await this._model.findOne({_id: entity.entityId.toString()}, { session })) {
+        const updateOp = await this._model.updateOne({ 
+            _id: entity.entityId.toString(), 
+            version: entity.fetchedVersion,
+          },
+          persistanceState
+        ).session(session);
+        if(updateOp.n === 0) {
+          result = err(AggregateVersionError.create(entity.fetchedVersion))
+        }
+      } else {
+        await this._model.create([persistanceState], { session });
+        result = ok(undefined);
+      }
       await this._eventOutbox.put(entity.domainEvents, session);
     });
     session.endSession();
+    return result;
   }
 }

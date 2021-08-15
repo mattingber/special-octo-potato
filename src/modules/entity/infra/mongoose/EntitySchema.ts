@@ -31,7 +31,8 @@ export interface EntityDoc {
         updatedAt?: Date,
       }
     }
-  }
+  },
+  version: number,
 }
 
 const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc> ({
@@ -63,7 +64,8 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc> ({
         updatedAt: Date,
       }
     }
-  }
+  },
+  version: Number
 },{
   versionKey: false,
   timestamps: true,

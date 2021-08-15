@@ -5,6 +5,8 @@ import { default as GroupSchema, GroupDoc } from "./GroupSchema";
 import { GroupId } from "../../domain/GroupId";
 import { Group } from "../../domain/Group";
 import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
+import { err, ok, Result } from "neverthrow";
+import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
 
 
 const modelName = 'Group'; // TODO: get from config
@@ -74,17 +76,28 @@ export class GroupRepository implements IGroupRepository {
     return children.map(g => g.name);
   }
 
-  async save(group: Group) {
+  async save(group: Group): Promise<Result<void, AggregateVersionError>> {
     const persistanceState = Mapper.toPersistance(group);
     const session = await this._model.startSession();
+    let result: Result<void, AggregateVersionError> = ok(undefined);
     await session.withTransaction(async () => {
-      await this._model.updateOne(
-        { _id: group.groupId.toString() }, 
-        persistanceState, 
-        { upsert: true }
-      ).session(session);
+      if(!!await this._model.findOne({ _id: group.groupId.toString()}, { session })) {
+        const updateOp = await this._model.updateOne({ 
+            uniqueId: group.groupId.toString(), 
+            version: group.fetchedVersion,
+          },
+          persistanceState
+        ).session(session);
+        if(updateOp.n === 0) {
+          result = err(AggregateVersionError.create(group.fetchedVersion))
+        }
+      } else {
+        await this._model.create([persistanceState],{ session });
+        result = ok(undefined);
+      }
       await this._eventOutbox.put(group.domainEvents, session);
     });
     session.endSession();
+    return result;
   }
 }

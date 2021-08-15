@@ -8,6 +8,7 @@ export interface DigitalIdentityDoc {
   mail?: string; 
   isRoleAttachable?: boolean;
   entityId?: Types.ObjectId;
+  version: number;
 }
 
 const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, DigitalIdentityDoc> ({
@@ -20,6 +21,7 @@ const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, Digital
   source: String,
   mail: String,
   isRoleAttachable: Boolean,
+  version: Number,
 },{
   versionKey: false,
   timestamps: true,

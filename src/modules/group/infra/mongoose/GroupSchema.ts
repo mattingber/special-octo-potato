@@ -9,6 +9,7 @@ export interface GroupDoc {
   directGroup?: Types.ObjectId;
   status?: string;
   akaUnit?: string;
+  version: number;
 }
 
 const schema = new Schema<GroupDoc, Model<GroupDoc>, GroupDoc> ({
@@ -19,6 +20,7 @@ const schema = new Schema<GroupDoc, Model<GroupDoc>, GroupDoc> ({
   akaUnit: String,
   // ancestors: [Schema.Types.ObjectId],
   directGroup: Schema.Types.ObjectId,
+  version: Number,
 },{
   versionKey: false,
   timestamps: true,

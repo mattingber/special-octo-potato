@@ -7,6 +7,8 @@ import { DigitalIdentityId } from '../../domain/DigitalIdentityId';
 import { EntityId } from "../../../entity/domain/EntityId";
 import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
 import { Mail } from "../../domain/Mail";
+import { err, ok, Result } from "neverthrow";
+import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
 
 const modelName = 'DigitalIdentity'; // TODO: get from config
 export class DigitalIdentityRepository implements IdigitalIdentityRepo {
@@ -30,18 +32,33 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
     }
   }
   
-  async save(digitalIdentity: DigitalIdentity): Promise<void> {
+  async save(digitalIdentity: DigitalIdentity): Promise<Result<
+    void, 
+    AggregateVersionError>
+  > {
     const persistanceState = Mapper.toPersistance(digitalIdentity);
     const session = await this._model.startSession();
+    let result: Result<void, AggregateVersionError> = ok(undefined);
     await session.withTransaction(async () => {
-      await this._model.updateOne(
-        { uniqueId: persistanceState.uniqueId }, 
-        persistanceState, 
-        { upsert: true }
-      ).session(session);
+      if(!!await this._model
+        .findOne({ uniqueId: digitalIdentity.uniqueId.toString()}, { session })) {
+          const updateOp = await this._model.updateOne({ 
+              uniqueId: digitalIdentity.uniqueId.toString(), 
+              version: digitalIdentity.fetchedVersion,
+            },
+            persistanceState
+          ).session(session);
+        if(updateOp.n === 0) {
+          result = err(AggregateVersionError.create(digitalIdentity.fetchedVersion))
+        }
+      } else {
+        await this._model.create([persistanceState], { session });
+        result = ok(undefined);
+      }
       await this._eventOutbox.put(digitalIdentity.domainEvents, session);
     });
     session.endSession();
+    return result;
   }
 
   async getByUniqueId(uniqueId: DigitalIdentityId) {

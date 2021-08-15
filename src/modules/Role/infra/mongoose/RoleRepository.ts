@@ -6,6 +6,8 @@ import { RoleRepository as IRoleRepository } from "../../repository/RoleReposito
 import { RoleMapper as Mapper} from "./RoleMapper";
 import { default as RoleSchema, RoleDoc } from "./RoleSchema";
 import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
+import { err, ok, Result } from "neverthrow";
+import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
 
 
 const modelName = 'Role'; // TODO: get from config
@@ -36,17 +38,28 @@ export class RoleRepository implements IRoleRepository {
     return Mapper.toDomain(raw);
   }
 
-  async save(role: Role) {
+  async save(role: Role): Promise<Result<void, AggregateVersionError>> {
     const persistanceState = Mapper.toPersistance(role);
     const session = await this._model.startSession();
+    let result: Result<void, AggregateVersionError> = ok(undefined);
     await session.withTransaction(async () => {
-      await this._model.updateOne(
-        { roleId: persistanceState.roleId }, 
-        persistanceState, 
-        { upsert: true }
-      ).session(session);
+      if(!!await this._model.findOne({ roleId: role.roleId.toString()}, { session })) {
+        const updateOp = await this._model.updateOne({ 
+            roleId: role.roleId.toString(),
+            version: role.fetchedVersion,
+          },
+          persistanceState
+        ).session(session);
+        if(updateOp.n === 0) {
+          result = err(AggregateVersionError.create(role.fetchedVersion))
+        }
+      } else {
+        await this._model.create([persistanceState],{ session });
+        result = ok(undefined);
+      }
       await this._eventOutbox.put(role.domainEvents, session);
     });
     session.endSession();
+    return result;
   }
 }

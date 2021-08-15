@@ -6,6 +6,7 @@ export interface RoleDoc {
   jobTitle?: string;
   directGroup: Types.ObjectId;
   digitalIdentityUniqueId?: string;
+  version: number;
   // hierarchyIds: string[];
   // hierarchy: string;
 }
@@ -19,6 +20,7 @@ const schema = new Schema<RoleDoc, Model<RoleDoc>, RoleDoc> ({
   source: String,
   directGroup: Schema.Types.ObjectId,
   jobTitle: String,
+  version: Number,
 },{
   versionKey: false,
   timestamps: true,

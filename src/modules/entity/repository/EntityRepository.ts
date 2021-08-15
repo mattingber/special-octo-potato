@@ -4,6 +4,8 @@ import { EntityId } from "../domain/EntityId";
 import { IdentityCard } from "../domain/IdentityCard";
 import { PersonalNumber } from "../domain/PersonalNumber";
 import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
+import { Result } from "neverthrow";
+import { AggregateVersionError } from "../../../core/infra/AggregateVersionError";
 
 export type IhaveEntityIdentifiers = Partial<{
   identityCard: IdentityCard;
@@ -17,7 +19,7 @@ type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K> }> = Partial<T> & U[keyof U]
 
 
 export interface EntityRepository extends Repository<Entity> {
-  save(entity: Entity): Promise<void>;
+  save(entity: Entity): Promise<Result<void, AggregateVersionError>>;
   getByEntityId(enityId: EntityId): Promise<Entity | null>;
   generateEntityId(): EntityId;
   exists(identifier: EntityIdentifier): Promise<boolean>;

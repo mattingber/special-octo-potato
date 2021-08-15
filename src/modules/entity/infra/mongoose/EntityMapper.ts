@@ -36,6 +36,7 @@ export class EntityMapper {
       mobilePhone: entity.mobilePhone.map(p => p.value),
       goalUserId: entity.goalUserId?.toString(),
       primaryDigitalIdentityId: entity.primaryDigitalIdentityId?.toString(),
+      version: entity.version,
       pictures: entity.profilePicture ? {
         profile: {
           path: entity.profilePicture.path,
@@ -84,7 +85,7 @@ export class EntityMapper {
           ...raw.pictures.profile.meta,
         } : undefined,
       },
-      { isNew: false },
+      { isNew: false, savedVersion: raw.version },
     )._unsafeUnwrap();
   }
 }
