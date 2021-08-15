@@ -35,6 +35,10 @@ export abstract class AggregateRoot extends EntityBase {
     return this._version;
   }
 
+  get fetchedVersion() {
+    return this._savedVersion;
+  }
+
 }
 
 export type CreateOpts = {
