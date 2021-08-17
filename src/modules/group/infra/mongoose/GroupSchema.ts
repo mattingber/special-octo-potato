@@ -26,6 +26,7 @@ const schema = new Schema<GroupDoc, Model<GroupDoc>, GroupDoc> ({
   timestamps: true,
 });
 
-schema.index({ hierarchy: 1, name: 1 }, { unique: true });
+// ensure name is unique under the same parent group
+schema.index({ directGroup: 1, name: 1 }, { unique: true });
 
 export default schema;
