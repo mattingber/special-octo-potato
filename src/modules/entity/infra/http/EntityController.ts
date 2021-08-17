@@ -25,7 +25,7 @@ export class EntityController {
   /**
    * POST /entities
    */
-  async createEntity(req: Request, res: Response) {
+  createEntity = async (req: Request, res: Response) => {
     const { error, value } = CreateEntitySchema.validate(req.body);
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
@@ -40,7 +40,7 @@ export class EntityController {
   /**
    * PUT /entities/:id/digitalIdentity/:uniqueId
    */
-  async connectDigitalIdentity(req: Request, res: Response) {
+  connectDigitalIdentity = async (req: Request, res: Response) => {
     const { error, value } = ConnectDigitalIdentitySchema.validate(req.params);
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
@@ -55,7 +55,7 @@ export class EntityController {
   /**
    * DELETE /entities/:id/digitalIdentity/:uniqueId
    */
-  async disconnectDigitalIdentity(req: Request, res: Response) {
+  disconnectDigitalIdentity = async (req: Request, res: Response) => {
     const { error, value } = ConnectDigitalIdentitySchema.validate(req.params);
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
@@ -70,7 +70,7 @@ export class EntityController {
   /**
    * PATCH /entities/:id
    */
-  async updateEntity(req: Request, res: Response) {
+  updateEntity = async (req: Request, res: Response) => {
     const { error, value } = UpdateEntitySchema.validate({
       ...req.body,
       entityId: req.params.id

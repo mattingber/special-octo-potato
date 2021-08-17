@@ -19,7 +19,7 @@ export class DigitalIdentityController {
   /**
    * POST /digitalIdentities
    */
-  async createDigitalIdentity(req: Request, res: Response) {
+  createDigitalIdentity = async (req: Request, res: Response) => {
     const { error, value: dto } = CreateDigitalIdentitySchema.validate(req.body);
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
@@ -34,7 +34,7 @@ export class DigitalIdentityController {
   /**
    * PATCH /digitalIdentities/:id
    */
-  async updateDigitalIdentity(req: Request, res: Response) {
+  updateDigitalIdentity = async (req: Request, res: Response) => {
     const { error, value: dto } = UpdateDigitalIdentitySchema.validate({
       ...req.body,
       uniqueId: req.params.id,

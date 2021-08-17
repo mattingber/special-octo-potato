@@ -10,7 +10,6 @@ import {
 } from '../../useCases/dto/MoveGroupDTO';
 import { ResponseHandler } from "../../../../shared/infra/http/helpers/BaseController";
 import { AppError } from "../../../../core/logic/AppError";
-import { CreateRoleDTO } from "../../../Role/useCases/dtos/CreateRoleDTO";
 
 
 export class GroupController {
@@ -21,7 +20,7 @@ export class GroupController {
   /**
    * POST /groups
    */
-  async createGroup(req: Request, res: Response) {
+  createGroup = async (req: Request, res: Response) => {
     const { error, value: dto } = CreateGroupSchema.validate(req.body);
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
@@ -39,7 +38,7 @@ export class GroupController {
    * @param res 
    * @returns 
    */
-  async moveGroup(req: Request, res: Response) {
+  moveGroup = async (req: Request, res: Response) => {
     const { error, value: dto } = CreateGroupSchema.validate({
       groupId: req.params.id,
       parentId: req.params.parentId,
@@ -62,3 +61,5 @@ export class GroupController {
     return ResponseHandler.ok(res);
   }
 }
+
+// TODO: delete route and update route

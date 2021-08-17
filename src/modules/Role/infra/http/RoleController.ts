@@ -24,7 +24,13 @@ export class RoleController {
     private _roleService: RoleService
   ){}
 
-  async createRole(req: Request, res: Response) {
+  /**
+   * POST /roles
+   * @param req 
+   * @param res 
+   * @returns 
+   */
+  createRole = async (req: Request, res: Response) => {
     const { error, value: dto } = CreateRoleSchema.validate(req.body);
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
@@ -42,7 +48,7 @@ export class RoleController {
    * @param res 
    * @returns 
    */
-  async moveGroup(req: Request, res: Response) {
+  moveGroup = async (req: Request, res: Response) => {
     const { error, value: dto } = MoveGroupSchema.validate(req.params)
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
@@ -66,7 +72,7 @@ export class RoleController {
    * @param res 
    * @returns 
    */
-  async connectDigitalIdentity(req: Request, res: Response) {
+  connectDigitalIdentity = async (req: Request, res: Response) => {
     const { error, value: dto } = ConnectDigitalIdentitySchema.validate(req.params)
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
@@ -88,12 +94,39 @@ export class RoleController {
   }
 
   /**
+   * delete /roles/:roleId/digitalIdentity/:digitalIdentityUniqueId
+   * @param req 
+   * @param res 
+   * @returns 
+   */
+  disconnectDigitalIdentity = async (req: Request, res: Response) => {
+    const { error, value: dto } = ConnectDigitalIdentitySchema.validate(req.params)
+    if(!!error) {
+      return ResponseHandler.clientError(res, error.message);
+    }
+    const result = await this._roleService.disconnectDigitalIdentity(dto as ConnectDigitalIdentityDTO);
+    if(result.isErr()) {
+      const err = result.error;
+      // only if the role itself is not found return 404
+      if(
+        err instanceof AppError.ResourceNotFound &&
+        err.resource === (dto as ConnectDigitalIdentityDTO).roleId
+      ) {
+        return ResponseHandler.notFound(res, err.message);
+      } 
+      // else return 400 
+      return ResponseHandler.clientError(res, result.error.message);
+    }
+    return ResponseHandler.ok(res);
+  }
+
+  /**
    * PATCH /roles/:roleId
    * @param req 
    * @param res 
    * @returns 
    */
-  async updateRole(req: Request, res: Response) {
+  updateRole = async (req: Request, res: Response) => {
     const { error, value: dto } = UpdateRoleSchema.validate({
       roleId: req.params.roleId,
       ...req.body,
