@@ -17,6 +17,7 @@ export class GroupMapper {
       // hierarchy: group.hierarchy,
       akaUnit: group.akaUnit,
       status: group.status,
+      version: group.version,
     }
   }
 
@@ -38,7 +39,7 @@ export class GroupMapper {
         status: raw.status,
         // hierarchy: Hierarchy.create(raw.hierarchy),
       },
-      { isNew: false },
+      { isNew: false, savedVersion: raw.version },
     );
   }
 }
