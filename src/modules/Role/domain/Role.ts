@@ -75,7 +75,7 @@ export class Role extends AggregateRoot {
         this._digitalIdentityUniqueId.toString()
       ));
     }
-    if (digitalIdentity.canConnectRole){
+    if (digitalIdentity.canConnectRole) {
       this._digitalIdentityUniqueId = digitalIdentity.uniqueId;
       this.addDomainEvent(new RoleConnectedEvent(this.id, {
         roleId: this.roleId,
@@ -85,6 +85,7 @@ export class Role extends AggregateRoot {
         // hierarchy: this._hierarchy,
         // hierarchyIds: this._hierarchyIds,
       }));
+      this.markModified();
       return ok(undefined);
     }
     return err(
@@ -103,11 +104,13 @@ export class Role extends AggregateRoot {
         // hierarchyIds: this._hierarchyIds,
       }));
     }
+    this.markModified();
     this._digitalIdentityUniqueId = undefined;
   }
 
   public updateJob(jobTitle: string) {
     this._jobTitle = jobTitle;
+    this.markModified();
   }
   // public static createRoleInGroup(
   //   roleId: RoleId, 

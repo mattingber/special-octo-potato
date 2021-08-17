@@ -51,10 +51,12 @@ export class DigitalIdentity extends AggregateRoot {
 
   disableRoleConnectable() {
     this._canConnectRole = false;
+    this.markModified();
   }
 
   updateMail(mail: Mail) {
     this._mail = mail;
+    this.markModified();
   }
 
   connectToEntity(entity: Entity) {
@@ -78,7 +80,8 @@ export class DigitalIdentity extends AggregateRoot {
       uniqueId: this.uniqueId,
       connectedEntityId: entity.entityId,
     }));
-    this._entityId = entity.entityId
+    this._entityId = entity.entityId;
+    this.markModified();
   }
 
   disconnectEntity() {
@@ -95,6 +98,7 @@ export class DigitalIdentity extends AggregateRoot {
       }));
     }
     this._entityId = undefined;
+    this.markModified();
   }
 
   static create(

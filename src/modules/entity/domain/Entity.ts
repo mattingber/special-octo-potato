@@ -228,6 +228,7 @@ export class Entity extends AggregateRoot {
     // update only if the resulting data has the required keys
     if(hasAll(pictureData, ['path', 'createdAt'])) {
       this._state.profilePicture = pictureData;
+      this.markModified();
       return ok(undefined);
     }
     return err(IllegalEntityStateError.create('illegal picture data update'));

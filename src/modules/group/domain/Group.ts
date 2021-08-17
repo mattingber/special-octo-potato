@@ -75,20 +75,21 @@ export class Group
       akaUnit: this._akaUnit,
       status: this._status, 
     }));
+    this.markModified();
     return ok(undefined);
   }
 
-  public addChild(child: IGroup): Result<void, DuplicateChildrenError> {
-    if(this._childrenNames.has(child.name)) {
-      return err(DuplicateChildrenError.create(child.name, this.name));
-    }
-    this._childrenNames.add(child.name);
-    return ok(undefined);
-  }
+  // public addChild(child: IGroup): Result<void, DuplicateChildrenError> {
+  //   if(this._childrenNames.has(child.name)) {
+  //     return err(DuplicateChildrenError.create(child.name, this.name));
+  //   }
+  //   this._childrenNames.add(child.name);
+  //   return ok(undefined);
+  // }
 
-  public removeChild(child: IGroup) {
-    this._childrenNames.delete(child.name);
-  }
+  // public removeChild(child: IGroup) {
+  //   this._childrenNames.delete(child.name);
+  // }
 
   get groupId(): GroupId {
     return GroupId.create(this.id.toValue());
