@@ -10,12 +10,12 @@ import { IdentityCard } from "../../domain/IdentityCard";
 import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
 
-const modelName = 'Entity'; // TODO: get from config
 export class EntityRepository implements IEntityRepository {
   private _model: Model<EntityDoc>;
   private _eventOutbox: EventOutbox
 
-  constructor(db: Connection, eventOutbox: EventOutbox) {
+  constructor(db: Connection, eventOutbox: EventOutbox, config: { modelName: string }) {
+    const { modelName } = config;
     if(db.modelNames().includes(modelName)) {
       this._model = db.model(modelName);
     } else {

@@ -1,0 +1,31 @@
+{
+  "valueObjects": {
+    "source": {
+      "values": ["OA","AD","ES","MM"],
+      "strongSources": ["OA"]
+    },
+    "rank": {
+      "values": ["rookie", "champion", "ultimate"]
+    },
+    "serviceType": {
+      "values": ["hov", "kev"]
+    }
+  },
+  "db": {
+    "mongo": {
+      "connectionString": "mongodb://localhost:27017",
+      "poolSize": 10,
+      "modelNames": {
+        "group": "Group",
+        "digitalIdentity": "DigitalIdentity",
+        "entity": "Entity",
+        "role": "Role",
+        "eventOutbox": "EventMessage"
+      }
+    }
+  },
+  "server": {
+    "port": 3000
+  }
+
+}

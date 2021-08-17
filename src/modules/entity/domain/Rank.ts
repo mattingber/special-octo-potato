@@ -1,8 +1,9 @@
 import { Result, err, ok } from "neverthrow";
 import { BasicValueObject } from "../../../core/domain/BasicValueObject";
+import config from "config";
 
-// TODO: replace this with value from config
-const ranks = ['rookie','yolyo']
+// TODO: maybe inject config to a factory class that creates ranks
+const ranks: string[] = config.get('valueObjects.rank.values');
 
 export class Rank extends BasicValueObject<string>{
 

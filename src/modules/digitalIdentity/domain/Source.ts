@@ -1,8 +1,9 @@
 import { Result, err, ok } from "neverthrow";
 import { BasicValueObject } from "../../../core/domain/BasicValueObject";
+import config from "config";
 
-// TODO: replace this with value from config
-const sources = ['es','ad']
+// TODO: maybe inject config to a factory class that creates sources
+const sources: string[] = config.get('valueObjects.source.values');
 
 export class Source extends BasicValueObject<string>{
 

@@ -10,12 +10,12 @@ import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
 
 
-const modelName = 'Role'; // TODO: get from config
 export class RoleRepository implements IRoleRepository {
   private _model: Model<RoleDoc>;
   private _eventOutbox: EventOutbox;
 
-  constructor(db: Connection, eventOutbox: EventOutbox) {
+  constructor(db: Connection, eventOutbox: EventOutbox, config: { modelName: string }) {
+    const { modelName } = config;
     if(db.modelNames().includes(modelName)) {
       this._model = db.model(modelName);
     } else {

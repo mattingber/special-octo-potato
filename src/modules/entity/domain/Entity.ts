@@ -219,6 +219,7 @@ export class Entity extends AggregateRoot {
     if(isValid.isOk()) {
       this._state = newState;
     }
+    this.markModified();
     return isValid;
   }
 

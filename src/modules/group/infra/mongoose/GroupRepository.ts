@@ -9,13 +9,13 @@ import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
 
 
-const modelName = 'Group'; // TODO: get from config
 export class GroupRepository implements IGroupRepository {
 
   private _model: Model<GroupDoc>;
   private _eventOutbox: EventOutbox;
 
-  constructor(db: Connection, eventOutbox: EventOutbox) {
+  constructor(db: Connection, eventOutbox: EventOutbox, config: { modelName: string }) {
+    const { modelName } = config;
     if(db.modelNames().includes(modelName)) {
       this._model = db.model(modelName);
     } else {

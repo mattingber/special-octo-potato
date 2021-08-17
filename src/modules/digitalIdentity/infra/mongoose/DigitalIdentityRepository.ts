@@ -10,12 +10,12 @@ import { Mail } from "../../domain/Mail";
 import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
 
-const modelName = 'DigitalIdentity'; // TODO: get from config
 export class DigitalIdentityRepository implements IdigitalIdentityRepo {
   private _model: Model<DigitalIdentityDoc>;
   private _eventOutbox: EventOutbox;
 
-  constructor (db: Connection, eventOutbox: EventOutbox) {
+  constructor (db: Connection, eventOutbox: EventOutbox, config: { modelName: string }) {
+    const { modelName } = config;
     if(db.modelNames().includes(modelName)) {
       this._model = db.model(modelName);
     } else {

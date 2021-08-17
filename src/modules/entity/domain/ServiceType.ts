@@ -1,8 +1,9 @@
 import { Result, err, ok } from "neverthrow";
 import { BasicValueObject } from "../../../core/domain/BasicValueObject";
+import config from "config";
 
-// TODO: replace this with value from config
-const serviceTypes = ['keva','hova']
+// TODO: maybe inject config to a factory class that creates service types
+const serviceTypes: string[] = config.get('valueObjects.serviceType.values');
 
 export class ServiceType extends BasicValueObject<string>{
 
