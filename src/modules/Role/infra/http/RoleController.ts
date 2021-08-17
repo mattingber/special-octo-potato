@@ -16,7 +16,7 @@ import {
   UpdateRoleDTO,
   joiSchema as UpdateRoleSchema
 } from "../../useCases/dtos/UpdateRoleDTO";
-import { ResponseHandler } from "../../../../shared/infra/http/helpers/BaseController";
+import { ResponseHandler } from "../../../../shared/infra/http/helpers/ResponseHandler";
 import { AppError } from "../../../../core/logic/AppError";
 
 export class RoleController {

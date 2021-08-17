@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AppError } from "../../../../core/logic/AppError";
-import { ResponseHandler } from "../../../../shared/infra/http/helpers/BaseController";
+import { ResponseHandler } from "../../../../shared/infra/http/helpers/ResponseHandler";
 import { DigitalIdentityService } from "../../useCases/DigitalIdentityService";
 import {
   CreateDigitalIdentityDTO,

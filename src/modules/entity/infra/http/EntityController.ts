@@ -1,4 +1,4 @@
-import { ResponseHandler } from "../../../../shared/infra/http/helpers/BaseController";
+import { ResponseHandler } from "../../../../shared/infra/http/helpers/ResponseHandler";
 import { EntityService } from "../../useCases/EntityService";
 import { Response, Request } from "express";
 import { AppError } from "../../../../core/logic/AppError";

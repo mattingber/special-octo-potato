@@ -8,7 +8,7 @@ import {
   MoveGroupDTO,
   joiSchema as MoveGroupSchema
 } from '../../useCases/dto/MoveGroupDTO';
-import { ResponseHandler } from "../../../../shared/infra/http/helpers/BaseController";
+import { ResponseHandler } from "../../../../shared/infra/http/helpers/ResponseHandler";
 import { AppError } from "../../../../core/logic/AppError";
 
 
