@@ -2,13 +2,22 @@
   "valueObjects": {
     "source": {
       "values": ["OA","AD","ES","MM"],
-      "strongSources": ["OA"]
+      "strongSources": ["OA"],
+      "primaryMap": {
+        "unit1": "AD",
+        "unit2": "ES"
+      }
     },
     "rank": {
       "values": ["rookie", "champion", "ultimate"]
     },
     "serviceType": {
       "values": ["hov", "kev"]
+    },
+    "digitalIdentityId": {
+      "domain": {
+        "values": ["mm", "sirutim.com"]
+      }
     }
   },
   "db": {

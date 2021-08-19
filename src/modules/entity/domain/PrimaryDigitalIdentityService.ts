@@ -5,6 +5,8 @@ import { Source } from "../../digitalIdentity/domain/Source";
 import { Mail } from "../../digitalIdentity/domain/Mail";
 import { EntityId } from "./EntityId";
 import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
+import config from "config";
+
 
 export type DigitalIdentityObject = {
   type: DigitalIdentityType;
@@ -15,17 +17,25 @@ export type DigitalIdentityObject = {
   uniqueId: DigitalIdentityId;
 };
 
-const OT_STRONG_SOURCE = 'OT'; // TODO: from config?
+
+// TODO: inject config in another way
+const STRONG_SOURCES: string[] = config.get('valueObjects.source.strongSources'); 
+const PRIMARY_MAP: object = config.get('valueObjects.source.primaryMap');
 
 export class PrimaryDigitalIdentityService { // TODO: should be "static" class
   private _primarySourceMap: Map<string, Source>;
 
   constructor() {
-    this._primarySourceMap = new Map(); // TODO: build map from config
+    // TODO: Caution: it may throw an error if the sources values does not match the source values in config
+
+    // create "Source" instances frpm the strings in the config object and put then in
+    // a ES6 Map
+    this._primarySourceMap = new Map(Object.entries(PRIMARY_MAP)
+      .map(([key, source]) => [key, Source.create(source as string)._unsafeUnwrap()]));
   }
 
   private static haveStrongSource(digitalIdentity: DigitalIdentityObject) {
-    return digitalIdentity.source.value === OT_STRONG_SOURCE;
+    return STRONG_SOURCES.includes(digitalIdentity.source.value);
   }
 
   private havePrimarySource(entity: Entity, digitalIdentity: DigitalIdentityObject) {

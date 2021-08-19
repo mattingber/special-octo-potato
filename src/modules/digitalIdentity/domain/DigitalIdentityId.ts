@@ -1,9 +1,12 @@
 import { UniqueEntityId } from "../../../core/domain/UniqueEntityId";
 import { Result, err, ok } from "neverthrow";
+import config from "config";
 
-// TODO: remove this, need to get from config
-const domains = ['shirutim', 'mm'];
-const re = new RegExp(`.+@${domains.join('|')}`, 'gi'); // TODO: maybe replace special characters in domains
+// TODO: maybe inject config to a factory class that creates ids
+const domains: string[] = config.get('valueObjects.digitalIdentityId.domain.values');
+// replace dot special character with literal dot
+const escapedDomains = domains.map(s => s.replace('.', '\\.'));
+const re = new RegExp(`.+@(${escapedDomains.join('|')})`, 'gi');
 
 export class DigitalIdentityId extends UniqueEntityId {
   private constructor(id: string) {
