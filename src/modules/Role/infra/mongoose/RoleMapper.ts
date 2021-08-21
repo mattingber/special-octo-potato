@@ -15,7 +15,7 @@ export class RoleMapper {
       jobTitle: role.jobTitle,
       directGroup: Types.ObjectId(role.directGroup.toString()),
       digitalIdentityUniqueId: role.digitalIdentityUniqueId?.toString(),
-      clearence: role.clearence,
+      clearance: role.clearance,
       version: role.version
     }
   }
@@ -30,7 +30,7 @@ export class RoleMapper {
         source: Source.create (raw.source)._unsafeUnwrap(),
         jobTitle: raw.jobTitle,
         digitalIdentityUniqueId: !!di_uid ? DigitalIdentityId.create(di_uid)._unsafeUnwrap() : undefined,
-        clearence: raw.clearence,
+        clearance: raw.clearance,
       },
       { isNew: false, savedVersion: raw.version },
     );

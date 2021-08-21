@@ -5,7 +5,7 @@ export type CreateRoleDTO = {
   source: string;
   directGroup: string;
   jobTitle?: string;
-  clearence?: string;
+  clearance?: string;
 }
 
 export const joiSchema = Joi.object({
@@ -13,5 +13,5 @@ export const joiSchema = Joi.object({
   source: Joi.string().required(),
   directGroup: Joi.string().required(),
   jobTitle: Joi.string(),
-  clearence: Joi.string(),
+  clearance: Joi.string(),
 });

@@ -17,7 +17,7 @@ export interface RoleState {
   jobTitle?: string;
   directGroup: GroupId;
   digitalIdentityUniqueId?: DigitalIdentityId;
-  clearence?: string;
+  clearance?: string;
   // TODO: add clearance field?
   // hierarchyIds: GroupId[];
   // hierarchy: Hierarchy;
@@ -36,7 +36,7 @@ export class Role extends AggregateRoot {
   private _jobTitle: string;
   private _directGroup: GroupId;
   private _digitalIdentityUniqueId?: DigitalIdentityId;
-  private _clearence?: string;
+  private _clearance?: string;
   // private _hierarchyIds: GroupId[];
   // private _hierarchy: Hierarchy;
 
@@ -47,13 +47,13 @@ export class Role extends AggregateRoot {
       directGroup,
       jobTitle = '',
       digitalIdentityUniqueId,
-      clearence,
+      clearance: clearence,
     } = props;
     this._source = source;
     this._jobTitle = jobTitle;
     this._directGroup = directGroup;
     this._digitalIdentityUniqueId = digitalIdentityUniqueId;
-    this._clearence = clearence;
+    this._clearance = clearence;
   }
 
   public moveToGroup(group: IGroup) {
@@ -158,8 +158,8 @@ export class Role extends AggregateRoot {
   get directGroup() {
     return this._directGroup;
   }
-  get clearence() {
-    return this._clearence;
+  get clearance() {
+    return this._clearance;
   }
   // get hierarchyIds() {
   //   return this._hierarchyIds;

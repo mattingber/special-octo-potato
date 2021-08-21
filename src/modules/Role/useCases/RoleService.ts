@@ -45,7 +45,7 @@ export class RoleService {
     const role = group.createRole(roleId, {
       source: sourceOrError.value,
       jobTitle: createRoleDTO.jobTitle,
-      clearence: createRoleDTO.clearence,
+      clearance: createRoleDTO.clearance,
     });
     return (await this.roleRepository.save(role))
       .mapErr(err => AppError.RetryableConflictError.create(err.message));
