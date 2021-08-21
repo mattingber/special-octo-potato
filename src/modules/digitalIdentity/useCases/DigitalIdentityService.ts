@@ -20,7 +20,8 @@ export class DigitalIdentityService {
     void,
     MailAlreadyExistsError |
     DigitalIdentityAlreadyExistsError |
-    AppError.ValueValidationError
+    AppError.ValueValidationError |
+    AppError.RetryableConflictError
   >> {
     const uid = DigitalIdentityId.create(createDTO.uniqueId)
       .mapErr(AppError.ValueValidationError.create);
@@ -69,14 +70,15 @@ export class DigitalIdentityService {
     if(await this.diRepository.exists(uid.value)) {
       return err(DigitalIdentityAlreadyExistsError.create(createDTO.uniqueId));
     }
-    await this.diRepository.save(digitalIdentity.value);
-    return ok(undefined);
+    return (await this.diRepository.save(digitalIdentity.value))
+      .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
   async updateDigitalIdentity(updateDTO: UpdateDigitalIdentityDTO): Promise<Result<
     void,
     AppError.ValueValidationError | 
-    AppError.ResourceNotFound
+    AppError.ResourceNotFound |
+    AppError.RetryableConflictError
   >> {
     const uid = DigitalIdentityId.create(updateDTO.uniqueId)
       .mapErr(AppError.ValueValidationError.create);
@@ -96,9 +98,8 @@ export class DigitalIdentityService {
         digitalIdentity.disableRoleConnectable();
       }
     }
-
-    await this.diRepository.save(digitalIdentity);
-    return ok(undefined);
+    return (await this.diRepository.save(digitalIdentity))
+      .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
   // TODO: implement delete and maybe move connect/disconnect entity service methods to this class

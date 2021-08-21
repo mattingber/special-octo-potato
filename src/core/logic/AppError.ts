@@ -53,4 +53,14 @@ export namespace AppError {
       return new ResourceNotFound(resource, resourceType);
     }
   }
+
+  export class RetryableConflictError extends BaseError {
+    private constructor(message: string) {
+      super(message);
+    }
+
+    static create(message: string) {
+      return new RetryableConflictError(message);
+    }
+  }
 }

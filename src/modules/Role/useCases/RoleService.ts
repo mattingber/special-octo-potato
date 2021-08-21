@@ -12,6 +12,8 @@ import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityI
 import { UpdateRoleDTO } from "./dtos/UpdateRoleDTO";
 import { DigitalIdentity } from "../../digitalIdentity/domain/DigitalIdentity";
 import { MoveGroupDTO } from "./dtos/MoveGroupDTO";
+import { DigitalIdentityCannotBeConnected } from "../domain/errors/DigitalIdentityCannotBeConnected";
+import { AlreadyConnectedToDigitalIdentity } from "../domain/errors/AlreadyConnectedToDigitalIdentity";
 
 export class RoleService {
   constructor(
@@ -27,7 +29,8 @@ export class RoleService {
   async createRole(createRoleDTO: CreateRoleDTO): Promise<Result<
     void, 
     AppError.ValueValidationError |
-    AppError.ResourceNotFound
+    AppError.ResourceNotFound |
+    AppError.RetryableConflictError
   >> {
     const roleId = RoleId.create(createRoleDTO.roleId);
     const sourceOrError = Source.create(createRoleDTO.source)
@@ -43,8 +46,8 @@ export class RoleService {
       source: sourceOrError.value,
       jobTitle: createRoleDTO.jobTitle,
     });
-    await this.roleRepository.save(role);
-    return ok(undefined);
+    return (await this.roleRepository.save(role))
+      .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
   /**
@@ -55,7 +58,9 @@ export class RoleService {
     void, 
     AppError.ValueValidationError |
     AppError.ResourceNotFound |
-    any // any role entity errors
+    AppError.RetryableConflictError |
+    DigitalIdentityCannotBeConnected |
+    AlreadyConnectedToDigitalIdentity
   >> {
     const roleId = RoleId.create(connectDTO.roleId);
     const idOrError = DigitalIdentityId.create(connectDTO.digitalIdentityUniqueId)
@@ -78,8 +83,8 @@ export class RoleService {
     if(res.isErr()) {
       return err(res.error);
     }
-    await this.roleRepository.save(role);
-    return ok(undefined);
+    return (await this.roleRepository.save(role))
+      .mapErr(err => AppError.RetryableConflictError.create(err.message));    
   }
 
   /**
@@ -90,7 +95,7 @@ export class RoleService {
     void,
     AppError.ResourceNotFound |
     AppError.ValueValidationError |
-    any
+    AppError.RetryableConflictError
   >> {
     const roleId = RoleId.create(disconnectDTO.roleId);
     const uidOrError = DigitalIdentityId.create(disconnectDTO.digitalIdentityUniqueId)
@@ -108,7 +113,8 @@ export class RoleService {
       // TODO: better error type 
     }
     role.disconnectDigitalIdentity();
-    return ok(undefined);
+    return (await this.roleRepository.save(role))
+      .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
   /**
@@ -119,14 +125,18 @@ export class RoleService {
    }`
    * @param updateDTO 
    */
-  async updateRole(updateDTO: UpdateRoleDTO): Promise<Result<void, AppError.ResourceNotFound>> {
+  async updateRole(updateDTO: UpdateRoleDTO): Promise<Result<
+    void, 
+    AppError.ResourceNotFound |
+    AppError.RetryableConflictError
+  >> {
     const roleId = RoleId.create(updateDTO.roleId)
     const role = await this.roleRepository.getByRoleId(roleId);
     if(!role) {
       return err(AppError.ResourceNotFound.create(updateDTO.roleId, 'role id'));
     }
-    await this.roleRepository.save(role);
-    return ok(undefined);
+    return (await this.roleRepository.save(role))
+      .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
   /**
@@ -135,7 +145,8 @@ export class RoleService {
    */
   async moveToGroup(moveGroupDTO: MoveGroupDTO): Promise<Result<
     void,
-    AppError.ResourceNotFound
+    AppError.ResourceNotFound |
+    AppError.RetryableConflictError
   >> {
     const roleId = RoleId.create(moveGroupDTO.roleId);
     const groupId = GroupId.create(moveGroupDTO.groupId);
@@ -148,8 +159,8 @@ export class RoleService {
       return err(AppError.ResourceNotFound.create(moveGroupDTO.groupId, 'group'));
     }
     role.moveToGroup(group);
-    await this.roleRepository.save(role);
-    return ok(undefined);
+    return (await this.roleRepository.save(role)).
+      mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
 }

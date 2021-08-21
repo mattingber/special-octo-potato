@@ -9,6 +9,7 @@ import { Group } from "../domain/Group";
 import { DuplicateChildrenError } from "../domain/errors/DuplicateChildrenError";
 import { MoveGroupDTO } from "./dto/MoveGroupDTO";
 import { TreeCycleError } from "../domain/errors/TreeCycleError";
+import { GroupResultDTO, groupToDTO } from "./dto/GroupResultDTO";
 
 export class GroupService {
   constructor(
@@ -16,15 +17,16 @@ export class GroupService {
   ) {}
 
   async createGroup(createDTO: CreateGroupDTO): Promise<Result<
-    void,
+    GroupResultDTO,
     AppError.ValueValidationError |
     AppError.ResourceNotFound |
+    AppError.RetryableConflictError |
     DuplicateChildrenError
   >> {
     const source = Source.create(createDTO.source)
       .mapErr(AppError.ValueValidationError.create);
     if(source.isErr()) { return err(source.error); }
-    let group;
+    let group: Result<Group, DuplicateChildrenError>;
     const groupId = this.groupRepository.generateGroupId();
     if(has(createDTO, 'parentId')) {
       const parentId = GroupId.create(createDTO.parentId);
@@ -49,13 +51,15 @@ export class GroupService {
       ));
     }
     if(group.isErr()) { return err(group.error); }
-    await this.groupRepository.save(group.value);
-    return ok(undefined);
+    return (await this.groupRepository.save(group.value))
+      .map(() => groupToDTO(group._unsafeUnwrap())) // TODO why the fuck TS doesn't recognize the correct type
+      .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
   async moveGroup(moveGroupDTO: MoveGroupDTO): Promise<Result<
     void,
     AppError.ResourceNotFound | 
+    AppError.RetryableConflictError |
     DuplicateChildrenError | 
     TreeCycleError
   >> {
@@ -73,7 +77,8 @@ export class GroupService {
     if(result.isErr()) {
       return err(result.error);
     }
-    return ok(undefined);
+    return (await this.groupRepository.save(group))
+      .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
   // TODO: update group (rename) and delete group

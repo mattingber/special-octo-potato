@@ -23,6 +23,7 @@ import { GoalUserIdAlreadyExistsError } from "./errors/GoalUserIdAlreadyExistsEr
 import { IdentityCardAlreadyExistsError } from "./errors/IdentityCardAlreadyExistsError";
 import { PersonalNumberAlreadyExistsError } from "./errors/PersonalNumberAlreadyExistsError";
 import { EntityIsNotConnectedError } from "./errors/EntityIsNotConnectedError";
+import { EntityResultDTO, entityToDTO } from "./dtos/EntityResultDTO";
 
 export class EntityService {
   constructor(
@@ -31,12 +32,13 @@ export class EntityService {
   ){}
 
   async createEntity(createEntityDTO: CreateEntityDTO): Promise<Result<
-    void,
+    EntityResultDTO,
     AppError.ValueValidationError | 
     IllegalEntityStateError | 
     IdentityCardAlreadyExistsError | 
     PersonalNumberAlreadyExistsError | 
-    GoalUserIdAlreadyExistsError
+    GoalUserIdAlreadyExistsError |
+    AppError.RetryableConflictError
   >> {
     let personalNumber, identityCard, serviceType, 
       rank, goalUserId, phone, mobilePhone, sex, profilePicture;
@@ -107,7 +109,7 @@ export class EntityService {
         updatedAt
       }
     }
-    const result = Entity.createNew(
+    const entityOrError = Entity.createNew(
       this.entityRepository.generateEntityId(), 
       {
         entityType: entityType.value,
@@ -129,17 +131,19 @@ export class EntityService {
         profilePicture,
       },
     );
-    if(result.isErr()) {
-      return err(result.error)
+    if(entityOrError.isErr()) {
+      return err(entityOrError.error)
     }
-    await this.entityRepository.save(result.value);
-    return ok(undefined);
+    return (await this.entityRepository.save(entityOrError.value))
+      .map(() => entityToDTO(entityOrError.value))
+      .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
   async connectDigitalIdentity(connectDTO: ConnectDigitalIdentityDTO): Promise<Result<
     void,
     AppError.ValueValidationError |
-    AppError.ResourceNotFound
+    AppError.ResourceNotFound | 
+    AppError.RetryableConflictError
   >> {
     const entityId = EntityId.create(connectDTO.entityId);
     const uidOrError = DigitalIdentityId.create(connectDTO.digitalIdentityUniqueId)
@@ -156,15 +160,16 @@ export class EntityService {
     }
     // connect the digital identity to the entity
     di.connectToEntity(entity);
-    await this.diRepository.save(di);
-    return ok(undefined);
+    return (await this.diRepository.save(di))
+      .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
   async disconnectDigitalIdentity(disconnectDTO: ConnectDigitalIdentityDTO): Promise<Result<
     void,
     AppError.ValueValidationError |
     AppError.ResourceNotFound | 
-    EntityIsNotConnectedError
+    EntityIsNotConnectedError |
+    AppError.RetryableConflictError
   >> {
     const entityId = EntityId.create(disconnectDTO.entityId);
     const uidOrError = DigitalIdentityId.create(disconnectDTO.digitalIdentityUniqueId)
@@ -183,8 +188,8 @@ export class EntityService {
     }
     // disconnect the digital identity from the entity
     di.disconnectEntity();
-    await this.diRepository.save(di);
-    return ok(undefined);
+    return (await this.diRepository.save(di))
+      .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
   /**
@@ -192,10 +197,11 @@ export class EntityService {
    * @param updateDTO 
    */
   async updateEntity(updateDTO: UpdateEntityDTO): Promise<Result<
-    void,
+    EntityResultDTO,
     AppError.ResourceNotFound |
     AppError.ValueValidationError | 
     AppError.CannotUpdateFieldError | 
+    AppError.RetryableConflictError |
     CannotChangeEntityTypeError |
     IllegalEntityStateError |
     GoalUserIdAlreadyExistsError |
@@ -298,10 +304,10 @@ export class EntityService {
     if(result.isErr()) {
       return err(result.error);
     }
-    // finally, save the entity
-    await this.entityRepository.save(entity);
-    entity.goalUserId?.equals()
-    return ok(undefined);
+    // finally, save the entity 
+    return (await this.entityRepository.save(entity))
+      .map(() => entityToDTO(entity)) // return DTO
+      .mapErr(err => AppError.RetryableConflictError.create(err.message)); // or Error
   }
 
   // TODO: implement delete entity
