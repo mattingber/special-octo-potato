@@ -18,6 +18,7 @@ import {
 } from "../../useCases/dtos/UpdateRoleDTO";
 import { ResponseHandler } from "../../../../shared/infra/http/helpers/ResponseHandler";
 import { AppError } from "../../../../core/logic/AppError";
+import { ErrorResponseHandler } from "../../../../shared/infra/http/helpers/ErrorResponseHandler";
 
 export class RoleController {
   constructor(
@@ -37,7 +38,7 @@ export class RoleController {
     }
     const result = await this._roleService.createRole(dto as CreateRoleDTO);
     if(result.isErr()) {
-      return ResponseHandler.clientError(res, result.error.message);
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error)
     }
     return ResponseHandler.ok(res);
   }
@@ -55,13 +56,9 @@ export class RoleController {
     }
     const result = await this._roleService.moveToGroup(dto as MoveGroupDTO);
     if(result.isErr()) {
-      const err = result.error;
-      // only if the role itself is not found return 404
-      if(err.resource === (dto as MoveGroupDTO).roleId) {
-        return ResponseHandler.notFound(res, err.message);
-      } 
-      // else return 400 
-      return ResponseHandler.clientError(res, result.error.message);
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error, {
+        notFoundOnlyWhenResourceMatch: (dto as MoveGroupDTO).roleId,
+      });
     }
     return ResponseHandler.ok(res);
   }
@@ -80,15 +77,9 @@ export class RoleController {
     const result = await this._roleService.connectDigitalIdentity(dto as ConnectDigitalIdentityDTO);
     if(result.isErr()) {
       const err = result.error;
-      // only if the role itself is not found return 404
-      if(
-        err instanceof AppError.ResourceNotFound &&
-        err.resource === (dto as ConnectDigitalIdentityDTO).roleId
-      ) {
-        return ResponseHandler.notFound(res, err.message);
-      } 
-      // else return 400 
-      return ResponseHandler.clientError(res, result.error.message);
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error, {
+        notFoundOnlyWhenResourceMatch: (dto as ConnectDigitalIdentityDTO).roleId,
+      });
     }
     return ResponseHandler.ok(res);
   }
@@ -106,16 +97,9 @@ export class RoleController {
     }
     const result = await this._roleService.disconnectDigitalIdentity(dto as ConnectDigitalIdentityDTO);
     if(result.isErr()) {
-      const err = result.error;
-      // only if the role itself is not found return 404
-      if(
-        err instanceof AppError.ResourceNotFound &&
-        err.resource === (dto as ConnectDigitalIdentityDTO).roleId
-      ) {
-        return ResponseHandler.notFound(res, err.message);
-      } 
-      // else return 400 
-      return ResponseHandler.clientError(res, result.error.message);
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error, {
+        notFoundOnlyWhenResourceMatch: (dto as ConnectDigitalIdentityDTO).roleId,
+      });
     }
     return ResponseHandler.ok(res);
   }
@@ -136,16 +120,7 @@ export class RoleController {
     }
     const result = await this._roleService.updateRole(dto as UpdateRoleDTO);
     if(result.isErr()) {
-      const err = result.error;
-      // only if the role itself is not found return 404
-      if(
-        err instanceof AppError.ResourceNotFound &&
-        err.resource === (dto as ConnectDigitalIdentityDTO).roleId
-      ) {
-        return ResponseHandler.notFound(res, err.message);
-      } 
-      // else return 400 
-      return ResponseHandler.clientError(res, result.error.message);
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error);
     }
     return ResponseHandler.ok(res);
   }

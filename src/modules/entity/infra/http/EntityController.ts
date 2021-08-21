@@ -14,6 +14,7 @@ import {
   UpdateEntityDTO, 
   joiSchema as UpdateEntitySchema 
 } from '../../useCases/dtos/UpdateEntityDTO';
+import { ErrorResponseHandler } from "../../../../shared/infra/http/helpers/ErrorResponseHandler";
 
 export class EntityController {
   private _entityService: EntityService;
@@ -32,7 +33,7 @@ export class EntityController {
     }
     const result = await this._entityService.createEntity(value as CreateEntityDTO);
     if(result.isErr()) {
-      return ResponseHandler.clientError(res, result.error.message);
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error);
     }
     return ResponseHandler.ok(res);
   }
@@ -41,13 +42,15 @@ export class EntityController {
    * PUT /entities/:id/digitalIdentity/:uniqueId
    */
   connectDigitalIdentity = async (req: Request, res: Response) => {
-    const { error, value } = ConnectDigitalIdentitySchema.validate(req.params);
+    const { error, value: dto } = ConnectDigitalIdentitySchema.validate(req.params);
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
     }    
-    const result = await this._entityService.connectDigitalIdentity(value as ConnectDigitalIdentityDTO);
-    if(result.isErr()) { // TODO: maybe return 404 on not found?
-      return ResponseHandler.clientError(res, result.error.message);
+    const result = await this._entityService.connectDigitalIdentity(dto as ConnectDigitalIdentityDTO);
+    if(result.isErr()) {
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error, {
+        notFoundOnlyWhenResourceMatch: (dto as ConnectDigitalIdentityDTO).entityId,
+      });
     }
     return ResponseHandler.ok(res);
   }
@@ -56,13 +59,15 @@ export class EntityController {
    * DELETE /entities/:id/digitalIdentity/:uniqueId
    */
   disconnectDigitalIdentity = async (req: Request, res: Response) => {
-    const { error, value } = ConnectDigitalIdentitySchema.validate(req.params);
+    const { error, value: dto } = ConnectDigitalIdentitySchema.validate(req.params);
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
     }  
-    const result = await this._entityService.disconnectDigitalIdentity(value as ConnectDigitalIdentityDTO);
-    if(result.isErr()) { // TODO: maybe return 404 on not found?
-      return ResponseHandler.clientError(res, result.error.message);
+    const result = await this._entityService.disconnectDigitalIdentity(dto as ConnectDigitalIdentityDTO);
+    if(result.isErr()) { 
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error, {
+        notFoundOnlyWhenResourceMatch: (dto as ConnectDigitalIdentityDTO).entityId,
+      });
     }
     return ResponseHandler.ok(res);
   }
@@ -71,20 +76,16 @@ export class EntityController {
    * PATCH /entities/:id
    */
   updateEntity = async (req: Request, res: Response) => {
-    const { error, value } = UpdateEntitySchema.validate({
+    const { error, value: dto } = UpdateEntitySchema.validate({
       ...req.body,
       entityId: req.params.id
     });
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
     }
-    const result = await this._entityService.updateEntity(value as UpdateEntityDTO);
+    const result = await this._entityService.updateEntity(dto as UpdateEntityDTO);
     if(result.isErr()) {
-      if(result.error instanceof AppError.ResourceNotFound) {
-        return ResponseHandler.notFound(res, result.error.message);
-      } else { // all other errors are 400 validation error
-        return ResponseHandler.clientError(res, result.error.message);
-      }
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error);
     }
     return ResponseHandler.ok(res);
   }

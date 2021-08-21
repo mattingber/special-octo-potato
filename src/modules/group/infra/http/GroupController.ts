@@ -10,6 +10,7 @@ import {
 } from '../../useCases/dto/MoveGroupDTO';
 import { ResponseHandler } from "../../../../shared/infra/http/helpers/ResponseHandler";
 import { AppError } from "../../../../core/logic/AppError";
+import { ErrorResponseHandler } from "../../../../shared/infra/http/helpers/ErrorResponseHandler";
 
 
 export class GroupController {
@@ -39,24 +40,18 @@ export class GroupController {
    * @returns 
    */
   moveGroup = async (req: Request, res: Response) => {
-    const { error, value: dto } = CreateGroupSchema.validate({
+    const { error, value: dto } = MoveGroupSchema.validate({
       groupId: req.params.id,
       parentId: req.params.parentId,
     });
     if(!!error) {
       return ResponseHandler.clientError(res, error.message);
     }
-    const result = await this._groupService.createGroup(dto as CreateGroupDTO);
+    const result = await this._groupService.moveGroup(dto as MoveGroupDTO);
     if(result.isErr()) {
-      const err = result.error;
-      if( // only if the group itself is not found return 404
-        err instanceof AppError.ResourceNotFound &&
-        err.resource === (dto as MoveGroupDTO).groupId
-      ) {
-        return ResponseHandler.notFound(res, err.message);
-      } 
-      // else return 400 
-      return ResponseHandler.clientError(res, result.error.message);
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error, {
+        notFoundOnlyWhenResourceMatch: (dto as MoveGroupDTO).groupId,
+      });
     }
     return ResponseHandler.ok(res);
   }

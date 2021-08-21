@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { AppError } from "../../../../core/logic/AppError";
+import { ErrorResponseHandler } from "../../../../shared/infra/http/helpers/ErrorResponseHandler";
 import { ResponseHandler } from "../../../../shared/infra/http/helpers/ResponseHandler";
 import { DigitalIdentityService } from "../../useCases/DigitalIdentityService";
 import {
@@ -26,7 +27,7 @@ export class DigitalIdentityController {
     }
     const result = await this._diService.createDigitalIdentity(dto as CreateDigitalIdentityDTO);
     if(result.isErr()) {
-      return ResponseHandler.clientError(res, result.error.message);
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error);
     }
     return ResponseHandler.ok(res);
   }
@@ -44,11 +45,7 @@ export class DigitalIdentityController {
     }
     const result = await this._diService.updateDigitalIdentity(dto as UpdateDigitalIdentityDTO);
     if(result.isErr()) {
-      if(result.error instanceof AppError.ResourceNotFound) {
-        return ResponseHandler.notFound(res, result.error.message)
-      } else {
-        return ResponseHandler.clientError(res, result.error.message);
-      }
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error);
     }
     return ResponseHandler.ok(res);
   }
