@@ -29,4 +29,9 @@ export abstract class ResponseHandler {
   static forbidden(res: Response, message?: string) {
     return this.jsonResponse(res, 403, message || 'Forbidden');
   }
+
+  static fail(res: Response, message?: string) {
+    return this.jsonResponse(res, 500, message || 'Unexpected Error');
+  }
+
 }
