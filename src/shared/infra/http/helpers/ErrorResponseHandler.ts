@@ -19,8 +19,14 @@ export abstract class ErrorResponseHandler {
    * UnexpectedError -> 500 Unexpected
    * 
    * all other errors -> 400 Bad Request
+   * 
+   * options: 
+   * 
+   *- `notFoundOnlyWhenResourceMatch: string`- treat the error as 'Not Found' only when
+   * the `err.resource` equal to the provided value. Takes effect only when `err` is 
+   * instance of `AppError.ResourceNotFound`
    * @param res 
-   * @param err 
+   * @param err
    * @returns 
    */
   static defaultErrorHandler(res: Response, err: BaseError, opts: DefaultHandlerOpts = {}) {
