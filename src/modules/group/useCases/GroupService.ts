@@ -28,11 +28,11 @@ export class GroupService {
     if(source.isErr()) { return err(source.error); }
     let group: Result<Group, DuplicateChildrenError>;
     const groupId = this.groupRepository.generateGroupId();
-    if(has(createDTO, 'parentId')) {
-      const parentId = GroupId.create(createDTO.parentId);
+    if(has(createDTO, 'directGroup')) {
+      const parentId = GroupId.create(createDTO.directGroup);
       const parent = await this.groupRepository.getByGroupId(parentId);
       if(!parent) { 
-        return err(AppError.ResourceNotFound.create(createDTO.parentId, 'group')); 
+        return err(AppError.ResourceNotFound.create(createDTO.directGroup, 'group')); 
       }
       group = parent.createChild(
         groupId, {
