@@ -151,7 +151,7 @@ export class DigitalIdentity extends AggregateRoot {
     return this._canConnectRole;
   }
   get uniqueId() {
-    return DigitalIdentityId.create(this.id.toValue())._unsafeUnwrap();
+    return DigitalIdentityId.create(this.id.toString())._unsafeUnwrap();
   }
   get connectedEntityId() {
     return this._entityId;
