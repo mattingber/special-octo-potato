@@ -5,6 +5,7 @@ import config from "config";
 const opts: ConnectOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useCreateIndex: true,
   poolSize: Number(config.get('db.mongo.poolSize')),
 };
 
