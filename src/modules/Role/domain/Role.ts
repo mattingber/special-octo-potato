@@ -47,13 +47,13 @@ export class Role extends AggregateRoot {
       directGroup,
       jobTitle = '',
       digitalIdentityUniqueId,
-      clearance: clearence,
+      clearance: clearance,
     } = props;
     this._source = source;
     this._jobTitle = jobTitle;
     this._directGroup = directGroup;
     this._digitalIdentityUniqueId = digitalIdentityUniqueId;
-    this._clearance = clearence;
+    this._clearance = clearance;
   }
 
   public moveToGroup(group: IGroup) {

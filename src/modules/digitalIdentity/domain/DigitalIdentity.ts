@@ -1,3 +1,5 @@
+import { CannotConnectAlreadyConnected } from './errors/CannotConnectAlreadyConnected ';
+import { CannotDisconnectUnconnected } from './errors/CannotDisconnectUnconnected';
 import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { DigitalIdentityId } from "./DigitalIdentityId";
 import { EntityId } from "../../entity/domain/EntityId";
@@ -60,42 +62,20 @@ export class DigitalIdentity extends AggregateRoot {
   }
 
   connectToEntity(entity: Entity) {
-    // if currently connected - emmit disconnected event
 
-    // if(!!this._entityId) {
-    //   this.addDomainEvent(new DigitalIdentityDisconnectedEvent(this.id, {
-    //     disconnectedEntityId: this._entityId,
-    //     source: this._source,
-    //     type: this._type,
-    //     uniqueId: this.uniqueId,
-    //     mail: this._mail,
-    //   }));
-    // }
-    
-    this.addDomainEvent(new DigitalIdentityConnectedEvent(this.id, {
-      canConnectRole: this._canConnectRole,
-      mail: this._mail,
-      source: this._source,
-      type: this._type,
-      uniqueId: this.uniqueId,
-      connectedEntityId: entity.entityId,
-    }));
+    if(this._entityId) {
+      return err(CannotConnectAlreadyConnected.create(this.uniqueId.toString()));
+    }
     this._entityId = entity.entityId;
     this.markModified();
   }
 
   disconnectEntity() {
-    if (this.type === DigitalIdentityType.Kaki) {
-      return; // TODO: is error?
-    }
-    if(!!this._entityId) {
-      this.addDomainEvent(new DigitalIdentityDisconnectedEvent(this.id, {
-        mail: this._mail,
-        source: this._source,
-        type: this._type,
-        uniqueId: this.uniqueId,
-        disconnectedEntityId: this._entityId,
-      }));
+    // if (this.type === DigitalIdentityType.Kaki) {
+    //   return; // TODO: is error?
+    // }
+    if(!this._entityId) {
+      return err(CannotDisconnectUnconnected.create(this.uniqueId.toString()));
     }
     this._entityId = undefined;
     this.markModified();

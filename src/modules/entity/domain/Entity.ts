@@ -1,3 +1,4 @@
+import { IConnectedDI } from './ConnectedDI';
 import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { EntityId } from "./EntityId";
 import { has, hasAll } from "../../../utils/ObjectUtils";
@@ -111,6 +112,7 @@ type EntityState = {
   goalUserId?: DigitalIdentityId;
   primaryDigitalIdentityId?: DigitalIdentityId;
   profilePicture?: PictureData;
+  connectedDIs?: IConnectedDI[];
 }
 
 type CreateEntityProps = Omit<EntityState, 'mail' | 'primaryDigitalIdentity'>;
@@ -294,6 +296,23 @@ export class Entity extends AggregateRoot {
     return Entity._create(id, props, { isNew: true });
   }
 
+
+  public connectDI(digitalIdentity: IConnectedDI) {
+    const isAlreadyConnected = this._state.connectedDIs?.map(di => di.uniqueId.toString()).includes(digitalIdentity.uniqueId.toString());
+    if (isAlreadyConnected) return; //TODO: is error?
+    this._state.connectedDIs?.push(digitalIdentity);
+    this.markModified();
+    return ok(undefined);
+  }
+
+  public disconnectDI(digitalIdentity: IConnectedDI) {
+    const existsIndex = this._state.connectedDIs?.map(di => di.uniqueId.toString()).indexOf(digitalIdentity.uniqueId.toString());
+    if (!existsIndex) return; //TODO: is error?
+    this._state.connectedDIs?.splice(existsIndex, 1);
+    this.markModified();
+    return ok(undefined);
+  }
+  
   // static createSoldier(id: EntityId, props: CreateSoldierProps) {
   //   return Entity.create(
   //     id, 
