@@ -81,7 +81,7 @@ export class GroupRepository implements IGroupRepository {
     const session = await this._model.startSession();
     let result: Result<void, AggregateVersionError> = ok(undefined);
     await session.withTransaction(async () => {
-      if(!!await this._model.findOne({ _id: group.groupId.toString()}, { session })) {
+      if(!!await this._model.findOne({ _id: group.groupId.toString()}).session(session)) {
         const updateOp = await this._model.updateOne({ 
             uniqueId: group.groupId.toString(), 
             version: group.fetchedVersion,
@@ -92,7 +92,7 @@ export class GroupRepository implements IGroupRepository {
           result = err(AggregateVersionError.create(group.fetchedVersion))
         }
       } else {
-        await this._model.create([persistanceState],{ session });
+        await this._model.create([persistanceState], { session: session });
         result = ok(undefined);
       }
       await this._eventOutbox.put(group.domainEvents, session);

@@ -43,8 +43,9 @@ export class RoleRepository implements IRoleRepository {
     const session = await this._model.startSession();
     let result: Result<void, AggregateVersionError> = ok(undefined);
     await session.withTransaction(async () => {
-      if(!!await this._model.findOne({ roleId: role.roleId.toString()}, { session })) {
-        const updateOp = await this._model.updateOne({ 
+      if(!!await this._model.findOne({ roleId: role.roleId.toString()}).session(session)) {
+        const updateOp = await this._model.updateOne(
+          { 
             roleId: role.roleId.toString(),
             version: role.fetchedVersion,
           },

@@ -40,14 +40,17 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
     const session = await this._model.startSession();
     let result: Result<void, AggregateVersionError> = ok(undefined);
     await session.withTransaction(async () => {
-      if(!!await this._model
-        .findOne({ uniqueId: digitalIdentity.uniqueId.toString()}, { session })) {
-          const updateOp = await this._model.updateOne({ 
-              uniqueId: digitalIdentity.uniqueId.toString(), 
-              version: digitalIdentity.fetchedVersion,
-            },
-            persistanceState
-          ).session(session);
+      const exists = !! await this._model.findOne({ 
+        uniqueId: digitalIdentity.uniqueId.toString()
+      }).session(session);
+      if(exists) {
+        const updateOp = await this._model.updateOne(
+          { 
+            uniqueId: digitalIdentity.uniqueId.toString(), 
+            version: digitalIdentity.fetchedVersion,
+          },
+          persistanceState
+        ).session(session);
         if(updateOp.n === 0) {
           result = err(AggregateVersionError.create(digitalIdentity.fetchedVersion))
         }

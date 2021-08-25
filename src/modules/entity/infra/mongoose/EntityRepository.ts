@@ -48,8 +48,9 @@ export class EntityRepository implements IEntityRepository {
     const session = await this._model.startSession();
     let result: Result<void, AggregateVersionError> = ok(undefined);
     await session.withTransaction(async () => {
-      if(!!await this._model.findOne({_id: entity.entityId.toString()}, { session })) {
-        const updateOp = await this._model.updateOne({ 
+      if(!!await this._model.findOne({ _id: entity.entityId.toString() }).session(session)) {
+        const updateOp = await this._model.updateOne(
+          { 
             _id: entity.entityId.toString(), 
             version: entity.fetchedVersion,
           },
