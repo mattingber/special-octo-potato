@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "npm run build && npm run serve",
+    "serve": "node dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -28,6 +30,7 @@
     "express": "^4.17.1",
     "joi": "^17.4.2",
     "mongoose": "^5.12.14",
-    "neverthrow": "^4.2.1"
+    "neverthrow": "^4.2.1",
+    "p-retry": "^4.6.1"
   }
 }
