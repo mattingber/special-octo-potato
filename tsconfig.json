@@ -1,5 +1,11 @@
 {
   "compilerOptions": {
+    "plugins": [
+      {
+        "transform": "ts-auto-mock/transformer",
+        "cacheBetweenTests": false
+      }
+    ],
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
 
     /* Basic Options */
