@@ -134,9 +134,10 @@ export class EntityService {
     if(entityOrError.isErr()) {
       return err(entityOrError.error)
     }
-    return (await this.entityRepository.save(entityOrError.value))
+    let val = (await this.entityRepository.save(entityOrError.value))
       .map(() => entityToDTO(entityOrError.value))
       .mapErr(err => AppError.RetryableConflictError.create(err.message));
+    return val;
   }
 
   async connectDigitalIdentity(connectDTO: ConnectDigitalIdentityDTO): Promise<Result<
