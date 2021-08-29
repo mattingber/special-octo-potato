@@ -1,0 +1,40 @@
+{
+    "valueObjects": {
+      "source": {
+        "values": ["OA","AD","ES","MM"],
+        "strongSources": ["OA"],
+        "primaryMap": {
+          "unit1": "AD",
+          "unit2": "ES"
+        }
+      },
+      "rank": {
+        "values": ["rookie", "champion", "ultimate"]
+      },
+      "serviceType": {
+        "values": ["hov", "kev"]
+      },
+      "digitalIdentityId": {
+        "domain": {
+          "values": ["mm", "sirutim.com"]
+        }
+      }
+    },
+    "db": {
+      "mongo": {
+        "connectionString": "mongodb://localhost:27017/octo?replicaSet=rs0&directConnection=true&ssl=false",
+        "poolSize": 10,
+        "modelNames": {
+          "group": "Group",
+          "digitalIdentity": "DigitalIdentity",
+          "entity": "Entity",
+          "role": "Role",
+          "eventOutbox": "EventMessage"
+        }
+      }
+    },
+    "server": {
+      "port": 3000
+    }
+  
+  }

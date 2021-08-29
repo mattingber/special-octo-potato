@@ -27,7 +27,7 @@ describe('makeOffer', () => {
             "identityCard": "316127711",
             "serviceType": "hov"
         });
-
+        console.log((result as any).value)
         // Assert 
         expect(result.isOk()).toBeTruthy();                    
         expect(mockEntitiesRepo.save).toHaveBeenCalled();       
