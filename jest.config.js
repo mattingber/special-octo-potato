@@ -5,5 +5,12 @@ module.exports = {
     setupFiles: ['<rootDir>/src/tests/setup.ts'],
     collectCoverage: false,
     testMatch: ['**/**/*.spec.(ts)'],
-    
+    transform: {
+        ".(ts|tsx)": "ts-jest"
+    },
+    globals: {
+        "ts-jest": {
+          "compiler": "ttypescript"
+        }
+    }
 };

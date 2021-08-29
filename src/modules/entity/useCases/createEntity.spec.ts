@@ -2,24 +2,26 @@
 import { DigitalIdentityRepository } from './../../digitalIdentity/repository/DigitalIdentityRepository';
 import { EntityRepository } from '../repository/EntityRepository';
 import { EntityService } from './EntityService';
-// import { NotificationsSpy } from './notificationSpy';
+import 'jest-ts-auto-mock'
 import { createMock } from 'ts-auto-mock';
+import { method, On } from 'ts-auto-mock/extension';
 
-describe('makeOffer', () => {
-  describe(`Given a vinyl exists and is available for trade`, () => {
-    describe(`When a trader wants to place an offer using money`, () => {
-      test(`Then the offer should get created and an email should be sent to the vinyl owner`, async () => {
+describe('Create Entity', () => {
+  describe(`Given an entity that doesn't exist`, () => {
+    describe(`When a client wants to create an entity`, () => {
+      test(`Then the entity should be created and saved to repo`, async () => {
 
         // Arrange
         let mockEntitiesRepo = createMock<EntityRepository>();
         let mockDIsRepo = createMock<DigitalIdentityRepository>();
-        // let notificationsSpy = new NotificationsSpy();
+
+        const mockSaveMethod = On(mockEntitiesRepo).get(method(mock => mock.save));
+
         let entityService = new EntityService(
             mockEntitiesRepo,
             mockDIsRepo,
         );
 
-        // Act
         let result = await entityService.createEntity({
             "firstName": "noam",
             "lastName": "s",
@@ -28,12 +30,9 @@ describe('makeOffer', () => {
             "serviceType": "hov"
         });
 
-        // Assert 
-        expect(result.isOk()).toBeTruthy();                    
+        // console.log('result: ', (result as any).value);                  
         expect(mockEntitiesRepo.save).toHaveBeenCalled();       
-        // expect(notificationsSpy.getEmailsSent().length).toEqual(1); 
-        // expect(notificationsSpy.emailWasSentFor())
-        //   .toEqual(result.getValue().offerId);                     
+          
       });
     });
   });
