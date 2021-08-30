@@ -8,6 +8,8 @@ import { default as RoleSchema, RoleDoc } from "./RoleSchema";
 import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
 import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
+import { BaseError } from "../../../../core/logic/BaseError";
+import { AppError } from "../../../../core/logic/AppError";
 
 
 export class RoleRepository implements IRoleRepository {
@@ -36,6 +38,13 @@ export class RoleRepository implements IRoleRepository {
     }).lean();
     if (!raw) return null;
     return Mapper.toDomain(raw);
+  }
+  async delete(roleId: RoleId): Promise<Result<any,BaseError>>{
+    const res = await this._model.deleteOne({roleId: roleId.toValue()});
+    if(!res) {
+      return err(AppError.LogicError.create(`roleId ${roleId.toValue()} not found`));
+    }
+    return ok(undefined)
   }
 
   async save(role: Role): Promise<Result<void, AggregateVersionError>> {
