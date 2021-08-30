@@ -42,7 +42,7 @@ export class RoleRepository implements IRoleRepository {
   async delete(roleId: RoleId): Promise<Result<any,BaseError>>{
     const res = await this._model.deleteOne({roleId: roleId.toValue()});
     if(!res) {
-      return err(AppError.LogicError.create(`roleId ${roleId.toValue()} not found`));
+      return err(AppError.LogicError.create(`${res}`));
     }
     return ok(undefined)
   }

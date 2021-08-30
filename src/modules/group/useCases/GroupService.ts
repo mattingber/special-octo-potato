@@ -10,6 +10,8 @@ import { DuplicateChildrenError } from "../domain/errors/DuplicateChildrenError"
 import { MoveGroupDTO } from "./dto/MoveGroupDTO";
 import { TreeCycleError } from "../domain/errors/TreeCycleError";
 import { GroupResultDTO, groupToDTO } from "./dto/GroupResultDTO";
+import { IsNotLeafError } from "../domain/errors/IsNotLeafError";
+import { BaseError } from "../../../core/logic/BaseError";
 
 export class GroupService {
   constructor(
@@ -82,4 +84,16 @@ export class GroupService {
   }
 
   // TODO: update group (rename) and delete group
+
+  async deleteGroup(id: string): Promise<Result<any,BaseError>>{ 
+    const groupId = GroupId.create(id);
+    const group = await this.groupRepository.getByGroupId(groupId)
+    if(!group) {
+      return err(AppError.ResourceNotFound.create(id, 'Group'));
+    }
+    if(group.childrenNames.length != 0){
+      return err(IsNotLeafError.create(id));
+    }
+    return (await this.groupRepository.delete(groupId)).mapErr(err => AppError.RetryableConflictError.create(err.message));
+  }
 }

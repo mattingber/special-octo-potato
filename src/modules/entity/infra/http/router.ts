@@ -10,4 +10,5 @@ router.patch('/:id', entityController.updateEntity);
 router.put('/:id/digitalIdentity/:uniqueId', entityController.connectDigitalIdentity);
 router.delete('/:id/digitalIdentity/:uniqueId', entityController.disconnectDigitalIdentity);
 
+
 export default router;

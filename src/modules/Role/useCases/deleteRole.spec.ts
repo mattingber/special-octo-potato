@@ -4,7 +4,6 @@ import { RoleRepository } from '../repository/RoleRepository';
 import { RoleService } from './RoleService';
 import 'jest-ts-auto-mock'
 import { createMock } from 'ts-auto-mock';
-import { method, On } from 'ts-auto-mock/extension';
 import { GroupRepository } from '../../group/repository/GroupRepository';
 
 describe('Delete Role', () => {
@@ -17,13 +16,13 @@ describe('Delete Role', () => {
         let mockGroupsRepo = createMock<GroupRepository>();
         let mockDIsRepo = createMock<DigitalIdentityRepository>();
 
-        let entityService = new RoleService(
+        let roleService = new RoleService(
             mockRolesRepo,
             mockGroupsRepo,
             mockDIsRepo,
         );
 
-        let result = await entityService.deleteRole("123");
+        let result = await roleService.deleteRole("123");
 
         // console.log('result: ', (result as any).value);                  
         expect(mockRolesRepo.delete).toHaveBeenCalled();       

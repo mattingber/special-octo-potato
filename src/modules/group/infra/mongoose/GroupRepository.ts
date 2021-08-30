@@ -7,7 +7,8 @@ import { Group } from "../../domain/Group";
 import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
 import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
-
+import { AppError } from "../../../../core/logic/AppError";
+import { BaseError } from "../../../../core/logic/BaseError";
 
 export class GroupRepository implements IGroupRepository {
 
@@ -99,5 +100,12 @@ export class GroupRepository implements IGroupRepository {
     });
     session.endSession();
     return result;
+  }
+  async delete(id: GroupId): Promise<Result<any,BaseError>>{
+    const res = await this._model.deleteOne({_id: id.toValue()});
+    if(!res) {
+      return err(AppError.LogicError.create(`${res}`));
+    }
+    return ok(undefined)
   }
 }

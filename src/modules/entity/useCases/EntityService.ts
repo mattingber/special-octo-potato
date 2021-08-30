@@ -24,6 +24,8 @@ import { IdentityCardAlreadyExistsError } from "./errors/IdentityCardAlreadyExis
 import { PersonalNumberAlreadyExistsError } from "./errors/PersonalNumberAlreadyExistsError";
 import { EntityIsNotConnectedError } from "./errors/EntityIsNotConnectedError";
 import { EntityResultDTO, entityToDTO } from "./dtos/EntityResultDTO";
+import { HasDigitalIdentityAttached } from "./errors/HasDigitalIdentityAttached";
+import { BaseError } from "../../../core/logic/BaseError";
 
 export class EntityService {
   constructor(
@@ -311,6 +313,17 @@ export class EntityService {
       .mapErr(err => AppError.RetryableConflictError.create(err.message)); // or Error
   }
 
-  // TODO: implement delete entity
+  async deleteEntity(id: string): Promise<Result<any,BaseError>>{ 
+    const entityId = EntityId.create(id);
+    const entity = await this.entityRepository.getByEntityId(entityId)
+    if(!entity) {
+      return err(AppError.ResourceNotFound.create(id, 'Entity'));
+    }
+    if(entity.phone.length != 0){ //TODO digital identities array
+      return err(HasDigitalIdentityAttached.create(id));
+    }
+    return (await this.entityRepository.delete(entityId)).mapErr(err => AppError.RetryableConflictError.create(err.message));
+  }
+
 
 }
