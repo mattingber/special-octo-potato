@@ -13,10 +13,13 @@ import { UpdateDigitalIdentityDTO } from "./dtos/UpdateDigitalIdentityDTO";
 import { BaseError } from "../../../core/logic/BaseError";
 import { DigitalIdentityFormatError } from "./errors/DigitalIdentityFormatError";
 import { DigitalIdentityConnectedToEntity } from "./errors/DigitalIdentityConnectedToEntity";
+import { RoleRepository } from "../../Role/repository/RoleRepository";
+import { DigitalIdentityConnectedToRole } from "./errors/DigitalIdentityConnectedToRole";
 
 export class DigitalIdentityService {
   constructor(
-    private diRepository: DigitalIdentityRepository
+    private diRepository: DigitalIdentityRepository,
+    private roleRepository: RoleRepository
   ){}
 
   async createDigitalIdentity(createDTO: CreateDigitalIdentityDTO): Promise<Result<
@@ -117,7 +120,13 @@ export class DigitalIdentityService {
     if(!diObject.connectedEntityId){
       return err(DigitalIdentityConnectedToEntity.create(id));
     }
-    // if(!diObject) TODO: check if di is connected to role
+    const role = await this.roleRepository.getByDigitalIdentityId(diId.value)
+    if(!role) {
+      return err(AppError.ResourceNotFound.create(id, 'Role'));
+    }
+    if(!!role){ 
+      return err(DigitalIdentityConnectedToRole.create(id));
+    }
 
     return (await this.diRepository.delete(diId.value))
     .mapErr(err => AppError.RetryableConflictError.create(err.message));

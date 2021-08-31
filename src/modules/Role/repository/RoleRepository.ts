@@ -11,5 +11,6 @@ export interface RoleRepository extends Repository<Role> {
   save(role: Role): Promise<Result<void, AggregateVersionError>>;
   getByRoleId(roleId: RoleId): Promise<Role | null>;
   getByDigitalIdentityId(digitalIdentityUniqueId: DigitalIdentityId): Promise<Role | null>;
+  getByGroupId(roleId: RoleId): Promise<Role | null>;
   delete(roleId: RoleId): Promise<Result<any,BaseError>>;
 }
