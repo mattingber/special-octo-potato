@@ -76,8 +76,8 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
     const raw = await this._model.find({ entityId: entityId.toString() }).lean();
     return raw.map(Mapper.toDomain);
   }
-  async delete(id: DigitalIdentityId): Promise<Result<any,BaseError>>{
-    const res = await this._model.deleteOne({_id: id.toValue()});
+  async delete(uniqueId: DigitalIdentityId): Promise<Result<any,BaseError>>{
+    const res = await this._model.deleteOne({uniqueId: uniqueId.toValue()});
     if(!res) {
       return err(AppError.LogicError.create(`${res}`));
     }
