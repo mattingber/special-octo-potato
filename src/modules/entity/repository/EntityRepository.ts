@@ -23,4 +23,5 @@ export interface EntityRepository extends Repository<Entity> {
   getByEntityId(enityId: EntityId): Promise<Entity | null>;
   generateEntityId(): EntityId;
   exists(identifier: EntityIdentifier): Promise<boolean>;
+  delete(id: EntityId): Promise<Result<any,BaseError>>;
 }

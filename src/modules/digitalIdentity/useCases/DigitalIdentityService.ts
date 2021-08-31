@@ -10,6 +10,9 @@ import { has } from "../../../utils/ObjectUtils";
 import { MailAlreadyExistsError } from "./errors/MailAlreadyExistsError";
 import { DigitalIdentityAlreadyExistsError } from "./errors/DigitalIdentityAlreadyExistsError";
 import { UpdateDigitalIdentityDTO } from "./dtos/UpdateDigitalIdentityDTO";
+import { BaseError } from "../../../core/logic/BaseError";
+import { DigitalIdentityFormatError } from "./errors/DigitalIdentityFormatError";
+import { DigitalIdentityConnectedToEntity } from "./errors/DigitalIdentityConnectedToEntity";
 
 export class DigitalIdentityService {
   constructor(
@@ -102,5 +105,26 @@ export class DigitalIdentityService {
       .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
-  // TODO: implement delete and maybe move connect/disconnect entity service methods to this class
+  async deleteDigitalIdentity(id: string): Promise<Result<void,BaseError>>{
+    const diId = DigitalIdentityId.create(id);
+    if(diId.isErr()){
+      return err(DigitalIdentityFormatError.create(id));
+    }
+    const diObject = await this.diRepository.getByUniqueId(diId.value)
+    if(!diObject) {
+      return err(AppError.ResourceNotFound.create(id, 'Digital Identity'));
+    }
+    if(!diObject.connectedEntityId){
+      return err(DigitalIdentityConnectedToEntity.create(id));
+    }
+    // if(!diObject) TODO: check if di is connected to role
+
+    return (await this.diRepository.delete(diId.value))
+    .mapErr(err => AppError.RetryableConflictError.create(err.message));
+
+    
+
+  }
+
+  //  maybe move connect/disconnect entity service methods to this class
 }

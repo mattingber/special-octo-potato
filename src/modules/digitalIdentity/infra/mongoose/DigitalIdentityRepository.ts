@@ -9,6 +9,8 @@ import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbo
 import { Mail } from "../../domain/Mail";
 import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
+import { AppError } from "../../../../core/logic/AppError";
+import { BaseError } from "../../../../core/logic/BaseError";
 
 export class DigitalIdentityRepository implements IdigitalIdentityRepo {
   private _model: Model<DigitalIdentityDoc>;
@@ -73,6 +75,13 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
   async getByEntityId(entityId: EntityId) {
     const raw = await this._model.find({ entityId: entityId.toString() }).lean();
     return raw.map(Mapper.toDomain);
+  }
+  async delete(id: DigitalIdentityId): Promise<Result<any,BaseError>>{
+    const res = await this._model.deleteOne({_id: id.toValue()});
+    if(!res) {
+      return err(AppError.LogicError.create(`${res}`));
+    }
+    return ok(undefined)
   }
 
 }
