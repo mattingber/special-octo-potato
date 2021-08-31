@@ -6,6 +6,7 @@ import { PersonalNumber } from "../domain/PersonalNumber";
 import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
 import { Result } from "neverthrow";
 import { AggregateVersionError } from "../../../core/infra/AggregateVersionError";
+import { BaseError } from "../../../core/logic/BaseError";
 
 export type IhaveEntityIdentifiers = Partial<{
   identityCard: IdentityCard;
