@@ -117,14 +117,14 @@ export class DigitalIdentityService {
     if(!diObject) {
       return err(AppError.ResourceNotFound.create(id, 'Digital Identity'));
     }
-    if(!diObject.connectedEntityId){
+    if(!!diObject.connectedEntityId){
       return err(DigitalIdentityConnectedToEntity.create(id));
     }
     const role = await this.roleRepository.getByDigitalIdentityId(diId.value)
     if(!role) {
       return err(AppError.ResourceNotFound.create(id, 'Role'));
     }
-    if(!!role){ 
+    if(!!role && !!role.roleId){ 
       return err(DigitalIdentityConnectedToRole.create(id));
     }
 

@@ -101,7 +101,7 @@ export class GroupService {
     if(!role) {
       return err(AppError.ResourceNotFound.create(id, 'Role'));
     }
-    if(!!role){
+    if(!!role && !!role.roleId){
       return err(HasRolesAttachedError.create(id));
     }
     return (await this.groupRepository.delete(groupId)).mapErr(err => AppError.RetryableConflictError.create(err.message));
