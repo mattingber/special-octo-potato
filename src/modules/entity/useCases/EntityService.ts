@@ -319,7 +319,7 @@ export class EntityService {
     if(!entity) {
       return err(AppError.ResourceNotFound.create(id, 'Entity'));
     }
-    if(entity.connectedDIs != undefined && entity.connectedDIs.length != 0){
+    if(!!entity.connectedDIs && entity.connectedDIs.length != 0){
       return err(HasDigitalIdentityAttached.create(id));
     }
     return (await this.entityRepository.delete(entityId)).mapErr(err => AppError.RetryableConflictError.create(err.message));
