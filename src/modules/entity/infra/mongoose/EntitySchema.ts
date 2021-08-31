@@ -33,6 +33,7 @@ export interface EntityDoc {
     }
   },
   version: number,
+  digitalIdentities: string[],
 }
 
 const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc> ({
@@ -65,6 +66,7 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc> ({
       }
     }
   },
+  digitalIdentities: [String],
   version: Number
 },{
   versionKey: false,

@@ -1,3 +1,5 @@
+import { DigitalIdentityRepresent } from './../../digitalIdentity/domain/DigitalIdentity';
+import { PrimaryDigitalIdentityService } from './PrimaryDigitalIdentityService';
 import { IConnectedDI } from './ConnectedDI';
 import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
 import { EntityId } from "./EntityId";
@@ -15,6 +17,7 @@ import { Phone, MobilePhone } from "./phone";
 import { UniqueArray } from "../../../utils/UniqueArray";
 import { ServiceType } from "./ServiceType";
 import { isSomeEnum } from "../../../utils/isSomeEnum";
+import { DigitalIdentityState } from '../../digitalIdentity/domain/DigitalIdentity';
 
 export enum EntityType {
   Soldier = 'soldier',
@@ -111,8 +114,8 @@ type EntityState = {
   mobilePhone?: UniqueArray<MobilePhone>; //value object
   goalUserId?: DigitalIdentityId;
   primaryDigitalIdentityId?: DigitalIdentityId;
+  connectedDIs: IConnectedDI[];
   profilePicture?: PictureData;
-  connectedDIs?: IConnectedDI[];
 }
 
 type CreateEntityProps = Omit<EntityState, 'mail' | 'primaryDigitalIdentity'>;
@@ -297,22 +300,72 @@ export class Entity extends AggregateRoot {
   }
 
 
-  public connectDI(digitalIdentity: IConnectedDI) {
-    const isAlreadyConnected = this._state.connectedDIs?.map(di => di.uniqueId.toString()).includes(digitalIdentity.uniqueId.toString());
-    if (isAlreadyConnected) return; //TODO: is error?
-    this._state.connectedDIs?.push(digitalIdentity);
-    this.markModified();
-    return ok(undefined);
-  }
+  // public connectDI(digitalIdentity: IConnectedDI) {
+  //   const isAlreadyConnected = this._state.connectedDIs?.map(di => di.uniqueId.toString()).includes(digitalIdentity.uniqueId.toString());
+  //   if (isAlreadyConnected) return; //TODO: is error?
+  //   this._state.connectedDIs?.push(digitalIdentity);
+  //   this.choosePrimaryDigitalIdentity()
+  //   this.markModified();
+  //   return ok(undefined);
+  // }
 
-  public disconnectDI(digitalIdentity: IConnectedDI) {
-    const existsIndex = this._state.connectedDIs?.map(di => di.uniqueId.toString()).indexOf(digitalIdentity.uniqueId.toString());
-    if (!existsIndex) return; //TODO: is error?
-    this._state.connectedDIs?.splice(existsIndex, 1);
-    this.markModified();
-    return ok(undefined);
-  }
+  // public disconnectDI(digitalIdentity: IConnectedDI) {
+  //   const existsIndex = this._state.connectedDIs?.map(di => di.uniqueId.toString()).indexOf(digitalIdentity.uniqueId.toString());
+  //   if (!existsIndex) return; //TODO: is error?
+  //   this._state.connectedDIs?.splice(existsIndex, 1);
+  //   this.choosePrimaryDigitalIdentity()
+  //   this.markModified();
+  //   return ok(undefined);
+  // }
   
+  public choosePrimaryDigitalIdentity(connectedDIs: DigitalIdentityRepresent[]) {
+    const connected = connectedDIs;
+    // no connected DIs, set primary to undefined
+    if(connected.length === 0) {
+      return undefined;
+    }
+    // check if current primary has the strongest source
+    let currentPrimary = connected.find(di => di.uniqueId.equals(this._state.primaryDigitalIdentityId));
+    if( 
+      !!currentPrimary && 
+      PrimaryDigitalIdentityService.haveStrongSource(currentPrimary)
+    ) {
+      return;
+    }
+    // find if one of the other DIs has the strongest source
+    const strongSourceDI = connected.find(PrimaryDigitalIdentityService.haveStrongSource);
+    if(!!strongSourceDI) {
+      this._state.primaryDigitalIdentityId = strongSourceDI.uniqueId;
+    }
+    // check for primary source DI (and the current primary has not)
+    const primarySourceDI = connected.find(di => PrimaryDigitalIdentityService.havePrimarySource(this._state.akaUnit, di));
+    if(
+      (!currentPrimary || !PrimaryDigitalIdentityService.havePrimarySource(this._state.akaUnit, currentPrimary)) &&
+      !!primarySourceDI
+    ) {
+      this._state.primaryDigitalIdentityId = primarySourceDI.uniqueId;
+    }
+    // connect one of the DIs
+    if(!currentPrimary) {
+      this._state.primaryDigitalIdentityId = connected[0].uniqueId;
+    }
+    // else, the current primary
+   
+  }
+  /* 
+  happens on:
+    - Role connecting / disconneting to DI
+    - DI connecting / disconneting to Entity
+    - Group moving to new Parent 
+    - Role moving to new parent group
+  (Entity , DI, Role) =>
+    if DI is primary of Entity {
+      entity.hierarchy = Role.hierarchy
+      entity.X = Role.X
+    }
+  */
+
+
   // static createSoldier(id: EntityId, props: CreateSoldierProps) {
   //   return Entity.create(
   //     id, 
@@ -400,6 +453,11 @@ export class Entity extends AggregateRoot {
   get primaryDigitalIdentityId() {
     return this._state.primaryDigitalIdentityId;
   }
+
+  get connectedDIs() {
+    return this._state.connectedDIs;
+  }
+
   get profilePicture() {
     return this._state.profilePicture;
   }

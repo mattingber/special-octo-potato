@@ -22,12 +22,17 @@ export const castToDigitalIdentityType = (val: string): Result<DigitalIdentityTy
   return err(`${val} is invalid Digital Identity type`);
 }
 
-interface DigitalIdentityState {
+export interface DigitalIdentityState {
   type: DigitalIdentityType;
   source: Source;
   mail?: Mail; // use value Object
   entityId?: EntityId;
   canConnectRole?: boolean;
+}
+
+export interface DigitalIdentityRepresent {
+  source: Source;
+  uniqueId: DigitalIdentityId
 }
 
 export class DigitalIdentity extends AggregateRoot {
@@ -135,6 +140,13 @@ export class DigitalIdentity extends AggregateRoot {
   }
   get connectedEntityId() {
     return this._entityId;
+  }
+
+  get connectedDigitalIdentity() : DigitalIdentityRepresent {
+    return {
+      source: this._source,
+      uniqueId: this.uniqueId
+    }
   }
 
 }
