@@ -79,27 +79,32 @@ export class GroupRepository implements IGroupRepository {
 
   async save(group: Group): Promise<Result<void, AggregateVersionError>> {
     const persistanceState = Mapper.toPersistance(group);
-    const session = await this._model.startSession();
-    let result: Result<void, AggregateVersionError> = ok(undefined);
-    await session.withTransaction(async () => {
-      if(!!await this._model.findOne({ _id: group.groupId.toString()}).session(session)) {
-        const updateOp = await this._model.updateOne({ 
-            uniqueId: group.groupId.toString(), 
-            version: group.fetchedVersion,
-          },
-          persistanceState
-        ).session(session);
-        if(updateOp.n === 0) {
-          result = err(AggregateVersionError.create(group.fetchedVersion))
-        }
-      } else {
-        await this._model.create([persistanceState], { session: session });
-        result = ok(undefined);
-      }
-      await this._eventOutbox.put(group.domainEvents, session);
-    });
-    session.endSession();
-    return result;
+    try { 
+     let session = await this._model.startSession();
+     let result: Result<void, AggregateVersionError> = ok(undefined);
+     await session.withTransaction(async () => {
+       if(!!await this._model.findOne({ _id: group.groupId.toString()}).session(session)) {
+         const updateOp = await this._model.updateOne({ 
+             uniqueId: group.groupId.toString(), 
+             version: group.fetchedVersion,
+           },
+           persistanceState
+         ).session(session);
+         if(updateOp.n === 0) {
+           result = err(AggregateVersionError.create(group.fetchedVersion))
+         }
+       } else {
+         await this._model.create([persistanceState], { session: session });
+         result = ok(undefined);
+       }
+       await this._eventOutbox.put(group.domainEvents, session);
+     });
+     session.endSession();
+     return result;
+    }catch(err){
+      console.log(err)
+      throw err
+    }
   }
   async delete(id: GroupId): Promise<Result<any,BaseError>>{
     const res = await this._model.deleteOne({_id: id.toValue()});
