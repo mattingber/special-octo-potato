@@ -14,6 +14,7 @@ import { Phone, MobilePhone } from "./phone";
 import { UniqueArray } from "../../../utils/UniqueArray";
 import { ServiceType } from "./ServiceType";
 import { isSomeEnum } from "../../../utils/isSomeEnum";
+import { IConnectedDI } from "./ConnectedDI";
 
 export enum EntityType {
   Soldier = 'soldier',
@@ -111,6 +112,7 @@ type EntityState = {
   goalUserId?: DigitalIdentityId;
   primaryDigitalIdentityId?: DigitalIdentityId;
   profilePicture?: PictureData;
+  connectedDIs?: IConnectedDI[];
 }
 
 type CreateEntityProps = Omit<EntityState, 'mail' | 'primaryDigitalIdentity'>;
@@ -381,8 +383,12 @@ export class Entity extends AggregateRoot {
   get primaryDigitalIdentityId() {
     return this._state.primaryDigitalIdentityId;
   }
+  
   get profilePicture() {
     return this._state.profilePicture;
+  }
+  get connectedDIs() {
+    return this._state.connectedDIs;
   }
   // get hierarchy() {
   //   return this._state.hierarchy?.value();

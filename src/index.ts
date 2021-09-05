@@ -2,7 +2,7 @@ import { connect as connectDB } from "./shared/infra/mongoose/connection";
 import pRetry from 'p-retry';
 import { start as startServer } from './shared/infra/http/app';
 
-(async () => {
+export const startApp = (async () => {
   try {
     await pRetry(connectDB, {
       onFailedAttempt: err => console.log(`[DB]: connection attempt ${err.attemptNumber} failed`),
@@ -13,5 +13,5 @@ import { start as startServer } from './shared/infra/http/app';
   }
   // starts the server
   // await import('./shared/infra/http/app');
-  startServer();
+  return startServer();
 })();
