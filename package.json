@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest  --verbose --runInBand",
+    "test-roles": "cross-env NODE_ENV=test jest  --verbose --runInBand --testPathPattern=src/modules/Role/useCases/.*.integration.spec.ts",
+    "test-groups": "cross-env NODE_ENV=test jest  --verbose --runInBand --testPathPattern=src/modules/group/useCases/.*.integration.spec.ts",
     "build": "tsc",
     "start": "npm run build && npm run serve",
     "serve": "node dist/index.js",

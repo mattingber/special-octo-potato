@@ -98,9 +98,6 @@ export class GroupService {
       return err(IsNotLeafError.create(id));
     }
     const role = await this.roleRepository.getByGroupId(groupId);
-    if(!role) {
-      return err(AppError.ResourceNotFound.create(id, 'Role'));
-    }
     if(!!role && !!role.roleId){
       return err(HasRolesAttachedError.create(id));
     }

@@ -1,3 +1,4 @@
+import { emptyDB } from './../../../tests/seedUtils';
 /* eslint-disable prettier/prettier */
 /* eslint-disable import/prefer-default-export */
 /* eslint-disable import/no-mutable-exports */
@@ -13,12 +14,15 @@ const validRole = { roleId: "123", source: 'ES', directGroup : '123'}
 const notValidRoleGroup = { roleId: "123", source: 'ES', directGroup : '123321321'}
 describe('POST Role ', () => {
     beforeAll(async () => {
-
+        
         try {
             server = await startApp;
-        } catch (err) {}
+            await emptyDB()
+        } catch (err) {
+            console.log(err)
+        }
     
-        console.log(`Server started `);
+        
     });
     afterAll(async () => {
         await server.close();
@@ -32,10 +36,10 @@ describe('POST Role ', () => {
             .expect(200)
             .end((err :any, res : any) => {
                 if (err) {
-                    console.log(err)
+                    
                     throw done(err);
                 }
-                console.log(res)
+                // 
                 expect(res.body.toString()).toBe(
                 res.body.toString());
                 return done();
@@ -50,10 +54,10 @@ describe('POST Role ', () => {
             .expect(200)
             .end((err :any, res : any) => {
                 if (err) {
-                    console.log(err)
+                    
                     throw done(err);
                 }
-                console.log(res)
+                // 
                 expect(res.body.toString()).toBe(
                 res.body.toString());
                 return done();
