@@ -11,6 +11,9 @@ import {
   joiSchema as CreateEntitySchema 
 } from '../../useCases/dtos/CreateEntityDTO';
 import { 
+  joiSchema as DeleteEntitySchema 
+} from '../../useCases/dtos/DeleteEntityDTO';
+import { 
   UpdateEntityDTO, 
   joiSchema as UpdateEntitySchema 
 } from '../../useCases/dtos/UpdateEntityDTO';
@@ -88,6 +91,18 @@ export class EntityController {
       return ErrorResponseHandler.defaultErrorHandler(res, result.error);
     }
     return ResponseHandler.ok(res);
+  }
+  deleteEntity = async (req: Request, res: Response)=>{
+    const {error} = DeleteEntitySchema.validate({id: req.params.id})
+    if(!!error) {
+      return ResponseHandler.clientError(res, error.message);
+    }
+    const result = await this._entityService.deleteEntity(req.params.id);
+    if(result.isErr()) {
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error);
+    }
+    return ResponseHandler.ok(res);
+
   }
 
 }

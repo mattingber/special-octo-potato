@@ -37,6 +37,15 @@ export namespace AppError {
     }
   }
 
+  export class LogicError extends BaseError {
+    private constructor(msg: string) {
+      super(msg);
+    }
+    static create(msg: string) {
+      return new LogicError(msg);
+    }
+  }
+
   export class ResourceNotFound extends BaseError {
     private _resource: string;
 

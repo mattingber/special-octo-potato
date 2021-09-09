@@ -9,6 +9,8 @@ import { PersonalNumber } from "../../domain/PersonalNumber";
 import { IdentityCard } from "../../domain/IdentityCard";
 import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
+import { AppError } from "../../../../core/logic/AppError";
+import { BaseError } from "../../../../core/logic/BaseError";
 
 export class EntityRepository implements IEntityRepository {
   private _model: Model<EntityDoc>;
@@ -67,5 +69,12 @@ export class EntityRepository implements IEntityRepository {
     });
     session.endSession();
     return result;
+  }
+  async delete(id: EntityId): Promise<Result<any,BaseError>>{
+    const res = await this._model.deleteOne({_id: id.toValue()});
+    if(!res) {
+      return err(AppError.LogicError.create(`${res}`));
+    }
+    return ok(undefined)
   }
 }

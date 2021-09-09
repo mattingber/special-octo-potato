@@ -5,10 +5,12 @@ import { EntityId } from "../../entity/domain/EntityId";
 import { Mail } from "../domain/Mail";
 import { Result } from "neverthrow";
 import { AggregateVersionError } from "../../../core/infra/AggregateVersionError";
+import { BaseError } from "../../../core/logic/BaseError";
 
 export interface DigitalIdentityRepository extends Repository<DigitalIdentity> {
   save(digitalIdentity: DigitalIdentity): Promise<Result<void, AggregateVersionError>>;
   getByUniqueId(uniqueId: DigitalIdentityId): Promise<DigitalIdentity | null>;
   getByEntityId(entityId: EntityId): Promise<DigitalIdentity[]>;
   exists(identifier: Mail | DigitalIdentityId): Promise<boolean>;
+  delete(id: DigitalIdentityId): Promise<Result<any,BaseError>>;
 }

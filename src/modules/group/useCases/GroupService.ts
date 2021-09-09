@@ -10,10 +10,15 @@ import { DuplicateChildrenError } from "../domain/errors/DuplicateChildrenError"
 import { MoveGroupDTO } from "./dto/MoveGroupDTO";
 import { TreeCycleError } from "../domain/errors/TreeCycleError";
 import { GroupResultDTO, groupToDTO } from "./dto/GroupResultDTO";
+import { IsNotLeafError } from "../domain/errors/IsNotLeafError";
+import { BaseError } from "../../../core/logic/BaseError";
+import { RoleRepository } from "../../Role/repository/RoleRepository";
+import { HasRolesAttachedError } from "../domain/errors/HasRolesAttachedError";
 
 export class GroupService {
   constructor(
-    private groupRepository: GroupRepository
+    private groupRepository: GroupRepository,
+    private roleRepository: RoleRepository
   ) {}
 
   async createGroup(createDTO: CreateGroupDTO): Promise<Result<
@@ -81,5 +86,21 @@ export class GroupService {
       .mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
-  // TODO: update group (rename) and delete group
+  // TODO: update group (rename)
+
+  async deleteGroup(id: string): Promise<Result<any,BaseError>>{ 
+    const groupId = GroupId.create(id);
+    const group = await this.groupRepository.getByGroupId(groupId)
+    if(!group) {
+      return err(AppError.ResourceNotFound.create(id, 'Group'));
+    }
+    if(group.childrenNames.length != 0){
+      return err(IsNotLeafError.create(id));
+    }
+    const role = await this.roleRepository.getByGroupId(groupId);
+    if(!!role && !!role.roleId){
+      return err(HasRolesAttachedError.create(id));
+    }
+    return (await this.groupRepository.delete(groupId)).mapErr(err => AppError.RetryableConflictError.create(err.message));
+  }
 }

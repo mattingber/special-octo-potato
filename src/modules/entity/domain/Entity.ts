@@ -461,6 +461,7 @@ export class Entity extends AggregateRoot {
   get profilePicture() {
     return this._state.profilePicture;
   }
+
   // get hierarchy() {
   //   return this._state.hierarchy?.value();
   // }
