@@ -25,52 +25,53 @@ export interface EntityDoc {
   primaryDigitalIdentityId?: string;
   pictures?: {
     profile?: {
-      path: string,
+      path: string;
       meta: {
-        createdAt: Date,
-        updatedAt?: Date,
-      }
-    }
-  },
-  version: number,
-  digitalIdentities: string[],
+        createdAt: Date;
+        updatedAt?: Date;
+      };
+    };
+  };
+  version: number;
 }
 
-const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc> ({
-  firstName: String,
-  lastName: String,
-  entityType: String,
-  displayName: String,
-  personalNumber: String, // use value object
-  identityCard: String,
-  rank: String, //use vale object / enum
-  akaUnit: String,
-  clearance: Number, // value object
-  mail: String, //value object
-  sex: String,
-  serviceType: String, //value object
-  dischargeDate: Date,
-  birthDate: Date,
-  jobTitle: String,
-  address: String, // value
-  phone: [String], //value object
-  mobilePhone: [String], //value object
-  goalUserId: String,
-  primaryDigitalIdentityId: String,
-  pictures: {
-    profile: {
-      path: String,
-      meta: {
-        createdAt: Date,
-        updatedAt: Date,
-      }
-    }
+const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc>(
+  {
+    firstName: String,
+    lastName: String,
+    entityType: String,
+    displayName: String,
+    personalNumber: String, // use value object
+    identityCard: String,
+    rank: String, //use vale object / enum
+    akaUnit: String,
+    clearance: Number, // value object
+    mail: String, //value object
+    sex: String,
+    serviceType: String, //value object
+    dischargeDate: Date,
+    birthDate: Date,
+    jobTitle: String,
+    address: String, // value
+    phone: [String], //value object
+    mobilePhone: [String], //value object
+    goalUserId: String,
+    primaryDigitalIdentityId: String,
+    pictures: {
+      profile: {
+        path: String,
+        meta: {
+          createdAt: Date,
+          updatedAt: Date,
+        },
+      },
+    },
+    version: Number,
   },
-  digitalIdentities: [String],
-  version: Number
-},{
-  versionKey: false,
-  timestamps: true,
-});
+  {
+    versionKey: false,
+    timestamps: true,
+  }
+);
 
 export default schema;
