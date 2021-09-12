@@ -77,8 +77,9 @@ describe('PUT Group',() =>{
         const res3 = await insert('groups', moveGroupSon)
         const foundGroupSon = await findOneByQuery('groups', { name: "son"})
         const foundGroupFather2 = await findOneByQuery('groups', { name: "fatherSecond"})
+        let st =(('/api/groups/'+foundGroupSon._id.toString()+'/parent/'+ foundGroupFather2._id.toString()).toString())
         request(app)
-            .put(`/api/groups/`+foundGroupSon._id.toString()+'/parent/'+ foundGroupFather2._id.toString())
+            .put(`/api/groups/${foundGroupSon._id.toString()}/parent/${foundGroupFather2._id.toString()}`)
             .expect(200)
             .end(async (err :any, res : any) => {
                 if (err) {
