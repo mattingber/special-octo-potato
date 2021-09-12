@@ -33,7 +33,7 @@ export class GroupController {
     if(result.isErr()) {
       return ResponseHandler.clientError(res, result.error.message);
     }
-    return ResponseHandler.ok(res);
+    return ResponseHandler.ok(res, result.value);
   }
 
   /**

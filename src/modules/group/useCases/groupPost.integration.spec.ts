@@ -37,6 +37,8 @@ describe('POST Group ', () => {
                     
                     throw done(err);
                 }
+                expect(Object.keys(res.body).length === 1)
+                expect(res.body.id).toBeTruthy()
                 const foundGroup = await findOneByQuery('groups', { name: "nike"})
                 expect(foundGroup.name).toBe('nike')
                 return done();

@@ -1,7 +1,7 @@
 {
   "valueObjects": {
     "source": {
-      "values": ["OA", "AD", "ES", "MM"],
+      "values": ["OA","AD","ES","MM"],
       "strongSources": ["OA"],
       "primaryMap": {
         "unit1": "AD",
@@ -36,4 +36,5 @@
   "server": {
     "port": 4000
   }
+
 }
