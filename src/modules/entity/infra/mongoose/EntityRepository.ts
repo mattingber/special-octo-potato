@@ -11,6 +11,7 @@ import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
 import { AppError } from "../../../../core/logic/AppError";
 import { BaseError } from "../../../../core/logic/BaseError";
+import { MongooseError } from "../../../../shared/infra/mongoose/errors/MongooseError";
 
 export class EntityRepository implements IEntityRepository {
   private _model: Model<EntityDoc>;
@@ -40,7 +41,8 @@ export class EntityRepository implements IEntityRepository {
   }
   
   async getByEntityId(entityId: EntityId): Promise<Entity | null> {
-    const raw = await this._model.findOne({ _id: entityId.toString() }).lean();
+    let raw;
+    raw = await this._model.findOne({ _id: entityId.toString() }).lean();
     if (!raw) return null;
     return Mapper.toDomain(raw);
   }

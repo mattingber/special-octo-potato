@@ -9,6 +9,8 @@ import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
 import { AppError } from "../../../../core/logic/AppError";
 import { BaseError } from "../../../../core/logic/BaseError";
+import { MongooseError } from "../../../../shared/infra/mongoose/errors/MongooseError";
+import { Error as mongooseError} from "mongoose";
 
 export class GroupRepository implements IGroupRepository {
 
@@ -94,7 +96,11 @@ export class GroupRepository implements IGroupRepository {
            result = err(AggregateVersionError.create(group.fetchedVersion))
          }
        } else {
-         await this._model.create([persistanceState], { session: session });
+         try {
+           await this._model.create([persistanceState], { session: session });
+         } catch(err: any) {
+          return err(MongooseError.GenericError.create(err));
+         }
          result = ok(undefined);
        }
        await this._eventOutbox.put(group.domainEvents, session);
@@ -102,12 +108,17 @@ export class GroupRepository implements IGroupRepository {
      session.endSession();
      return result;
     }catch(err){
-      console.log(err)
+      
       throw err
     }
   }
   async delete(id: GroupId): Promise<Result<any,BaseError>>{
-    const res = await this._model.deleteOne({_id: id.toValue()});
+    let res;
+    try {
+      res = await this._model.deleteOne({_id: id.toValue()});
+    } catch(err: any) {
+      return err(MongooseError.GenericError.create(err));
+    }
     if(!res) {
       return err(AppError.LogicError.create(`${res}`));
     }
