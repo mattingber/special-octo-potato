@@ -68,12 +68,11 @@ export const findOneByQuery = async (collectionName: string, query: Object) => {
     return res;
 }
 
-
 export const emptyDB = async () => {
     const rolesCollection = dbConnection.collection('roles')
     const entitiesCollection = dbConnection.collection('entities')
     const groupsCollection = dbConnection.collection('groups')
-    const digitalIdentitiesCollection = dbConnection.collection('digitalIdentities')
+    const digitalIdentitiesCollection = dbConnection.collection('digitalidentities')
     try {
 
         await rolesCollection.remove({});
@@ -81,7 +80,7 @@ export const emptyDB = async () => {
         await groupsCollection.remove({});
         await digitalIdentitiesCollection.remove({});
     } catch(err){
-        console.log(err)
+        
     }
 };
 

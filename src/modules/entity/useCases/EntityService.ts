@@ -208,9 +208,9 @@ export class EntityService {
       | AppError.RetryableConflictError
     >
   > {
-    const entityId = EntityId.create(connectDTO.entityId);
+    const entityId = EntityId.create(connectDTO.id);
     const uidOrError = DigitalIdentityId.create(
-      connectDTO.digitalIdentityUniqueId
+      connectDTO.uniqueId
     ).mapErr(AppError.ValueValidationError.create);
     if (uidOrError.isErr()) {
       return err(uidOrError.error);
@@ -219,14 +219,14 @@ export class EntityService {
     const entity = await this.entityRepository.getByEntityId(entityId);
     if (!entity) {
       return err(
-        AppError.ResourceNotFound.create(connectDTO.entityId, "entity")
+        AppError.ResourceNotFound.create(connectDTO.id, "entity")
       );
     }
     const di = await this.diRepository.getByUniqueId(uidOrError.value);
     if (!di) {
       return err(
         AppError.ResourceNotFound.create(
-          connectDTO.digitalIdentityUniqueId,
+          connectDTO.uniqueId,
           "digital identity"
         )
       );
@@ -258,9 +258,9 @@ export class EntityService {
       | AppError.RetryableConflictError
     >
   > {
-    const entityId = EntityId.create(disconnectDTO.entityId);
+    const entityId = EntityId.create(disconnectDTO.id);
     const uidOrError = DigitalIdentityId.create(
-      disconnectDTO.digitalIdentityUniqueId
+      disconnectDTO.uniqueId
     ).mapErr(AppError.ValueValidationError.create);
     if (uidOrError.isErr()) {
       return err(uidOrError.error);
@@ -270,14 +270,14 @@ export class EntityService {
     const entity = await this.entityRepository.getByEntityId(entityId);
     if (!entity) {
       return err(
-        AppError.ResourceNotFound.create(disconnectDTO.entityId, "entity")
+        AppError.ResourceNotFound.create(disconnectDTO.id, "entity")
       );
     }
     const di = await this.diRepository.getByUniqueId(uidOrError.value);
     if (!di) {
       return err(
         AppError.ResourceNotFound.create(
-          disconnectDTO.digitalIdentityUniqueId,
+          disconnectDTO.uniqueId,
           "digital identity"
         )
       );
@@ -285,8 +285,8 @@ export class EntityService {
     if (!di.connectedEntityId?.equals(entityId)) {
       return err(
         EntityIsNotConnectedError.create(
-          disconnectDTO.entityId,
-          disconnectDTO.digitalIdentityUniqueId
+          disconnectDTO.id,
+          disconnectDTO.uniqueId
         )
       );
     }

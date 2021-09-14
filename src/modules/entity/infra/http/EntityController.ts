@@ -38,7 +38,7 @@ export class EntityController {
     if(result.isErr()) {
       return ErrorResponseHandler.defaultErrorHandler(res, result.error);
     }
-    return ResponseHandler.ok(res);
+    return ResponseHandler.ok(res, result.value);
   }
 
   /**
@@ -52,7 +52,7 @@ export class EntityController {
     const result = await this._entityService.connectDigitalIdentity(dto as ConnectDigitalIdentityDTO);
     if(result.isErr()) {
       return ErrorResponseHandler.defaultErrorHandler(res, result.error, {
-        notFoundOnlyWhenResourceMatch: (dto as ConnectDigitalIdentityDTO).entityId,
+        notFoundOnlyWhenResourceMatch: (dto as ConnectDigitalIdentityDTO).id,
       });
     }
     return ResponseHandler.ok(res);
@@ -69,7 +69,7 @@ export class EntityController {
     const result = await this._entityService.disconnectDigitalIdentity(dto as ConnectDigitalIdentityDTO);
     if(result.isErr()) { 
       return ErrorResponseHandler.defaultErrorHandler(res, result.error, {
-        notFoundOnlyWhenResourceMatch: (dto as ConnectDigitalIdentityDTO).entityId,
+        notFoundOnlyWhenResourceMatch: (dto as ConnectDigitalIdentityDTO).id,
       });
     }
     return ResponseHandler.ok(res);

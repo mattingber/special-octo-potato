@@ -1,11 +1,11 @@
 import Joi from 'joi';
 
 export type ConnectDigitalIdentityDTO = {
-  entityId: string;
-  digitalIdentityUniqueId: string;
+  id: string; // TODO: change to entityId and digitalIdentityUniqueId respectively?
+  uniqueId: string;
 }
 
 export const joiSchema = Joi.object({
-  entityId: Joi.string().required(),
-  digitalIdentityUniqueId: Joi.string().required(),
+  id: Joi.string().required(),
+  uniqueId: Joi.string().required(),
 });

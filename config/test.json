@@ -1,11 +1,11 @@
 {
     "valueObjects": {
       "source": {
-        "values": ["OA","AD","ES","MM"],
-        "strongSources": ["OA"],
+        "values": ["oa","ad","es","mm"],
+        "strongSources": ["oa"],
         "primaryMap": {
-          "unit1": "AD",
-          "unit2": "ES"
+          "unit1": "ad",
+          "unit2": "es"
         }
       },
       "rank": {

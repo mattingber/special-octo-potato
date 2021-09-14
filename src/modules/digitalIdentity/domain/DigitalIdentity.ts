@@ -14,7 +14,7 @@ import { isSomeEnum } from "../../../utils/isSomeEnum";
 
 export enum DigitalIdentityType {
   DomainUser = 'domainUser',
-  Kaki = 'kaki'
+  VirtualUser = 'virtualUser' // TODO: add to config, change name?
 }
 const isDiType = isSomeEnum(DigitalIdentityType);
 export const castToDigitalIdentityType = (val: string): Result<DigitalIdentityType, string> => {
@@ -91,7 +91,7 @@ export class DigitalIdentity extends AggregateRoot {
     state: DigitalIdentityState, 
     opts: CreateOpts
   ): Result<DigitalIdentity, CannotConnectRoleError> {
-    if (state.type === DigitalIdentityType.Kaki && state.canConnectRole) {
+    if (state.type === DigitalIdentityType.VirtualUser && state.canConnectRole) {
       return err(CannotConnectRoleError.create(id.toString())); //error
     }
     // TODO: 
