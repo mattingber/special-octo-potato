@@ -67,6 +67,11 @@ export const findOneByQuery = async (collectionName: string, query: Object) => {
     const res = await collection.findOne(query);
     return res;
 }
+export const insert = async(collectionName: string, doc : Object) => {
+    const collection = dbConnection.collection(collectionName)
+    const res = await collection.insertOne(doc);
+    return res;
+}
 
 export const emptyDB = async () => {
     const rolesCollection = dbConnection.collection('roles')

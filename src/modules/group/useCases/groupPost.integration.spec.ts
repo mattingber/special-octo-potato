@@ -1,4 +1,4 @@
-import { findByQuery, findOneByQuery } from './../../../tests/seedUtils';
+import { findByQuery, findOneByQuery, insert } from './../../../tests/seedUtils';
 import { emptyDB } from '../../../tests/seedUtils';
 /* eslint-disable prettier/prettier */
 /* eslint-disable import/prefer-default-export */
@@ -66,3 +66,61 @@ describe('DELETE Group ', () => {
         
     });
 });
+
+describe('PUT Group',() =>{
+    it('move a group', async()=>{
+        await emptyDB()
+        const moveGroupFather = { name: "fatherFirst", source: 'ES'}
+        const moveGroupFather2 = {name: "fatherSecond", source: 'ES'}
+        const res = await insert('groups', moveGroupFather)
+        const res2 = await insert('groups', moveGroupFather2)
+        let foundGroupFatherFirst = await findOneByQuery('groups', { name: "fatherFirst"})
+        const moveGroupSon = { name: "son", source: 'ES', directGroup: foundGroupFatherFirst._id.toString()}
+        const res3 = await insert('groups', moveGroupSon)
+        const foundGroupSon = await findOneByQuery('groups', { name: "son"})
+        const foundGroupFather2 = await findOneByQuery('groups', { name: "fatherSecond"})
+        let st =(('/api/groups/'+foundGroupSon._id.toString()+'/parent/'+ foundGroupFather2._id.toString()).toString())
+        request(app)
+            .put(`/api/groups/${foundGroupSon._id.toString()}/parent/${foundGroupFather2._id.toString()}`)
+            .expect(200)
+            .end(async (err :any, res : any) => {
+                if (err) {
+                    
+                    throw (err);
+                }
+                
+                const foundGroup = await findOneByQuery('groups', { name: "son"})
+                expect(foundGroup.directGroup).toBe(foundGroupFather2._id.toString())
+                
+            });
+
+    });
+})
+describe('PUT Group',() =>{
+    it('move a group with different source, NOT VALID!', async()=>{
+        await emptyDB()
+        const moveGroupFather = { name: "fatherFirst", source: 'ES'}
+        const moveGroupFather2 = {name: "fatherSecond", source: 'AD'}
+        const res = await insert('groups', moveGroupFather)
+        const res2 = await insert('groups', moveGroupFather2)
+        let foundGroupFatherFirst = await findOneByQuery('groups', { name: "fatherFirst"})
+        const moveGroupSon = { name: "son", source: 'ES', directGroup: foundGroupFatherFirst._id.toString()}
+        const res3 = await insert('groups', moveGroupSon)
+        const foundGroupSon = await findOneByQuery('groups', { name: "son"})
+        const foundGroupFather2 = await findOneByQuery('groups', { name: "fatherSecond"})
+        request(app)
+            .put(`/api/groups/`+foundGroupSon._id.toString()+'/parent/'+ foundGroupFather2._id.toString())
+            .expect(200)
+            .end(async (err :any, res : any) => {
+                if (err) {
+                    
+                    throw (err);
+                }
+                
+                const foundGroup = await findOneByQuery('groups', { name: "son"})
+                expect(foundGroup.directGroup).toBe(foundGroupFatherFirst._id.toString())
+                
+            });
+
+    });
+})
