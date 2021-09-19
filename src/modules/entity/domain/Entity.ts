@@ -16,9 +16,9 @@ import { ServiceType } from "./ServiceType";
 import { isSomeEnum } from "../../../utils/isSomeEnum";
 
 export enum EntityType {
-  Soldier = 'soldier',
-  Civilian = 'civilian',
-  GoalUser = 'goalUser'
+  Soldier = 'agumon',
+  Civilian = 'digimon',
+  GoalUser = 'tamar'
 }
 const isEntityType = isSomeEnum(EntityType);
 export const castToEntityType = (val: string): Result<EntityType, string> => {
@@ -30,6 +30,7 @@ export enum Sex {
   Male = 'male',
   Female = 'female'
 }
+
 const isSex = isSomeEnum(Sex);
 export const castToSex = (val: string): Result<Sex, string> => {
   if(isSex(val)) { return ok(val); }

@@ -1,7 +1,7 @@
 {
   "valueObjects": {
     "source": {
-      "values": ["OA","AD","ES","MM"],
+      "values": ["OA", "AD", "ES", "MM"],
       "strongSources": ["OA"],
       "primaryMap": {
         "unit1": "AD",
@@ -12,7 +12,7 @@
       "values": ["rookie", "champion", "ultimate"]
     },
     "serviceType": {
-      "values": ["hov", "kev"]
+      "values": ["A", "B", "C", "D", "E", "F", "G"]
     },
     "digitalIdentityId": {
       "domain": {
@@ -22,7 +22,7 @@
   },
   "db": {
     "mongo": {
-      "connectionString": "mongodb://localhost:27017/octo?replicaSet=rs0&directConnection=true&ssl=false",
+      "connectionString": "mongodb://nitro:password123@localhost:27017/kartoffelMock?replicaSet=rs0&directConnection=true&ssl=false",
       "poolSize": 10,
       "modelNames": {
         "group": "Group",
@@ -36,5 +36,4 @@
   "server": {
     "port": 4000
   }
-
 }
