@@ -16,7 +16,7 @@ const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, Digital
   entityId: { type: Schema.Types.ObjectId, ref: () => 'Entity' }, // TODO: model names provider?
   type: { 
     type: String,
-    enum: [ DigitalIdentityType.DomainUser, DigitalIdentityType.Kaki ],
+    enum: [ DigitalIdentityType.DomainUser, DigitalIdentityType.VirtualUser ],
   },
   source: String,
   mail: String,

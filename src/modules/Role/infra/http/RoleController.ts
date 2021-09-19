@@ -40,7 +40,7 @@ export class RoleController {
     if(result.isErr()) {
       return ErrorResponseHandler.defaultErrorHandler(res, result.error)
     }
-    return ResponseHandler.ok(res);
+    return ResponseHandler.ok(res, result.value);
   }
 
   /**

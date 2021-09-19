@@ -1,22 +1,22 @@
 {
   "valueObjects": {
     "source": {
-      "values": ["OA", "AD", "ES", "MM"],
-      "strongSources": ["OA"],
+      "values": ["oa_name","es_name","sf_name", "aka", "adNN_name", "city_name", "mir_name"], 
+      "strongSources": ["oa_name"],
       "primaryMap": {
-        "unit1": "AD",
-        "unit2": "ES"
+        "unit1": "ad",
+        "unit2": "es"
       }
     },
     "rank": {
-      "values": ["rookie", "champion", "ultimate"]
+      "values": ["unknown", "rookie", "champion", "ultimate"]
     },
     "serviceType": {
       "values": ["A", "B", "C", "D", "E", "F", "G"]
     },
     "digitalIdentityId": {
       "domain": {
-        "values": ["mm", "sirutim.com"]
+        "values": ["rabiran.com", "jello.com", "adnn.com", "leonardo.com", "city.com"]
       }
     }
   },
