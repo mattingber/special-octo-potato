@@ -1,38 +1,42 @@
 {
-    "valueObjects": {
-      "source": {
-        "values": ["oa","ad","es","mm"],
-        "strongSources": ["oa"],
-        "primaryMap": {
-          "unit1": "ad",
-          "unit2": "es"
-        }
-      },
-      "rank": {
-        "values": ["rookie", "champion", "ultimate"]
-      },
-      "serviceType": {
-        "values": ["hov", "kev"]
-      },
-      "digitalIdentityId": {
-        "domain": {
-          "values": ["mm", "sirutim.com"]
-        }
+  "valueObjects": {
+    "source": {
+      "values": ["oa_name","es_name","sf_name", "aka", "adNN_name", "city_name", "mir_name"], 
+      "strongSources": ["oa_name"],
+      "primaryMap": {
+        "unit1": "ad",
+        "unit2": "es"
       }
     },
-    "db": {
-      "mongo": {
-        "connectionString": "mongodb://localhost:27017/octo?replicaSet=rs0&directConnection=true&ssl=false",
-        "poolSize": 10,
-        "modelNames": {
-          "group": "Group",
-          "digitalIdentity": "DigitalIdentity",
-          "entity": "Entity",
-          "role": "Role",
-          "eventOutbox": "EventMessage"
-        }
+    "rank": {
+      "values": ["unknown", "rookie", "champion", "ultimate"]
+    },
+    "serviceType": {
+      "values": ["regular"] 
+    },
+    "digitalIdentityId": {
+      "domain": {
+        "values": ["rabiran.com", "jello.com", "adnn.com", "leonardo.com", "city.com"]
       }
     },
+    "digitalIdentityType": {
+      "DomainUser" : "domainUser",
+      "VirtualUser" : "virtualUser" 
+    }
+  },
+  "db": {
+    "mongo": {
+      "connectionString": "mongodb://localhost:27017/octo?replicaSet=rs0&directConnection=true&ssl=false",
+      "poolSize": 10,
+      "modelNames": {
+        "group": "Group",
+        "digitalIdentity": "DigitalIdentity",
+        "entity": "Entity",
+        "role": "Role",
+        "eventOutbox": "EventMessage"
+      }
+    }
+  },
     "server": {
       "port": 3000
     },
