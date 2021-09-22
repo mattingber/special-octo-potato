@@ -8,6 +8,9 @@ import { default as RoleSchema, RoleDoc } from "./RoleSchema";
 import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
 import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
+import { BaseError } from "../../../../core/logic/BaseError";
+import { AppError } from "../../../../core/logic/AppError";
+import { GroupId } from "../../../group/domain/GroupId";
 
 
 export class RoleRepository implements IRoleRepository {
@@ -34,6 +37,18 @@ export class RoleRepository implements IRoleRepository {
     const raw = await this._model.findOne({ 
       digitalIdentityUniqueId: digitalIdentityUniqueId.toString(),
     }).lean();
+    if (!raw) return null;
+    return Mapper.toDomain(raw);
+  }
+  async delete(roleId: RoleId): Promise<Result<any,BaseError>>{
+    const res = await this._model.deleteOne({roleId: roleId.toValue()});
+    if(!res) {
+      return err(AppError.LogicError.create(`${res}`));
+    }
+    return ok(undefined)
+  }
+  async getByGroupId(groupId: GroupId): Promise<Role | null>{
+    const raw = await this._model.findOne({directGroup: groupId.toValue()}).lean();
     if (!raw) return null;
     return Mapper.toDomain(raw);
   }

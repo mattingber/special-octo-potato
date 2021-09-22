@@ -5,6 +5,9 @@ import {
   joiSchema as CreateGroupSchema
 } from '../../useCases/dto/CreateGroupDTO';
 import {
+  joiSchema as DeleteGroupSchema
+} from '../../useCases/dto/DeleteGroupDTO';
+import {
   MoveGroupDTO,
   joiSchema as MoveGroupSchema
 } from '../../useCases/dto/MoveGroupDTO';
@@ -55,6 +58,17 @@ export class GroupController {
     }
     return ResponseHandler.ok(res);
   }
+  deleteGroup = async (req: Request, res: Response)=>{
+    const {error} = DeleteGroupSchema.validate({id: req.params.id})
+    if(!!error) {
+      return ResponseHandler.clientError(res, error.message);
+    }
+    const result = await this._groupService.deleteGroup(req.params.id);
+    if(result.isErr()) {
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error);
+    }
+    return ResponseHandler.ok(res);
+  }
 }
 
-// TODO: delete route and update route
+// TODO: update route

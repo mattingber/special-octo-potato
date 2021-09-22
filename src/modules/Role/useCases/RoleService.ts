@@ -14,6 +14,8 @@ import { DigitalIdentity } from "../../digitalIdentity/domain/DigitalIdentity";
 import { MoveGroupDTO } from "./dtos/MoveGroupDTO";
 import { DigitalIdentityCannotBeConnected } from "../domain/errors/DigitalIdentityCannotBeConnected";
 import { AlreadyConnectedToDigitalIdentity } from "../domain/errors/AlreadyConnectedToDigitalIdentity";
+import { BaseError } from "../../../core/logic/BaseError";
+import { HasDigitalIdentityAttached } from "../domain/errors/HasDigitalIdentityAttached";
 
 export class RoleService {
   constructor(
@@ -162,6 +164,18 @@ export class RoleService {
     role.moveToGroup(group);
     return (await this.roleRepository.save(role)).
       mapErr(err => AppError.RetryableConflictError.create(err.message));
+  }
+
+  async deleteRole( id: string):Promise<Result<any,BaseError>>{
+    const roleId = RoleId.create(id);
+    const role = await this.roleRepository.getByRoleId(roleId);
+    if(!role) {
+      return err(AppError.ResourceNotFound.create(id, 'role'));
+    }
+    if(role?.digitalIdentityUniqueId != null){
+      return err(HasDigitalIdentityAttached.create(id));
+    }
+    return (await this.roleRepository.delete(roleId)).mapErr(err => AppError.RetryableConflictError.create(err.message));
   }
 
 }

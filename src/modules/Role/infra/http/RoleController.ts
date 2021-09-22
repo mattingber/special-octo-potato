@@ -16,6 +16,7 @@ import {
   UpdateRoleDTO,
   joiSchema as UpdateRoleSchema
 } from "../../useCases/dtos/UpdateRoleDTO";
+import { joiSchema as DeleteRoleSchema } from "../../useCases/dtos/DeleteRoleDTO";
 import { ResponseHandler } from "../../../../shared/infra/http/helpers/ResponseHandler";
 import { AppError } from "../../../../core/logic/AppError";
 import { ErrorResponseHandler } from "../../../../shared/infra/http/helpers/ErrorResponseHandler";
@@ -125,6 +126,17 @@ export class RoleController {
     return ResponseHandler.ok(res);
   }
 
-  // TODO: implement delete route
+  deleteRole = async (req: Request, res: Response) => {
+
+    const { error } = DeleteRoleSchema.validate({roleId: req.params.roleId})
+    if(!!error) {
+      return ResponseHandler.clientError(res, error.message);
+    }
+    const result = await this._roleService.deleteRole(req.params.roleId)
+    if(result.isErr()) {
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error);
+    }
+    return ResponseHandler.ok(res);
+  }
 
 }

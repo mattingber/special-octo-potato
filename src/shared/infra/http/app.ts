@@ -8,7 +8,7 @@ import entityRouter from "../../../modules/entity/infra/http/router";
 import config from "config";
 
 
-const app = express();
+export const app = express();
 app.use(json());
 app.use(morgan("dev"));
 app.use(urlencoded({ extended: false }));
@@ -21,7 +21,7 @@ const PORT = Number(config.get('server.port')) || 3000;
 
 
 export const start = () => {
-  app.listen(PORT, () => {
+  return app.listen(PORT, () => {
     console.log(`app listening on port ${PORT}`);
   });
 }
