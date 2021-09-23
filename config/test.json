@@ -1,27 +1,23 @@
 {
   "valueObjects": {
     "source": {
-      "values": ["oa_name","es_name","sf_name", "aka", "adNN_name", "city_name", "mir_name"], 
-      "strongSources": ["oa_name"],
+      "values": ["OA", "AD", "ES", "MM"],
+      "strongSources": ["OA"],
       "primaryMap": {
-        "unit1": "ad",
-        "unit2": "es"
+        "unit1": "AD",
+        "unit2": "ES"
       }
     },
     "rank": {
-      "values": ["unknown", "rookie", "champion", "ultimate"]
+      "values": ["rookie", "champion", "ultimate"]
     },
     "serviceType": {
-      "values": ["regular"] 
+      "values": ["hov", "kev", "A", "B", "C", "D", "E", "F", "G"]
     },
     "digitalIdentityId": {
       "domain": {
-        "values": ["rabiran.com", "jello.com", "adnn.com", "leonardo.com", "city.com"]
+        "values": ["mm", "sirutim.com"]
       }
-    },
-    "digitalIdentityType": {
-      "DomainUser" : "domainUser",
-      "VirtualUser" : "virtualUser" 
     }
   },
   "db": {
@@ -37,9 +33,8 @@
       }
     }
   },
-    "server": {
-      "port": 3000
-    },
-    "NODE_ENV": "test"
-  
-  }
+  "server": {
+    "port": 3000
+  },
+  "NODE_ENV": "test"
+}

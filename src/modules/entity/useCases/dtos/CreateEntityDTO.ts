@@ -37,7 +37,7 @@ export const joiSchema =  Joi.object({
   identityCard: Joi.string(),
   rank: Joi.string(),
   akaUnit: Joi.string(),
-  clearance: Joi.number().integer().positive(),
+  clearance: Joi.number().integer().min(0),
   sex: Joi.string(),
   serviceType: Joi.string(),
   address: Joi.string(),
@@ -45,7 +45,7 @@ export const joiSchema =  Joi.object({
   mobilePhone: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string()),
   goalUserId: Joi.string(),
   jobTitle: Joi.string(),
-  dischargeDate: Joi.date(),
+  dischargeDay: Joi.date(),
   birthDate: Joi.date(),
   pictures: Joi.object({
     profile: Joi.object({

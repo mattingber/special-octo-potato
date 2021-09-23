@@ -12,7 +12,7 @@
       "values": ["unknown", "rookie", "champion", "ultimate"]
     },
     "serviceType": {
-      "values": ["regular"] 
+      "values": ["A", "B", "C", "D", "E", "F", "G"]
     },
     "digitalIdentityId": {
       "domain": {
@@ -26,7 +26,7 @@
   },
   "db": {
     "mongo": {
-      "connectionString": "mongodb://localhost:27017/octo?replicaSet=rs0&directConnection=true&ssl=false",
+      "connectionString": "mongodb://nitro:password123@localhost:27017/kartoffelMock?replicaSet=rs0&directConnection=true&ssl=false",
       "poolSize": 10,
       "modelNames": {
         "group": "Group",
@@ -40,5 +40,4 @@
   "server": {
     "port": 4000
   }
-
 }

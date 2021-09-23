@@ -15,8 +15,11 @@ export namespace MongooseError {
     }
 
     static create(err: any) {
-      if (err instanceof mongooseError)
-      return new GenericError(err.message);
+      if (err instanceof mongooseError) {
+        return new GenericError(err.message);
+      } else {
+        return new GenericError(err.message);
+      }
     }
   }
 

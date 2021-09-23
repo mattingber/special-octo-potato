@@ -23,11 +23,13 @@ export class DigitalIdentityMapper {
   static toDomain(raw: DigitalIdentityDoc): DigitalIdentity {
     const uid = DigitalIdentityId.create(raw.uniqueId)._unsafeUnwrap();
     const entityId = raw.entityId;
+    const source = Source.create(raw.source)._unsafeUnwrap();
     return DigitalIdentity.create(
       uid,
       {
         mail: !!raw.mail ? Mail.create(raw.mail)._unsafeUnwrap() : undefined,
-        source: Source.create(raw.source)._unsafeUnwrap(),
+        // source: Source.create(raw.source)._unsafeUnwrap(),
+        source,
         type: raw.type,
         canConnectRole: raw.isRoleAttachable,
         entityId: !!entityId ? EntityId.create(entityId.toHexString()) : undefined,

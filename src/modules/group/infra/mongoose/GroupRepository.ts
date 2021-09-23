@@ -79,11 +79,11 @@ export class GroupRepository implements IGroupRepository {
     return children.map(g => g.name);
   }
 
-  async save(group: Group): Promise<Result<void, AggregateVersionError>> {
+  async save(group: Group): Promise<Result<void, AggregateVersionError | MongooseError.GenericError>> {
     const persistanceState = Mapper.toPersistance(group);
     try { 
      let session = await this._model.startSession();
-     let result: Result<void, AggregateVersionError> = ok(undefined);
+     let result: Result<void, AggregateVersionError | MongooseError.GenericError> = ok(undefined);
      await session.withTransaction(async () => {
        if(!!await this._model.findOne({ _id: group.groupId.toString()}).session(session)) {
          const updateOp = await this._model.updateOne({ 
@@ -98,26 +98,26 @@ export class GroupRepository implements IGroupRepository {
        } else {
          try {
            await this._model.create([persistanceState], { session: session });
-         } catch(err: any) {
-          return err(MongooseError.GenericError.create(err));
+         } catch(error) {
+          result = err(MongooseError.GenericError.create(error));
          }
          result = ok(undefined);
        }
-       await this._eventOutbox.put(group.domainEvents, session);
+       await this._eventOutbox.put(group.domainEvents, session); // TODO: remove every outbox
      });
      session.endSession();
      return result;
-    }catch(err){
+    }catch(error){
       
-      throw err
+      throw error
     }
   }
   async delete(id: GroupId): Promise<Result<any,BaseError>>{
     let res;
     try {
       res = await this._model.deleteOne({_id: id.toValue()});
-    } catch(err: any) {
-      return err(MongooseError.GenericError.create(err));
+    } catch(error) {
+      return err(MongooseError.GenericError.create(error));
     }
     if(!res) {
       return err(AppError.LogicError.create(`${res}`));

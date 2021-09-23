@@ -14,7 +14,7 @@ import { isSomeEnum } from "../../../utils/isSomeEnum";
 
 export enum DigitalIdentityType {
   DomainUser = 'domainUser',
-  VirtualUser = 'virtualUser' // TODO: add to config, change name?
+  VirtualUser = 'virtualUser'
 }
 const isDiType = isSomeEnum(DigitalIdentityType);
 export const castToDigitalIdentityType = (val: string): Result<DigitalIdentityType, string> => {

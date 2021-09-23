@@ -28,11 +28,13 @@ export class GroupMapper {
     } 
   ): Group {
     const groupId = GroupId.create(raw._id.toHexString());
+    const source = Source.create(raw.source)._unsafeUnwrap()
     return Group._create(
       groupId,
       {
         name: raw.name,
-        source: Source.create(raw.source)._unsafeUnwrap(),
+        source,
+        // source: Source.create(raw.source)._unsafeUnwrap(),
         ancestors: raw.ancestors.map(ancestorId => GroupId.create(ancestorId.toHexString())),
         childrenNames: new Set(raw.childrenNames),
         akaUnit: raw.akaUnit,

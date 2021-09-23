@@ -1,4 +1,5 @@
 import express from "express";
+import morgan from "morgan";
 import { json, urlencoded } from "body-parser";
 import diRouter from "../../../modules/digitalIdentity/infra/http/router";
 import roleRouter from "../../../modules/Role/infra/http/router";
@@ -9,6 +10,7 @@ import config from "config";
 
 export const app = express();
 app.use(json());
+app.use(morgan("dev"));
 app.use(urlencoded({ extended: false }));
 app.use('/api/digitalIdentities', diRouter);
 app.use('/api/groups', groupRouter);
