@@ -7,14 +7,14 @@ import { EntityId } from "./EntityId";
 import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
 import config from "config";
 import { IConnectedDI } from "./ConnectedDI";
-
+import { wrapResult  } from "../../../utils/resultUtils";
 // TODO: inject config in another way
 const STRONG_SOURCES: string[] = config.get('valueObjects.source.strongSources'); 
 const PRIMARY_MAP: object = config.get('valueObjects.source.primaryMap');
 
 export class PrimaryDigitalIdentityService { // TODO: should be "static" class
   static _primarySourceMap : Map<string, Source> = new Map(Object.entries(PRIMARY_MAP)
-  .map(([key, source]) => [key, Source.create(source as string)._unsafeUnwrap()]));
+  .map(([key, source]) => [key, wrapResult(Source.create(source as string))]));
 
 
   static haveStrongSource(digitalIdentity: IConnectedDI) {

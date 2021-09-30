@@ -47,6 +47,10 @@ export class GroupService {
         }
       );
     } else {
+      // TODO: validate some map between source and root name
+      if (createDTO.name !== createDTO.source) {
+        return err(AppError.ValueValidationError.create(createDTO.name)); 
+      }
       group = ok(Group.createRoot(
         groupId, {
           name: createDTO.name,

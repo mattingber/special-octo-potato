@@ -5,6 +5,7 @@ import { EntityId } from "../../../entity/domain/EntityId";
 import { Types } from "mongoose";
 import { Mail } from "../../domain/Mail";
 import { Source } from "../../domain/Source";
+import { wrapResult } from "../../../../utils/resultUtils";
 
 export class DigitalIdentityMapper {
 
@@ -23,13 +24,13 @@ export class DigitalIdentityMapper {
   static toDomain(raw: DigitalIdentityDoc): DigitalIdentity {
     const uid = DigitalIdentityId.create(raw.uniqueId)._unsafeUnwrap();
     const entityId = raw.entityId;
-    const source = Source.create(raw.source)._unsafeUnwrap();
+    const sourceRes = Source.create(raw.source);
+    const sourceExtracted = wrapResult(sourceRes)
     return DigitalIdentity.create(
       uid,
       {
         mail: !!raw.mail ? Mail.create(raw.mail)._unsafeUnwrap() : undefined,
-        // source: Source.create(raw.source)._unsafeUnwrap(),
-        source,
+        source: sourceExtracted!,
         type: raw.type,
         canConnectRole: raw.isRoleAttachable,
         entityId: !!entityId ? EntityId.create(entityId.toHexString()) : undefined,
