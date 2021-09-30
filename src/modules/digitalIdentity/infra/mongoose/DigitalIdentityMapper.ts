@@ -10,15 +10,18 @@ import { wrapResult } from "../../../../utils/resultUtils";
 export class DigitalIdentityMapper {
 
   static toPersistance(digitalIdentity: DigitalIdentity): DigitalIdentityDoc {
-    return {
+    const persistanced : DigitalIdentityDoc =  {
       uniqueId: digitalIdentity.uniqueId.toString(),
       type: digitalIdentity.type,
       source: digitalIdentity.source.value,
       mail: digitalIdentity.mail?.value,
       isRoleAttachable: digitalIdentity.canConnectRole,
-      entityId: Types.ObjectId(digitalIdentity.connectedEntityId?.toString()),
       version: digitalIdentity.version,
     }
+    if (digitalIdentity.connectedEntityId) {
+      persistanced.entityId = Types.ObjectId(digitalIdentity.connectedEntityId.toString())
+    }
+    return persistanced;
   }
 
   static toDomain(raw: DigitalIdentityDoc): DigitalIdentity {
