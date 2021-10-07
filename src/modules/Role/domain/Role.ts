@@ -6,10 +6,7 @@ import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityI
 import { Result, ok, err } from "neverthrow";
 import { DigitalIdentityCannotBeConnected } from "./errors/DigitalIdentityCannotBeConnected";
 import { IGroup } from "../../group/domain/IGroup";
-import { RoleConnectedEvent } from "./events/RoleConnectedEvent";
 import { AlreadyConnectedToDigitalIdentity } from "./errors/AlreadyConnectedToDigitalIdentity";
-import { RoleDisconnectedEvent } from "./events/RoleDisconnectedEvent";
-import { RoleMovedGroupEvent } from "./events/RoleMovedGroupEvent";
 import { Source } from "../../digitalIdentity/domain/Source";
 
 export interface RoleState {
@@ -57,14 +54,6 @@ export class Role extends AggregateRoot {
   }
 
   public moveToGroup(group: IGroup) {
-    this.addDomainEvent(new RoleMovedGroupEvent(this.id, {
-      roleId: this.roleId,
-      connectedDigitalIdentityId: this._digitalIdentityUniqueId,
-      directGroup: group.groupId,
-      jobTitle: this._jobTitle,
-      // hierarchy: this._hierarchy,
-      // hierarchyIds: this._hierarchyIds,
-    }));
     // this._hierarchy = Hierarchy.create(group.hierarchy);
     // this._hierarchyIds = group.ancestors;
     this._directGroup = group.groupId;
@@ -81,14 +70,6 @@ export class Role extends AggregateRoot {
     }
     if (digitalIdentity.canConnectRole) {
       this._digitalIdentityUniqueId = digitalIdentity.uniqueId;
-      this.addDomainEvent(new RoleConnectedEvent(this.id, {
-        roleId: this.roleId,
-        connectedDigitalIdentityId: this._digitalIdentityUniqueId,
-        jobTitle: this._jobTitle,
-        directGroup: this._directGroup,
-        // hierarchy: this._hierarchy,
-        // hierarchyIds: this._hierarchyIds,
-      }));
       this.markModified();
       return ok(undefined);
     }
@@ -98,16 +79,6 @@ export class Role extends AggregateRoot {
   }
 
   public disconnectDigitalIdentity() {
-    if (!!this._digitalIdentityUniqueId) {
-      this.addDomainEvent(new RoleDisconnectedEvent(this.id, {
-        disconnectedDigitalIdentityId: this._digitalIdentityUniqueId,
-        roleId: this.roleId,
-        jobTitle: this._jobTitle,
-        directGroup: this._directGroup,
-        // hierarchy: this._hierarchy,
-        // hierarchyIds: this._hierarchyIds,
-      }));
-    }
     this.markModified();
     this._digitalIdentityUniqueId = undefined;
   }

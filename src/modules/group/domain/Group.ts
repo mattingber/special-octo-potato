@@ -4,7 +4,6 @@ import { RoleId } from "../../Role/domain/RoleId";
 import { RoleState, Role } from "../../Role/domain/Role";
 import { Result, err, ok } from "neverthrow";
 import { DuplicateChildrenError } from "./errors/DuplicateChildrenError";
-import { GroupMovedToParentEvent } from "./events/GroupMovedToParent";
 import { IGroup } from "./IGroup";
 import { Source } from "../../digitalIdentity/domain/Source";
 import { TreeCycleError } from "./errors/TreeCycleError";

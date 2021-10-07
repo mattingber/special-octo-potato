@@ -1,7 +1,7 @@
+import { EventOutbox } from './../../../../shared/infra/mongoose/eventOutbox/Outbox';
 import { Model, Types, FilterQuery, Connection } from "mongoose";
 import { EntityRepository as IEntityRepository, IhaveEntityIdentifiers, EntityIdentifier } from "../../repository/EntityRepository"
 import { EntityMapper as Mapper} from "./EntityMapper";
-import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
 import { default as EntitySchema, EntityDoc } from "./EntitySchema";
 import { EntityId } from "../../domain/EntityId";
 import { Entity } from "../../domain/Entity";

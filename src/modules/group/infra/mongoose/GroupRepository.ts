@@ -1,10 +1,10 @@
+import { EventOutbox } from './../../../../shared/infra/mongoose/eventOutbox/Outbox';
 import { ClientSession, Collection, Connection, default as mongoose ,Model, Types } from "mongoose";
 import { GroupRepository as IGroupRepository } from "../../repository/GroupRepository"
 import { GroupMapper as Mapper} from "./GroupMapper";
 import { default as GroupSchema, GroupDoc } from "./GroupSchema";
 import { GroupId } from "../../domain/GroupId";
 import { Group } from "../../domain/Group";
-import { EventOutbox } from "../../../../shared/infra/mongoose/eventOutbox/Outbox";
 import { err, ok, Result } from "neverthrow";
 import { AggregateVersionError } from "../../../../core/infra/AggregateVersionError";
 import { AppError } from "../../../../core/logic/AppError";
