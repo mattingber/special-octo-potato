@@ -14,7 +14,6 @@ import { BaseError } from "../../../../core/logic/BaseError";
 
 export class DigitalIdentityRepository implements IdigitalIdentityRepo {
   private _model: Model<DigitalIdentityDoc>;
-  private _eventOutbox: EventOutbox;
 
   constructor (db: Connection, eventOutbox: EventOutbox, config: { modelName: string }) {
     const { modelName } = config;
@@ -23,7 +22,6 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
     } else {
       this._model = db.model(modelName, DigitalIdentitySchema);
     }
-    this._eventOutbox = eventOutbox;    
   }
 
   async exists(identifier: Mail | DigitalIdentityId) {
@@ -60,7 +58,6 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
         await this._model.create([persistanceState], { session });
         result = ok(undefined);
       }
-      await this._eventOutbox.put(digitalIdentity.domainEvents, session);
     });
     session.endSession();
     return result;

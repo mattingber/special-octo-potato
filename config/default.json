@@ -4,7 +4,7 @@
       "values": ["oa_name","es_name","sf_name", "aka", "adNN_name", "city_name", "mir_name"], 
       "strongSources": ["oa_name"],
       "primaryMap": {
-        "unit1": "ad",
+        "ads": "sf_name",
         "unit2": "es"
       }
     },
@@ -18,6 +18,11 @@
       "domain": {
         "values": ["rabiran.com", "jello.com", "adnn.com", "leonardo.com", "city.com"]
       }
+    },
+    "EntityType": {
+      "Soldier" : "agumon",
+      "Civilian" : "digimon",
+      "GoalUser" : "tamar"
     },
     "digitalIdentityType": {
       "DomainUser" : "domainUser",

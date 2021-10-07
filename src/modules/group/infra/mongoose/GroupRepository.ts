@@ -15,7 +15,6 @@ import { Error as mongooseError} from "mongoose";
 export class GroupRepository implements IGroupRepository {
 
   private _model: Model<GroupDoc>;
-  private _eventOutbox: EventOutbox;
 
   constructor(db: Connection, eventOutbox: EventOutbox, config: { modelName: string }) {
     const { modelName } = config;
@@ -24,7 +23,6 @@ export class GroupRepository implements IGroupRepository {
     } else {
       this._model = db.model(modelName, GroupSchema);
     }
-    this._eventOutbox = eventOutbox;
   }
 
   generateGroupId(): GroupId {
@@ -104,7 +102,6 @@ export class GroupRepository implements IGroupRepository {
          }
        }
       await session.commitTransaction();
-      //  await this._eventOutbox.put(group.domainEvents, session); // TODO: remove every outbox
     } catch(error){
       // TODO: return informative error
     }

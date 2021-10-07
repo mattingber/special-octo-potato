@@ -11,7 +11,7 @@ export type CreateEntityDTO = {
   clearance?: number;
   sex?: string;
   serviceType?: string; 
-  dischargeDate?: Date;
+  dischargeDay?: Date;
   birthDate?: Date;
   jobTitle?: string;
   address?: string; // value?

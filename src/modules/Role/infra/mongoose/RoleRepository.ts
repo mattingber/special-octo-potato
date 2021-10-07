@@ -15,7 +15,6 @@ import { GroupId } from "../../../group/domain/GroupId";
 
 export class RoleRepository implements IRoleRepository {
   private _model: Model<RoleDoc>;
-  private _eventOutbox: EventOutbox;
 
   constructor(db: Connection, eventOutbox: EventOutbox, config: { modelName: string }) {
     const { modelName } = config;
@@ -24,7 +23,6 @@ export class RoleRepository implements IRoleRepository {
     } else {
       this._model = db.model(modelName, RoleSchema);
     }
-    this._eventOutbox = eventOutbox;
   }
 
   async getByRoleId(roleId: RoleId): Promise<Role | null> {
@@ -73,7 +71,6 @@ export class RoleRepository implements IRoleRepository {
         await this._model.create([persistanceState],{ session });
         result = ok(undefined);
       }
-      await this._eventOutbox.put(role.domainEvents, session);
     });
     session.endSession();
     return result;

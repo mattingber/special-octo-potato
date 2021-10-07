@@ -11,6 +11,7 @@ export abstract class ResponseHandler {
   }
 
   static jsonResponse(res: Response, code: number, message: string) {
+    console.log(message)
     return res.status(code).json({ message });
   }
 

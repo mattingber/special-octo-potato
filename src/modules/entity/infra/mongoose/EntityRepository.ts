@@ -15,7 +15,6 @@ import { MongooseError } from "../../../../shared/infra/mongoose/errors/Mongoose
 
 export class EntityRepository implements IEntityRepository {
   private _model: Model<EntityDoc>;
-  private _eventOutbox: EventOutbox
 
   constructor(db: Connection, eventOutbox: EventOutbox, config: { modelName: string }) {
     const { modelName } = config;
@@ -24,7 +23,6 @@ export class EntityRepository implements IEntityRepository {
     } else {
       this._model = db.model(modelName, EntitySchema);
     }
-    this._eventOutbox = eventOutbox;
   }
 
   async exists(identifier: EntityIdentifier): Promise<boolean> {
@@ -67,7 +65,6 @@ export class EntityRepository implements IEntityRepository {
         await this._model.create([persistanceState], { session });
         result = ok(undefined);
       }
-      await this._eventOutbox.put(entity.domainEvents, session);
     });
     session.endSession();
     return result;

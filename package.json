@@ -11,6 +11,7 @@
     "build": "tsc --project tsconfig.json",
     "start": "npm run build && npm run serve",
     "serve": "node dist/index.js",
+    "ts": "nodemon src/index.ts",
     "debug": "cross-env NODE_ENV=test node --inspect ./node_modules/jest/bin/jest -i"
   },
   "repository": {
@@ -30,6 +31,8 @@
     "@types/mongoose": "^5.11.97",
     "@types/morgan": "^1.9.3",
     "@types/supertest": "^2.0.11",
+    "nodemon": "^2.0.13",
+    "ts-node": "^10.2.1",
     "typescript": "^4.4.2"
   },
   "dependencies": {

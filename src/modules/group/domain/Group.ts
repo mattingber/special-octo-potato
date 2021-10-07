@@ -65,16 +65,6 @@ export class Group
     const previousParentId = this.parentId;
     this._ancestors = [ parent.id, ...parent._ancestors ];
     // this._hierarchy = createChildHierarchy(parent);
-    this.addDomainEvent(new GroupMovedToParentEvent(this.id, {
-      groupId: this.groupId,
-      ancestors: this._ancestors,
-      // hierarchy: this._hierarchy,
-      previousParentId,
-      name: this._name,
-      source: this._source,
-      akaUnit: this._akaUnit,
-      status: this._status, 
-    }));
     this.markModified();
     return ok(undefined);
   }

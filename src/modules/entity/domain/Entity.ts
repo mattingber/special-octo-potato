@@ -110,7 +110,7 @@ type EntityState = {
   mail?: Mail;
   sex?: Sex;
   serviceType?: ServiceType;
-  dischargeDate?: Date;
+  dischargeDay?: Date;
   birthDate?: Date;
   jobTitle?: string;
   address?: string; // value?
@@ -147,7 +147,7 @@ const REQUIRED_COMMON_FIELDS: (keyof EntityState)[] = [
 const REQUIRED_PERSON_FIELDS: (keyof EntityState)[] = [
   "firstName",
   "lastName",
-  "serviceType",
+  // "serviceType",
 ];
 
 // type SoldierState =
@@ -182,7 +182,7 @@ const ENTITY_TYPE_VALID_STATE: {
       "serviceType",
       "sex",
       "address",
-      "dischargeDate",
+      "dischargeDay",
       "birthDate",
     ],
   },
@@ -477,8 +477,8 @@ export class Entity extends AggregateRoot {
   get serviceType() {
     return this._state.serviceType;
   }
-  get dischargeDate() {
-    return this._state.dischargeDate;
+  get dischargeDay() {
+    return this._state.dischargeDay;
   }
   get birthDate() {
     return this._state.birthDate;

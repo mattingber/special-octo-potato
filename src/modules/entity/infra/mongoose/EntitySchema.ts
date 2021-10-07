@@ -15,7 +15,7 @@ export interface EntityDoc {
   mail?: string; //value object
   sex?: Sex;
   serviceType?: string; //value object
-  dischargeDate?: Date;
+  dischargeDay?: Date;
   birthDate?: Date;
   jobTitle?: string;
   address?: string; // value?
@@ -49,7 +49,7 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc>(
     mail: String, //value object
     sex: String,
     serviceType: String, //value object
-    dischargeDate: Date,
+    dischargeDay: Date,
     birthDate: Date,
     jobTitle: String,
     address: String, // value

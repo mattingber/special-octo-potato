@@ -1,4 +1,4 @@
-import { DigitalIdentity, DigitalIdentityType } from "../../domain/DigitalIdentity";
+import { DigitalIdentity } from "../../domain/DigitalIdentity";
 import { DigitalIdentityId } from "../../domain/DigitalIdentityId";
 import { DigitalIdentityDoc } from "./DigitalIdentitySchema";
 import { EntityId } from "../../../entity/domain/EntityId";

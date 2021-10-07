@@ -11,7 +11,7 @@ export type UpdateEntityDTO = { entityId: string } & Partial<{
   clearance: number;
   sex: string;
   serviceType: string; 
-  dischargeDate: Date;
+  dischargeDay: Date;
   birthDate: Date;
   address: string; // value?
   phone: string | string[]; //value object
@@ -45,7 +45,7 @@ export const joiSchema = Joi.object({
   mobilePhone: Joi.alternatives().try(Joi.array().items(Joi.string()), Joi.string()),
   goalUserId: Joi.string(),
   jobTitle: Joi.string(),
-  dischargeDate: Joi.date(),
+  dischargeDay: Joi.date(),
   birthDate: Joi.date(),
   pictures: Joi.object({
     profile: Joi.object({

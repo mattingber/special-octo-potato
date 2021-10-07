@@ -1,5 +1,5 @@
 import { Entity } from "./Entity";
-import { DigitalIdentity, DigitalIdentityType } from "../../digitalIdentity/domain/DigitalIdentity";
+import { DigitalIdentity } from "../../digitalIdentity/domain/DigitalIdentity";
 import { Role } from "../../Role/domain/Role";
 import { Source } from "../../digitalIdentity/domain/Source";
 import { Mail } from "../../digitalIdentity/domain/Mail";

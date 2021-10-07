@@ -1,3 +1,6 @@
+import { DigitalIdentityTypes } from './DigitalIdentityType';
+
+import config from 'config';
 import { CannotConnectAlreadyConnected } from './errors/CannotConnectAlreadyConnected ';
 import { CannotDisconnectUnconnected } from './errors/CannotDisconnectUnconnected';
 import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
@@ -8,22 +11,19 @@ import { Result, err, ok } from "neverthrow";
 import { CannotConnectRoleError } from "./errors/CannotConnectRoleError";
 import { Mail } from "./Mail";
 import { Source } from "./Source";
-import { DigitalIdentityConnectedEvent } from "./events/DigitalIdentityConnectedEvent";
-import { DigitalIdentityDisconnectedEvent } from "./events/DigitalIdentityDisconnectedEvent";
-import { isSomeEnum } from "../../../utils/isSomeEnum";
+import { isFromArray } from '../../../utils/isSomeValues';
 
-export enum DigitalIdentityType {
-  DomainUser = 'domainUser',
-  VirtualUser = 'virtualUser'
-}
-const isDiType = isSomeEnum(DigitalIdentityType);
-export const castToDigitalIdentityType = (val: string): Result<DigitalIdentityType, string> => {
+
+
+const isDiType = isFromArray(Object.values(DigitalIdentityTypes));
+
+export const castToDigitalIdentityType = (val: string): Result<string, string> => {
   if(isDiType(val)) { return ok(val); }
   return err(`${val} is invalid Digital Identity type`);
 }
 
 export interface DigitalIdentityState {
-  type: DigitalIdentityType;
+  type: string;
   source: Source;
   mail?: Mail; // use value Object
   entityId?: EntityId;
@@ -37,7 +37,7 @@ export interface DigitalIdentityRepresent {
 
 export class DigitalIdentity extends AggregateRoot {
 
-  private _type: DigitalIdentityType;
+  private _type: string;
   private _mail?: Mail;
   private _source: Source;
   private _canConnectRole: boolean;
@@ -53,7 +53,7 @@ export class DigitalIdentity extends AggregateRoot {
       // if given in props - use it  
       ? props.canConnectRole 
       // else default to true if it is a domainUser type
-      : this._type === DigitalIdentityType.DomainUser; 
+      : this._type === DigitalIdentityTypes.DomainUser; 
   }
 
   disableRoleConnectable() {
@@ -91,7 +91,7 @@ export class DigitalIdentity extends AggregateRoot {
     state: DigitalIdentityState, 
     opts: CreateOpts
   ): Result<DigitalIdentity, CannotConnectRoleError> {
-    if (state.type === DigitalIdentityType.VirtualUser && state.canConnectRole) {
+    if (state.type === DigitalIdentityTypes.VirtualUser && state.canConnectRole) {
       return err(CannotConnectRoleError.create(id.toString())); //error
     }
     // TODO: 
