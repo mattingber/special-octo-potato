@@ -41,6 +41,7 @@ export class EntityMapper {
         profile: {
           path: entity.profilePicture.path,
           meta: {
+            format: entity.profilePicture.format,
             createdAt: entity.profilePicture.createdAt,
             updatedAt: entity.profilePicture.updatedAt,
           }

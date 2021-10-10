@@ -1,4 +1,4 @@
-import { DigitalIdentityTypes } from './DigitalIdentityType';
+
 
 import config from 'config';
 import { CannotConnectAlreadyConnected } from './errors/CannotConnectAlreadyConnected ';
@@ -14,6 +14,12 @@ import { Source } from "./Source";
 import { isFromArray } from '../../../utils/isSomeValues';
 
 
+export type digitalIdentityType = {
+  DomainUser: string,
+  VirtualUser: string,
+}
+
+export const DigitalIdentityTypes: digitalIdentityType = config.get('valueObjects.digitalIdentityType');
 
 const isDiType = isFromArray(Object.values(DigitalIdentityTypes));
 

@@ -24,6 +24,10 @@
       "Civilian" : "digimon",
       "GoalUser" : "tamar"
     },
+    "Sex": {
+      "Male" : "male",
+      "Female" : "female"
+    },
     "digitalIdentityType": {
       "DomainUser" : "domainUser",
       "VirtualUser" : "virtualUser" 

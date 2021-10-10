@@ -2,7 +2,6 @@ import { entityRepository } from "./../repository/index";
 import { EntityRepository } from "../repository/EntityRepository";
 import { CreateEntityDTO } from "./dtos/CreateEntityDTO";
 import {
-  EntityType,
   Entity,
   castToEntityType,
   castToSex,
@@ -159,10 +158,11 @@ export class EntityService {
     ) {
       const {
         url: path,
-        meta: { createdAt, updatedAt },
+        meta: { createdAt, updatedAt, format },
       } = createEntityDTO.pictures.profile;
       profilePicture = {
         path,
+        format,
         createdAt,
         updatedAt,
       };

@@ -1,11 +1,10 @@
 import { Schema, Model, model, Types } from "mongoose";
-import { EntityType, Sex } from "../../domain/Entity";
 
 export interface EntityDoc {
   _id: Types.ObjectId;
   firstName: string;
   lastName?: string;
-  entityType: EntityType;
+  entityType: string;
   displayName?: string;
   personalNumber?: string; // use value object
   identityCard?: string;
@@ -13,7 +12,7 @@ export interface EntityDoc {
   akaUnit?: string;
   clearance?: number; // value object
   mail?: string; //value object
-  sex?: Sex;
+  sex?: string;
   serviceType?: string; //value object
   dischargeDay?: Date;
   birthDate?: Date;
@@ -27,6 +26,7 @@ export interface EntityDoc {
     profile?: {
       path: string;
       meta: {
+        format: string;
         createdAt: Date;
         updatedAt?: Date;
       };
@@ -61,6 +61,7 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc>(
       profile: {
         path: String,
         meta: {
+          format: String,
           createdAt: Date,
           updatedAt: Date,
         },

@@ -1,3 +1,5 @@
+import { isFromArray } from './../../../utils/isSomeValues';
+import config from 'config';
 import { DigitalIdentityRepresent } from "./../../digitalIdentity/domain/DigitalIdentity";
 import { PrimaryDigitalIdentityService } from "./PrimaryDigitalIdentityService";
 import { IConnectedDI } from "./ConnectedDI";
@@ -19,27 +21,39 @@ import { ServiceType } from "./ServiceType";
 import { isSomeEnum } from "../../../utils/isSomeEnum";
 import { DigitalIdentityState } from "../../digitalIdentity/domain/DigitalIdentity";
 
-export enum EntityType {
-  Soldier = 'agumon',
-  Civilian = 'digimon',
-  GoalUser = 'tamar'
+export type sexType = {
+  Male: string,
+  Female: string,
 }
-const isEntityType = isSomeEnum(EntityType);
-export const castToEntityType = (val: string): Result<EntityType, string> => {
+
+export const sexTypes: sexType = config.get('valueObjects.Sex');
+
+export type entityType = {
+  Soldier : string,
+  Civilian : string,
+  GoalUser : string,
+}
+
+export const entityTypes: entityType = config.get('valueObjects.EntityType');
+
+// TODO: move into utils generic
+const getEntityByValue = (entityTypeValue: string): keyof entityType => {
+  return Object.keys(entityTypes).find((key) => entityTypes[key as keyof entityType] === entityTypeValue) as keyof entityType;
+}
+
+const isEntityType = isFromArray(Object.values(entityTypes));
+const isSexType = isFromArray(Object.values(sexTypes));
+
+export const castToEntityType = (val: string): Result<string, string> => {
   if (isEntityType(val)) {
     return ok(val);
   }
   return err(`${val} is invalid EntityType`);
 };
 
-export enum Sex {
-  Male = "male",
-  Female = "female",
-}
 
-const isSex = isSomeEnum(Sex);
-export const castToSex = (val: string): Result<Sex, string> => {
-  if (isSex(val)) {
+export const castToSex = (val: string): Result<string, string> => {
+  if (isSexType(val)) {
     return ok(val);
   }
   return err(`${val} is invalid Sex`);
@@ -93,6 +107,7 @@ export const castToSex = (val: string): Result<Sex, string> => {
 
 type PictureData = {
   path: string;
+  format: string;
   updatedAt?: Date;
   createdAt: Date;
 };
@@ -100,7 +115,7 @@ type PictureData = {
 type EntityState = {
   firstName: string;
   lastName?: string;
-  entityType: EntityType;
+  entityType: string; // TODO: make entityType, sex valueObjects
   displayName?: string; // TODO maybe remove thid field
   personalNumber?: PersonalNumber;
   identityCard?: IdentityCard;
@@ -108,7 +123,7 @@ type EntityState = {
   akaUnit?: string;
   clearance?: number; // value object
   mail?: Mail;
-  sex?: Sex;
+  sex?: string;
   serviceType?: ServiceType;
   dischargeDay?: Date;
   birthDate?: Date;
@@ -161,20 +176,20 @@ const REQUIRED_PERSON_FIELDS: (keyof EntityState)[] = [
 //   Pick<EntityState, 'personalNumber' | 'rank'>;
 
 const ENTITY_TYPE_VALID_STATE: {
-  [k in EntityType]: {
+  [Property in keyof entityType]: {
     required: (keyof EntityState)[];
     forbidden: (keyof EntityState)[];
   };
 } = {
-  [EntityType.Civilian]: {
+  Civilian: {
     required: [...REQUIRED_PERSON_FIELDS, "identityCard"],
     forbidden: ["goalUserId"],
   },
-  [EntityType.Soldier]: {
+  Soldier: {
     required: [...REQUIRED_PERSON_FIELDS, "personalNumber"],
     forbidden: ["goalUserId"],
   },
-  [EntityType.GoalUser]: {
+  GoalUser: {
     required: ["firstName", "goalUserId"],
     forbidden: [
       "identityCard",
@@ -257,7 +272,7 @@ export class Entity extends AggregateRoot {
   ): Result<void, IllegalEntityStateError> {
     const pictureData = { ...this._state.profilePicture, ...update };
     // update only if the resulting data has the required keys
-    if (hasAll(pictureData, ["path", "createdAt"])) {
+    if (hasAll(pictureData, ["path", "createdAt", "format"])) {
       this._state.profilePicture = pictureData;
       this.markModified();
       return ok(undefined);
@@ -277,7 +292,7 @@ export class Entity extends AggregateRoot {
       }
     }
     // entity has all required fields for it's type
-    const { required, forbidden } = ENTITY_TYPE_VALID_STATE[state.entityType];
+    const { required, forbidden } = ENTITY_TYPE_VALID_STATE[getEntityByValue(state.entityType)];
     for (const k of required) {
       if (!has(state, k)) {
         return err(
@@ -299,7 +314,7 @@ export class Entity extends AggregateRoot {
     }
     // specific Rules:
     // goalUserId must equal PrimaryDigitalIdentityId when both are defined
-    if (state.entityType === EntityType.GoalUser) {
+    if (state.entityType === entityTypes.GoalUser) {
       if (
         !!state.goalUserId &&
         !!state.primaryDigitalIdentityId &&
@@ -316,12 +331,12 @@ export class Entity extends AggregateRoot {
   }
 
   private static isValidEntityTypeTransition(
-    from: EntityType,
-    to: EntityType
+    from: string,
+    to: string
   ): boolean {
     if (
       from !== to &&
-      (from === EntityType.GoalUser || to === EntityType.GoalUser)
+      (from === entityTypes.GoalUser || to === entityTypes.GoalUser)
     ) {
       return false;
     }

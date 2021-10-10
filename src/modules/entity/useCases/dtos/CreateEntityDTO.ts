@@ -22,6 +22,7 @@ export type CreateEntityDTO = {
     profile?: {
       url: string;
       meta: {
+        format: string;
         createdAt: Date;
         updatedAt?: Date
       }

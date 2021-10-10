@@ -1,4 +1,4 @@
-import { DigitalIdentityTypes } from './../../domain/DigitalIdentityType';
+import { DigitalIdentityTypes } from './../../domain/DigitalIdentity';
 import { Schema, Model, Types, model } from 'mongoose';
 
 export interface DigitalIdentityDoc {
