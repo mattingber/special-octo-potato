@@ -31,7 +31,7 @@ export class GroupController {
     }
     const result = await this._groupService.createGroup(dto as CreateGroupDTO);
     if(result.isErr()) {
-      return ResponseHandler.clientError(res, result.error.message);
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error);
     }
     return ResponseHandler.ok(res, result.value);
   }

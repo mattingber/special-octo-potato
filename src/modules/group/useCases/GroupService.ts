@@ -46,6 +46,16 @@ export class GroupService {
           akaUnit: createDTO.akaUnit,
         }
       );
+      if(group.isErr()) { 
+        const childGroupId = await this.groupRepository.getByNameAndParentId(createDTO.name, parentId);
+        if (childGroupId) {
+          return err(AppError.AlreadyExistsError.create('group', { id: childGroupId.toString() }));
+        }
+        else {
+          return err(AppError.UnexpectedError.create());
+        } 
+      }
+      
     } else {
       // TODO: validate some map between source and root name
       if (createDTO.name !== createDTO.source) {
@@ -59,7 +69,7 @@ export class GroupService {
         }
       ));
     }
-    if(group.isErr()) { return err(group.error); }
+
     return (await this.groupRepository.save(group.value))
       .map(() => groupToDTO(group._unsafeUnwrap())) // TODO why the fuck TS doesn't recognize the correct type
       .mapErr(err => AppError.RetryableConflictError.create(err.message));

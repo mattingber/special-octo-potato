@@ -43,7 +43,9 @@ export abstract class ErrorResponseHandler {
       }
     } else if (err instanceof AppError.UnexpectedError) {
       return ResponseHandler.fail(res, err.message);
-    }
+    } else if (err instanceof AppError.AlreadyExistsError) {
+    return ResponseHandler.clientError(res, err.message, err.identifier);
+  }
     // the default is client error
     return ResponseHandler.clientError(res, err.message);
   }

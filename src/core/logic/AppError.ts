@@ -63,6 +63,24 @@ export namespace AppError {
     }
   }
 
+  export class AlreadyExistsError extends BaseError {
+    private _idDetail: Object;
+
+    private constructor(object: string, idDetail: Object) {
+      super(`${object} already exists`);
+      this._idDetail = idDetail;
+    }
+
+    get identifier() {
+      return this._idDetail;
+    }
+
+    static create(object: string, idDetail: Object) {
+      return new AlreadyExistsError(object, idDetail);
+    }
+  }
+
+
   export class RetryableConflictError extends BaseError {
     private constructor(message: string) {
       super(message);

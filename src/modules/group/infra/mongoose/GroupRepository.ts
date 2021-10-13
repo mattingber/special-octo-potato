@@ -51,6 +51,24 @@ export class GroupRepository implements IGroupRepository {
     return groupOrNull;
   }
 
+  async getByNameAndParentId(name: string, parentId: GroupId): Promise<GroupId | null> {
+    let groupIdOrNull: GroupId | null = null;
+    // calculate all group's fields in one transaction to preserve consistency
+    /*
+     // TODO: maybe can be done in one aggregate query 
+      (maybe with virtual populate in addition) without transaction!
+    */ 
+    const session = await this._model.startSession();
+    await session.withTransaction(async () => {
+      const raw = await this._model.findOne({ directGroup: parentId.toString(), name: name }).lean().session(session);
+      if(!!raw) {
+        groupIdOrNull = GroupId.create(raw._id)
+      }
+    });
+    session.endSession();
+    return groupIdOrNull;
+  }
+
   private async calculateAncestors(groupId: GroupId, session?: ClientSession) {
     const res = await this._model.aggregate([
       { $match: { _id: groupId.toString() } },
