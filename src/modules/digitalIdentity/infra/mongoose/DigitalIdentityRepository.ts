@@ -34,10 +34,10 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
     }
   }
 
-  async save(digitalIdentity: DigitalIdentity): Promise<Result<void, AggregateVersionError>> {
+  async save(digitalIdentity: DigitalIdentity): Promise<Result<void, AggregateVersionError | MongooseError.GenericError> > {
     const persistanceState = Mapper.toPersistance(digitalIdentity);
     const session = await this._model.startSession();
-    let result: Result<void, AggregateVersionError> = ok(undefined);
+    let result: Result<void, AggregateVersionError | MongooseError.GenericError > = ok(undefined);
     await session.withTransaction(async () => {
       try {
         const exists = !!(await this._model
@@ -66,9 +66,9 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
       } catch (error) {
         result = err(MongooseError.GenericError.create(error));
       }
-      session.endSession();
-      return result;
     });
+    session.endSession();
+    return result;
   }
 
   async getByUniqueId(uniqueId: DigitalIdentityId) {

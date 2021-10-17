@@ -47,24 +47,29 @@ export class EntityRepository implements IEntityRepository {
 
   async save(entity: Entity): Promise<Result<void, AggregateVersionError>> {
     const persistanceState = Mapper.toPersistance(entity);
-    const session = await this._model.startSession();
     let result: Result<void, AggregateVersionError> = ok(undefined);
+    let session = await this._model.startSession();
     await session.withTransaction(async () => {
-      if(!!await this._model.findOne({ _id: entity.entityId.toString() }).session(session)) {
-        const updateOp = await this._model.updateOne(
-          { 
-            _id: entity.entityId.toString(), 
-            version: entity.fetchedVersion,
-          },
-          persistanceState
-        ).session(session);
-        if(updateOp.n === 0) {
-          result = err(AggregateVersionError.create(entity.fetchedVersion))
+      try {
+        if(!!await this._model.findOne({ _id: entity.entityId.toString() }).session(session)) {
+          const updateOp = await this._model.updateOne(
+            { 
+              _id: entity.entityId.toString(), 
+              version: entity.fetchedVersion,
+            },
+            persistanceState
+          ).session(session);
+          if(updateOp.n === 0) {
+            result = err(AggregateVersionError.create(entity.fetchedVersion))
+          }
+        } else {
+          await this._model.create([persistanceState], { session });
+          result = ok(undefined);
         }
-      } else {
-        await this._model.create([persistanceState], { session });
-        result = ok(undefined);
+      } catch(error) {
+        result = err(MongooseError.GenericError.create(error));
       }
+      await session.commitTransaction();
     });
     session.endSession();
     return result;

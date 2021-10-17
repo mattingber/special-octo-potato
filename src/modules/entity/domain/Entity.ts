@@ -239,7 +239,7 @@ export class Entity extends AggregateRoot {
   public updateDetails(updateDto: UpdateDto): UpdateResult {
     // check if the key is readonly and already has been set
     for (const f of Object.keys(updateDto)) {
-      if (f in SET_ONLY_ONCE_FIELDS && has(this._state, f as keyof UpdateDto)) {
+      if (SET_ONLY_ONCE_FIELDS.has(f as keyof UpdateDto) && this._state[f as keyof UpdateDto ]) {
         return err(AppError.CannotUpdateFieldError.create(f));
       }
     }
