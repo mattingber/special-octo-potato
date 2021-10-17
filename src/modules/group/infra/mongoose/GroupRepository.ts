@@ -100,29 +100,26 @@ export class GroupRepository implements IGroupRepository {
     let result: Result<void, AggregateVersionError | MongooseError.GenericError> = ok(undefined);
     let session = await this._model.startSession();
     await session.withTransaction(async () => {
-      try { 
-       if(!!await this._model.findOne({ _id: group.groupId.toString()}).session(session)) {
-         const updateOp = await this._model.updateOne({ 
-             uniqueId: group.groupId.toString(), 
-             version: group.fetchedVersion,
-           },
-           persistanceState
-         ).session(session);
-         if(updateOp.n === 0) {
-           result = err(AggregateVersionError.create(group.fetchedVersion))
-         }
-       } else {
-         try {
-           await this._model.create([persistanceState], { session: session });
-           result = ok(undefined);
-         } catch(error) {
+      try {
+        if(!!await this._model.findOne({ _id: group.groupId.toString()}).session(session)) {
+          const updateOp = await this._model.updateOne({ 
+              uniqueId: group.groupId.toString(), 
+              version: group.fetchedVersion,
+            },
+            persistanceState
+          ).session(session);
+          if(updateOp.n === 0) {
+            result = err(AggregateVersionError.create(group.fetchedVersion))
+          }
+        } else {
+            await this._model.create([persistanceState], { session: session });
+            result = ok(undefined);
+
+        } 
+      } catch(error) {
           result = err(MongooseError.GenericError.create(error));
-         }
-       }
+      }
       await session.commitTransaction();
-    } catch(error){
-      // TODO: return informative error
-    }
   })
     session.endSession();
     return result;
