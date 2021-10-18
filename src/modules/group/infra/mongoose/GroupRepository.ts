@@ -38,6 +38,7 @@ export class GroupRepository implements IGroupRepository {
     */ 
     const session = await this._model.startSession();
     await session.withTransaction(async () => {
+      try {
       const [raw, ancestors, childrenNames] = await Promise.all([
         this._model.findOne({ _id: groupId.toString() }).lean().session(session),
         this.calculateAncestors(groupId, session),
@@ -46,8 +47,12 @@ export class GroupRepository implements IGroupRepository {
       if(!!raw) {
         groupOrNull = Mapper.toDomain({ ...raw, ancestors: ancestors || [], childrenNames: childrenNames || [] });
       }
+    } catch(error) {
+      await session.abortTransaction();
+    } finally {
+      session.endSession();
+    }
     });
-    session.endSession();
     return groupOrNull;
   }
 
@@ -60,12 +65,17 @@ export class GroupRepository implements IGroupRepository {
     */ 
     const session = await this._model.startSession();
     await session.withTransaction(async () => {
-      const raw = await this._model.findOne({ directGroup: parentId.toString(), name: name }).lean().session(session);
-      if(!!raw) {
-        groupIdOrNull = GroupId.create(raw._id)
+      try {
+        const raw = await this._model.findOne({ directGroup: parentId.toString(), name: name }).lean().session(session);
+        if(!!raw) {
+          groupIdOrNull = GroupId.create(raw._id)
+        }
+      } catch(error) {
+        await session.abortTransaction();
+      } finally {
+        session.endSession();
       }
     });
-    session.endSession();
     return groupIdOrNull;
   }
 
@@ -114,14 +124,15 @@ export class GroupRepository implements IGroupRepository {
         } else {
             await this._model.create([persistanceState], { session: session });
             result = ok(undefined);
-
         } 
+        await session.commitTransaction();
       } catch(error) {
           result = err(MongooseError.GenericError.create(error));
+          await session.abortTransaction();
+      } finally {
+        session.endSession();
       }
-      await session.commitTransaction();
   })
-    session.endSession();
     return result;
   }
   async delete(id: GroupId): Promise<Result<any,BaseError>>{

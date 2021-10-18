@@ -65,9 +65,11 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
         await session.commitTransaction();
       } catch (error) {
         result = err(MongooseError.GenericError.create(error));
+        await session.abortTransaction();
+      } finally {
+        session.endSession();
       }
     });
-    session.endSession();
     return result;
   }
 

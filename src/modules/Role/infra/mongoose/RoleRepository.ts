@@ -73,12 +73,14 @@ export class RoleRepository implements IRoleRepository {
           await this._model.create([persistanceState],{ session });
           result = ok(undefined);
         }
+        await session.commitTransaction();
       } catch(error) {
         result = err(MongooseError.GenericError.create(error));
+        await session.abortTransaction();
+      } finally {
+        session.endSession();
       }
-      await session.commitTransaction();
       });
-    session.endSession();
     return result;
   }
 }
