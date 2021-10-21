@@ -12,6 +12,7 @@ import { AggregateVersionError } from '../../../../core/infra/AggregateVersionEr
 import { AppError } from '../../../../core/logic/AppError';
 import { BaseError } from '../../../../core/logic/BaseError';
 import { MongooseError } from '../../../../shared/infra/mongoose/errors/MongooseError';
+import { sanitize } from '../../../../utils/ObjectUtils';
 
 export class DigitalIdentityRepository implements IdigitalIdentityRepo {
   private _model: Model<DigitalIdentityDoc>;
@@ -35,41 +36,45 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
   }
 
   async save(digitalIdentity: DigitalIdentity): Promise<Result<void, AggregateVersionError | MongooseError.GenericError> > {
-    const persistanceState = Mapper.toPersistance(digitalIdentity);
+    const persistanceState = sanitize(Mapper.toPersistance(digitalIdentity));
     const session = await this._model.startSession();
     let result: Result<void, AggregateVersionError | MongooseError.GenericError > = ok(undefined);
-    await session.withTransaction(async () => {
-      try {
-        const exists = !!(await this._model
-          .findOne({
-            uniqueId: digitalIdentity.uniqueId.toString(),
-          })
-          .session(session));
-        if (exists) {
-          const updateOp = await this._model
-            .updateOne(
-              {
-                uniqueId: digitalIdentity.uniqueId.toString(),
-                version: digitalIdentity.fetchedVersion,
-              },
-              persistanceState
-            )
-            .session(session);
-          if (updateOp.n === 0) {
-            result = err(AggregateVersionError.create(digitalIdentity.fetchedVersion));
+    try {
+      await session.withTransaction(async () => {
+        try {
+          const exists = !!(await this._model
+            .findOne({
+              uniqueId: digitalIdentity.uniqueId.toString(),
+            })
+            .session(session));
+          if (exists) {
+            const updateOp = await this._model
+              .updateOne(
+                {
+                  uniqueId: digitalIdentity.uniqueId.toString(),
+                  version: digitalIdentity.fetchedVersion,
+                },
+                persistanceState
+              )
+              .session(session);
+            if (updateOp.n === 0) {
+              result = err(AggregateVersionError.create(digitalIdentity.fetchedVersion));
+            }
+          } else {
+            await this._model.create([persistanceState], { session });
+            result = ok(undefined);
           }
-        } else {
-          await this._model.create([persistanceState], { session });
-          result = ok(undefined);
+          await session.commitTransaction();
+        } catch (error) {
+          result = err(MongooseError.GenericError.create(error));
+          await session.abortTransaction();
         }
-        await session.commitTransaction();
-      } catch (error) {
-        result = err(MongooseError.GenericError.create(error));
-        await session.abortTransaction();
-      } finally {
-        session.endSession();
-      }
-    });
+      });
+    } catch (error) {
+      result = err(MongooseError.GenericError.create(error));
+    } finally {
+    session.endSession();
+  }
     return result;
   }
 

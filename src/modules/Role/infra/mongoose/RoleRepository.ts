@@ -12,6 +12,7 @@ import { BaseError } from "../../../../core/logic/BaseError";
 import { AppError } from "../../../../core/logic/AppError";
 import { GroupId } from "../../../group/domain/GroupId";
 import { MongooseError } from "../../../../shared/infra/mongoose/errors/MongooseError";
+import { sanitize } from "../../../../utils/ObjectUtils";
 
 
 export class RoleRepository implements IRoleRepository {
@@ -53,34 +54,38 @@ export class RoleRepository implements IRoleRepository {
   }
 
   async save(role: Role): Promise<Result<void, AggregateVersionError>> {
-    const persistanceState = Mapper.toPersistance(role);
+    const persistanceState = sanitize(Mapper.toPersistance(role));
     let result: Result<void, AggregateVersionError> = ok(undefined);
     let session = await this._model.startSession();
-    await session.withTransaction(async () => {
-      try {
-        if(!!await this._model.findOne({ roleId: role.roleId.toString()}).session(session)) {
-          const updateOp = await this._model.updateOne(
-            { 
-              roleId: role.roleId.toString(),
-              version: role.fetchedVersion,
-            },
-            persistanceState
-          ).session(session);
-          if(updateOp.n === 0) {
-            result = err(AggregateVersionError.create(role.fetchedVersion))
+    try {
+      await session.withTransaction(async () => {
+        try {
+          if(!!await this._model.findOne({ roleId: role.roleId.toString()}).session(session)) {
+            const updateOp = await this._model.updateOne(
+              { 
+                roleId: role.roleId.toString(),
+                version: role.fetchedVersion,
+              },
+              persistanceState
+            ).session(session);
+            if(updateOp.n === 0) {
+              result = err(AggregateVersionError.create(role.fetchedVersion))
+            }
+          } else {
+            await this._model.create([persistanceState],{ session });
+            result = ok(undefined);
           }
-        } else {
-          await this._model.create([persistanceState],{ session });
-          result = ok(undefined);
+          await session.commitTransaction();
+        } catch(error) {
+          result = err(MongooseError.GenericError.create(error));
+          await session.abortTransaction();
         }
-        await session.commitTransaction();
-      } catch(error) {
-        result = err(MongooseError.GenericError.create(error));
-        await session.abortTransaction();
-      } finally {
-        session.endSession();
-      }
       });
+    } catch(error) {
+      result = err(MongooseError.GenericError.create(error));
+    } finally {
+      session.endSession();
+    } 
     return result;
   }
 }
