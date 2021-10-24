@@ -46,41 +46,46 @@ export class EntityRepository implements IEntityRepository {
     return Mapper.toDomain(raw);
   }
 
-  async save(entity: Entity): Promise<Result<void, AggregateVersionError>> {
+  async save(entity: Entity): Promise<Result<void, AggregateVersionError | MongooseError.GenericError>> {
     const persistanceState = sanitize(Mapper.toPersistance(entity));
     let result: Result<void, AggregateVersionError> = ok(undefined);
     let session = await this._model.startSession();
+
     try {
-      await session.withTransaction(async () => {
-        try {
-          if(!!await this._model.findOne({ _id: entity.entityId.toString() }).session(session)) {
-            const updateOp = await this._model.updateOne(
-              { 
-                _id: entity.entityId.toString(), 
-                version: entity.fetchedVersion,
-              },
-              persistanceState
-            ).session(session);
-            if(updateOp.n === 0) {
-              result = err(AggregateVersionError.create(entity.fetchedVersion))
-            }
-          } else {
-            await this._model.create([persistanceState], { session });
-            result = ok(undefined);
-          }
-          await session.commitTransaction();
-        } catch(error) {
-          result = err(MongooseError.GenericError.create(error));
-          await session.abortTransaction();
+      session.startTransaction();
+      const existingEntity = await this._model
+        .findOne({
+          _id: entity.entityId.toString(),
+        })
+      if (existingEntity) {
+        const updateOp = await this._model.updateOne(
+          { 
+            _id: entity.entityId.toString(), 
+            version: entity.fetchedVersion,
+          },
+            persistanceState
+          )
+          .session(session);
+
+        if (updateOp.n === 0) {
+          result = err(AggregateVersionError.create(entity.fetchedVersion));
         }
-      });
+      } else {
+        await this._model.create([persistanceState], { session });
+        result = ok(undefined);
+      }
+      await session.commitTransaction();
     } catch (error) {
       result = err(MongooseError.GenericError.create(error));
+
+      await session.abortTransaction();
     } finally {
       session.endSession();
     }
     return result;
   }
+
+  
   async delete(id: EntityId): Promise<Result<any,BaseError>>{
     const res = await this._model.deleteOne({_id: id.toValue()});
     if(!res) {

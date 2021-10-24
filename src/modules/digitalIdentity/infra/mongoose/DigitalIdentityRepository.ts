@@ -35,46 +35,42 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
     }
   }
 
-  async save(digitalIdentity: DigitalIdentity): Promise<Result<void, AggregateVersionError | MongooseError.GenericError> > {
+  async save(digitalIdentity: DigitalIdentity): Promise<Result<void, AggregateVersionError | MongooseError.GenericError>> {
     const persistanceState = sanitize(Mapper.toPersistance(digitalIdentity));
-    const session = await this._model.startSession();
-    let result: Result<void, AggregateVersionError | MongooseError.GenericError > = ok(undefined);
+    let result: Result<void, AggregateVersionError> = ok(undefined);
+    let session = await this._model.startSession();
+
     try {
-      await session.withTransaction(async () => {
-        try {
-          const exists = !!(await this._model
-            .findOne({
+      session.startTransaction();
+      const existingDI = await this._model
+        .findOne({
+          uniqueId: digitalIdentity.uniqueId.toString(),
+        })
+      if (existingDI) {
+        const updateOp = await this._model
+          .updateOne(
+            {
               uniqueId: digitalIdentity.uniqueId.toString(),
-            })
-            .session(session));
-          if (exists) {
-            const updateOp = await this._model
-              .updateOne(
-                {
-                  uniqueId: digitalIdentity.uniqueId.toString(),
-                  version: digitalIdentity.fetchedVersion,
-                },
-                persistanceState
-              )
-              .session(session);
-            if (updateOp.n === 0) {
-              result = err(AggregateVersionError.create(digitalIdentity.fetchedVersion));
-            }
-          } else {
-            await this._model.create([persistanceState], { session });
-            result = ok(undefined);
-          }
-          await session.commitTransaction();
-        } catch (error) {
-          result = err(MongooseError.GenericError.create(error));
-          await session.abortTransaction();
+              version: digitalIdentity.fetchedVersion,
+            },
+            persistanceState
+          )
+          .session(session);
+
+        if (updateOp.n === 0) {
+          result = err(AggregateVersionError.create(digitalIdentity.fetchedVersion));
         }
-      });
+      } else {
+        await this._model.create([persistanceState], { session });
+        result = ok(undefined);
+      }
+      await session.commitTransaction();
     } catch (error) {
       result = err(MongooseError.GenericError.create(error));
+      await session.abortTransaction();
     } finally {
-    session.endSession();
-  }
+      session.endSession();
+    }
     return result;
   }
 

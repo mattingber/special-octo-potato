@@ -36,24 +36,21 @@ export class GroupRepository implements IGroupRepository {
      // TODO: maybe can be done in one aggregate query 
       (maybe with virtual populate in addition) without transaction!
     */
-    const session = await this._model.startSession();
+    const session = await this._model.startSession(); 
     try {
-      await session.withTransaction(async () => {
-        try {
-          const [raw, ancestors, childrenNames] = await Promise.all([
-            this._model.findOne({ _id: groupId.toString() }).lean().session(session),
-            this.calculateAncestors(groupId, session),
-            this.calculateChildrenNames(groupId, session),
-          ]);
-          if (!!raw) {
-            groupOrNull = Mapper.toDomain({ ...raw, ancestors: ancestors || [], childrenNames: childrenNames || [] });
-          }
-        } catch (error) {
-          groupOrNull = null;
-        }
-      });
+      session.startTransaction();
+      const [raw, ancestors, childrenNames] = await Promise.all([
+        this._model.findOne({ _id: groupId.toString() }).lean().session(session),
+        this.calculateAncestors(groupId, session),
+        this.calculateChildrenNames(groupId, session),
+      ]);
+      if (!!raw) {
+        groupOrNull = Mapper.toDomain({ ...raw, ancestors: ancestors || [], childrenNames: childrenNames || [] });
+      }
+      await session.commitTransaction();
     } catch (error) {
       groupOrNull = null;
+      await session.abortTransaction();
     } finally {
       session.endSession();
     }
@@ -69,18 +66,18 @@ export class GroupRepository implements IGroupRepository {
     */
     const session = await this._model.startSession();
     try {
-      await session.withTransaction(async () => {
-        try {
-          const raw = await this._model.findOne({ directGroup: parentId.toString(), name: name }).lean().session(session);
+      session.startTransaction();
+          const raw = await this._model
+            .findOne({ directGroup: parentId.toString(), name: name })
+            .lean()
+            .session(session);
           if (!!raw) {
             groupIdOrNull = GroupId.create(raw._id);
           }
-        } catch (error) {
-          await session.abortTransaction();
-        }
-      });
+      await session.commitTransaction();
     } catch (error) {
       groupIdOrNull = null;
+      await session.abortTransaction();
     } finally {
       session.endSession();
     }
@@ -120,41 +117,42 @@ export class GroupRepository implements IGroupRepository {
 
   async save(group: Group): Promise<Result<void, AggregateVersionError | MongooseError.GenericError>> {
     const persistanceState = sanitize(Mapper.toPersistance(group));
-    let result: Result<void, AggregateVersionError | MongooseError.GenericError> = ok(undefined);
+    let result: Result<void, AggregateVersionError> = ok(undefined);
     let session = await this._model.startSession();
+
     try {
-      await session.withTransaction(async () => {
-        try {
-          if (!!(await this._model.findOne({ _id: group.groupId.toString() }).session(session))) {
-            const updateOp = await this._model
-              .updateOne(
-                {
-                  uniqueId: group.groupId.toString(),
-                  version: group.fetchedVersion,
-                },
-                persistanceState
-              )
-              .session(session);
-            if (updateOp.n === 0) {
-              result = err(AggregateVersionError.create(group.fetchedVersion));
-            }
-          } else {
-            await this._model.create([persistanceState], { session: session });
-            result = ok(undefined);
-          }
-          await session.commitTransaction();
-        } catch (error) {
-          result = err(MongooseError.GenericError.create(error));
-          await session.abortTransaction();
+      session.startTransaction();
+      const existingGroup = await this._model.findOne({ _id: group.groupId.toString() });
+      if (existingGroup) {
+        const updateOp = await this._model
+          .updateOne(
+            {
+              _id: group.groupId.toString(),
+              version: group.fetchedVersion,
+            },
+            persistanceState
+          )
+          .session(session);
+
+        if (updateOp.n === 0) {
+          result = err(AggregateVersionError.create(group.fetchedVersion));
         }
-      });
+      } else {
+        await this._model.create([persistanceState], { session });
+        result = ok(undefined);
+      }
+      await session.commitTransaction();
     } catch (error) {
       result = err(MongooseError.GenericError.create(error));
+
+      await session.abortTransaction();
     } finally {
       session.endSession();
     }
+
     return result;
   }
+
   async delete(id: GroupId): Promise<Result<any, BaseError>> {
     let res;
     try {

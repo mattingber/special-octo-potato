@@ -27,6 +27,6 @@ const schema = new Schema<GroupDoc, Model<GroupDoc>, GroupDoc> ({
 });
 
 // ensure name is unique under the same parent group
-schema.index({ directGroup: 1, name: 1 }, { unique: true });
+schema.index({ directGroup: 1, name: 1 }, { unique: true }); // TODO: better indices?
 
 export default schema;
