@@ -30,7 +30,7 @@ export class GroupRepository implements IGroupRepository {
   }
 
   async exists(id: GroupId): Promise<boolean> {
-    const res = await this._model.findById(id.toString()).lean().select('_id');
+    const res = await this._model.findById(id.toString()).lean();
     return !!res;
   }
 

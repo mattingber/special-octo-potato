@@ -1,3 +1,4 @@
+import { RoleAlreadyExists } from './../domain/errors/RoleAlreadyExists';
 import { RoleRepository } from '../repository/RoleRepository';
 import { GroupRepository } from '../../group/repository/GroupRepository';
 import { CreateRoleDTO } from './dtos/CreateRoleDTO';
@@ -41,6 +42,10 @@ export class RoleService {
     );
     if (sourceOrError.isErr()) {
       return err(sourceOrError.error);
+    }
+    const doesExist = await this.roleRepository.exists(roleId);
+    if (doesExist) {
+      return err(RoleAlreadyExists.create(createRoleDTO.roleId));
     }
     const groupId = GroupId.create(createRoleDTO.directGroup);
     const group = await this.groupRepository.exists(groupId);

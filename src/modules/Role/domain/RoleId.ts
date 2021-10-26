@@ -2,7 +2,7 @@ import { UniqueEntityId } from "../../../core/domain/UniqueEntityId";
 
 export class RoleId extends UniqueEntityId {
   private constructor(id: string) {
-    super(id);
+    super(id.toLowerCase());
   }
 
   private static format(id: string) {

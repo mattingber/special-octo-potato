@@ -26,6 +26,11 @@ export class RoleRepository implements IRoleRepository {
     }
   }
 
+  async exists(roleId: RoleId): Promise<boolean> {
+    const res = await this._model.findOne({ roleId: roleId.toString() }).lean();
+    return !!res;
+  }
+
   async getByRoleId(roleId: RoleId): Promise<Role | null> {
     const raw = await this._model.findOne({ roleId: roleId.toString() }).lean();
     if (!raw) return null;
@@ -34,9 +39,7 @@ export class RoleRepository implements IRoleRepository {
 
   async getByDigitalIdentityId(digitalIdentityUniqueId: DigitalIdentityId): Promise<Role | null> {
     const raw = await this._model
-      .findOne({
-        digitalIdentityUniqueId: digitalIdentityUniqueId.toString(),
-      })
+      .findOne({ digitalIdentityUniqueId : digitalIdentityUniqueId.toString()})
       .lean();
     if (!raw) return null;
     return Mapper.toDomain(raw);
