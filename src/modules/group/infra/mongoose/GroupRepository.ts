@@ -29,6 +29,11 @@ export class GroupRepository implements IGroupRepository {
     return GroupId.create(new Types.ObjectId().toHexString());
   }
 
+  async exists(id: GroupId): Promise<boolean> {
+    const res = await this._model.findById(id.toString()).lean().select('_id');
+    return !!res;
+  }
+
   async getByGroupId(groupId: GroupId): Promise<Group | null> {
     let groupOrNull: Group | null = null;
     // calculate all group's fields in one transaction to preserve consistency
@@ -36,7 +41,7 @@ export class GroupRepository implements IGroupRepository {
      // TODO: maybe can be done in one aggregate query 
       (maybe with virtual populate in addition) without transaction!
     */
-    const session = await this._model.startSession(); 
+    const session = await this._model.startSession();
     try {
       session.startTransaction();
       const [raw, ancestors, childrenNames] = await Promise.all([
@@ -45,7 +50,11 @@ export class GroupRepository implements IGroupRepository {
         this.calculateChildrenNames(groupId, session),
       ]);
       if (!!raw) {
-        groupOrNull = Mapper.toDomain({ ...raw, ancestors: ancestors || [], childrenNames: childrenNames || [] });
+        groupOrNull = Mapper.toDomain({
+          ...raw,
+          ancestors: ancestors || [],
+          childrenNames: childrenNames || [],
+        });
       }
       await session.commitTransaction();
     } catch (error) {
@@ -67,13 +76,10 @@ export class GroupRepository implements IGroupRepository {
     const session = await this._model.startSession();
     try {
       session.startTransaction();
-          const raw = await this._model
-            .findOne({ directGroup: parentId.toString(), name: name })
-            .lean()
-            .session(session);
-          if (!!raw) {
-            groupIdOrNull = GroupId.create(raw._id);
-          }
+      const raw = await this._model.findOne({ directGroup: parentId.toString(), name: name }).lean().session(session);
+      if (!!raw) {
+        groupIdOrNull = GroupId.create(raw._id);
+      }
       await session.commitTransaction();
     } catch (error) {
       groupIdOrNull = null;

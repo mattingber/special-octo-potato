@@ -1,13 +1,13 @@
-import { AggregateRoot, CreateOpts } from "../../../core/domain/AggregateRoot";
-import { GroupId } from "../../group/domain/GroupId";
-import { RoleId } from "./RoleId";
-import { DigitalIdentity } from "../../digitalIdentity/domain/DigitalIdentity";
-import { DigitalIdentityId } from "../../digitalIdentity/domain/DigitalIdentityId";
-import { Result, ok, err } from "neverthrow";
-import { DigitalIdentityCannotBeConnected } from "./errors/DigitalIdentityCannotBeConnected";
-import { IGroup } from "../../group/domain/IGroup";
-import { AlreadyConnectedToDigitalIdentity } from "./errors/AlreadyConnectedToDigitalIdentity";
-import { Source } from "../../digitalIdentity/domain/Source";
+import { AggregateRoot, CreateOpts } from '../../../core/domain/AggregateRoot';
+import { GroupId } from '../../group/domain/GroupId';
+import { RoleId } from './RoleId';
+import { DigitalIdentity } from '../../digitalIdentity/domain/DigitalIdentity';
+import { DigitalIdentityId } from '../../digitalIdentity/domain/DigitalIdentityId';
+import { Result, ok, err } from 'neverthrow';
+import { DigitalIdentityCannotBeConnected } from './errors/DigitalIdentityCannotBeConnected';
+import { IGroup } from '../../group/domain/IGroup';
+import { AlreadyConnectedToDigitalIdentity } from './errors/AlreadyConnectedToDigitalIdentity';
+import { Source } from '../../digitalIdentity/domain/Source';
 
 export interface RoleState {
   source: Source;
@@ -18,15 +18,15 @@ export interface RoleState {
   // TODO: add clearance field?
   // hierarchyIds: GroupId[];
   // hierarchy: Hierarchy;
-};
+}
 
 type UpdateDto = {
   jobTitle: string;
 };
 
-type CreateNewRoleProps =  Omit<RoleState, 'didigitalIdentityUniqueId'> & {
+type CreateNewRoleProps = Omit<RoleState, 'didigitalIdentityUniqueId'> & {
   connectedDigitalIdentity: DigitalIdentity;
-}
+};
 
 export class Role extends AggregateRoot {
   private _source: Source;
@@ -39,13 +39,7 @@ export class Role extends AggregateRoot {
 
   private constructor(roleId: RoleId, props: RoleState, opts: CreateOpts) {
     super(roleId, opts);
-    const {
-      source,
-      directGroup,
-      jobTitle = '',
-      digitalIdentityUniqueId,
-      clearance: clearance,
-    } = props;
+    const { source, directGroup, jobTitle = '', digitalIdentityUniqueId, clearance: clearance } = props;
     this._source = source;
     this._jobTitle = jobTitle;
     this._directGroup = directGroup;
@@ -63,19 +57,16 @@ export class Role extends AggregateRoot {
     digitalIdentity: DigitalIdentity
   ): Result<void, DigitalIdentityCannotBeConnected | AlreadyConnectedToDigitalIdentity> {
     if (!!this._digitalIdentityUniqueId) {
-      return err(AlreadyConnectedToDigitalIdentity.create(
-        this.roleId.toString(), 
-        this._digitalIdentityUniqueId.toString()
-      ));
+      return err(
+        AlreadyConnectedToDigitalIdentity.create(this.roleId.toString(), this._digitalIdentityUniqueId.toString())
+      );
     }
     if (digitalIdentity.canConnectRole) {
       this._digitalIdentityUniqueId = digitalIdentity.uniqueId;
       this.markModified();
       return ok(undefined);
     }
-    return err(
-      DigitalIdentityCannotBeConnected.create(digitalIdentity.uniqueId.toString())
-    );
+    return err(DigitalIdentityCannotBeConnected.create(digitalIdentity.uniqueId.toString()));
   }
 
   public disconnectDigitalIdentity() {
@@ -88,7 +79,7 @@ export class Role extends AggregateRoot {
     this.markModified();
   }
   // public static createRoleInGroup(
-  //   roleId: RoleId, 
+  //   roleId: RoleId,
   //   props: {
   //     source: string;
   //     jobTitle?: string;
@@ -105,6 +96,17 @@ export class Role extends AggregateRoot {
   //     }
   //   )
   // }
+
+  public static createRole(
+    roleId: RoleId,
+    groupId: GroupId,
+    props: Omit<RoleState, 'directGroup' | 'digitalIdentityUniqueId'>
+  ) {
+    return Role.createNew(roleId, {
+      ...props,
+      directGroup: groupId,
+    });
+  }
 
   public static _create(roleId: RoleId, state: RoleState, opts: CreateOpts) {
     return new Role(roleId, state, opts);
@@ -138,5 +140,4 @@ export class Role extends AggregateRoot {
   // get hierarchy() {
   //   return this._hierarchy.value();
   // }
-
 }
