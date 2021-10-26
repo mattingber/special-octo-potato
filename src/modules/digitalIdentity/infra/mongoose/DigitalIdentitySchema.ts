@@ -13,7 +13,7 @@ export interface DigitalIdentityDoc {
 
 const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, DigitalIdentityDoc> ({
   uniqueId: { type: String, unique: true, required: true },
-  entityId: { type: Schema.Types.ObjectId, ref: () => 'Entity' }, // TODO: model names provider?
+  entityId: { type: Schema.Types.ObjectId, unique: true, ref: () => 'Entity' }, // TODO: model names provider?
   type: { 
     type: String,
     enum: [ DigitalIdentityTypes.DomainUser, DigitalIdentityTypes.VirtualUser ],
@@ -26,5 +26,9 @@ const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, Digital
   versionKey: false,
   timestamps: true,
 });
+
+schema.index({ source: 1 })
+schema.index({ mail: 1 })
+schema.index({ isRoleAttachable: 1 })
 
 export default schema;
