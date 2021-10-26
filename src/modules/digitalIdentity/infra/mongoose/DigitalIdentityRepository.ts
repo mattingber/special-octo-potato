@@ -1,3 +1,4 @@
+import { Source } from './../../domain/Source';
 import { Connection, Model } from 'mongoose';
 import { DigitalIdentityRepository as IdigitalIdentityRepo } from '../../repository/DigitalIdentityRepository';
 import { default as DigitalIdentitySchema, DigitalIdentityDoc } from './DigitalIdentitySchema';
@@ -23,6 +24,15 @@ export class DigitalIdentityRepository implements IdigitalIdentityRepo {
       this._model = db.model(modelName);
     } else {
       this._model = db.model(modelName, DigitalIdentitySchema);
+    }
+  }
+
+  async existsInSource(identifier: Mail | DigitalIdentityId, source: Source) { // TODO: perhaps not needed?
+    if (identifier instanceof Mail) {
+      return !!(await this._model.findOne({ mail: identifier.value, source: source.value }).lean());
+    } else {
+      // is DigitalIdentityId
+      return !!(await this._model.findOne({ uniqueId: identifier.toString(), source: source.value  }).lean()); 
     }
   }
 

@@ -16,6 +16,7 @@ import { DigitalIdentityCannotBeConnected } from "../domain/errors/DigitalIdenti
 import { AlreadyConnectedToDigitalIdentity } from "../domain/errors/AlreadyConnectedToDigitalIdentity";
 import { BaseError } from "../../../core/logic/BaseError";
 import { HasDigitalIdentityAttached } from "../domain/errors/HasDigitalIdentityAttached";
+import { has } from "../../../utils/ObjectUtils";
 
 export class RoleService {
   constructor(
@@ -137,6 +138,12 @@ export class RoleService {
     const role = await this.roleRepository.getByRoleId(roleId);
     if(!role) {
       return err(AppError.ResourceNotFound.create(updateDTO.roleId, 'role id'));
+    }
+    if(has(updateDTO, 'clearance')) {
+      role.updateClearnace(updateDTO.clearance);
+    }
+    if(has(updateDTO, 'jobTitle')) {
+      role.updateJob(updateDTO.jobTitle);
     }
     return (await this.roleRepository.save(role))
       .mapErr(err => AppError.RetryableConflictError.create(err.message));

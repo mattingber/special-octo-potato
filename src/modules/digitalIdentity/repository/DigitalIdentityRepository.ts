@@ -1,3 +1,4 @@
+import { Source } from './../domain/Source';
 import { Repository } from "../../../core/infra/Repository";
 import { DigitalIdentity } from "../domain/DigitalIdentity";
 import { DigitalIdentityId } from "../domain/DigitalIdentityId";
@@ -11,6 +12,7 @@ export interface DigitalIdentityRepository extends Repository<DigitalIdentity> {
   save(digitalIdentity: DigitalIdentity): Promise<Result<void, AggregateVersionError>>;
   getByUniqueId(uniqueId: DigitalIdentityId): Promise<DigitalIdentity | null>;
   getByEntityId(entityId: EntityId): Promise<DigitalIdentity[]>;
+  existsInSource(identifier: Mail | DigitalIdentityId, source: Source): Promise<boolean>;
   exists(identifier: Mail | DigitalIdentityId): Promise<boolean>;
   delete(id: DigitalIdentityId): Promise<Result<any,BaseError>>;
 }

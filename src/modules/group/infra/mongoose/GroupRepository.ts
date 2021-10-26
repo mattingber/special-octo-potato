@@ -40,7 +40,7 @@ export class GroupRepository implements IGroupRepository {
     try {
       session.startTransaction();
       const [raw, ancestors, childrenNames] = await Promise.all([
-        this._model.findOne({ _id: groupId.toString() }).lean().session(session),
+        this._model.findOne({ _id: groupId.toString() }).lean(),
         this.calculateAncestors(groupId, session),
         this.calculateChildrenNames(groupId, session),
       ]);
@@ -70,7 +70,6 @@ export class GroupRepository implements IGroupRepository {
           const raw = await this._model
             .findOne({ directGroup: parentId.toString(), name: name })
             .lean()
-            .session(session);
           if (!!raw) {
             groupIdOrNull = GroupId.create(raw._id);
           }

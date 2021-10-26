@@ -54,9 +54,6 @@ export class DigitalIdentityService {
       if(mail.isErr()) {
         return err(mail.error);
       }
-      if(await this.diRepository.exists(mail.value)) {
-        return err(MailAlreadyExistsError.create(createDTO.mail));
-      }
     }
 
     const digitalIdentity = DigitalIdentity.create(
@@ -130,8 +127,6 @@ export class DigitalIdentityService {
 
     return (await this.diRepository.delete(diId.value))
     .mapErr(err => AppError.RetryableConflictError.create(err.message));
-
-    
 
   }
 

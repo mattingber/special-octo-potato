@@ -87,6 +87,12 @@ export class Role extends AggregateRoot {
     this._jobTitle = jobTitle;
     this.markModified();
   }
+
+  public updateClearnace(clearance: string) {
+    this._clearance = clearance;
+    this.markModified();
+  }
+
   // public static createRoleInGroup(
   //   roleId: RoleId, 
   //   props: {
