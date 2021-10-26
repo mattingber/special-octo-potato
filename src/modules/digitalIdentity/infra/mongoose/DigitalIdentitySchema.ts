@@ -13,7 +13,7 @@ export interface DigitalIdentityDoc {
 
 const schema = new Schema<DigitalIdentityDoc, Model<DigitalIdentityDoc>, DigitalIdentityDoc> ({
   uniqueId: { type: String, unique: true, required: true },
-  entityId: { type: Schema.Types.ObjectId, unique: true, ref: () => 'Entity' }, // TODO: model names provider?
+  entityId: { type: Schema.Types.ObjectId, ref: () => 'Entity' }, // TODO: model names provider?
   type: { 
     type: String,
     enum: [ DigitalIdentityTypes.DomainUser, DigitalIdentityTypes.VirtualUser ],
