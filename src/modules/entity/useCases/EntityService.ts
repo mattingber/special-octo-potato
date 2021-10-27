@@ -175,7 +175,13 @@ export class EntityService {
       return err(AppError.ResourceNotFound.create(connectDTO.uniqueId, 'digital identity'));
     }
     // connect the entityy to the digital identity
-    di.connectToEntity(entity);
+    const res = di.connectToEntity(entity);
+
+    // TODO: return error
+    // if (res.isErr()) {
+    //   return res.error as any;
+    // }
+
     const connectedDIs = (await this.diRepository.getByEntityId(entityId)).map((di) => di.connectedDigitalIdentity);
     entity.choosePrimaryDigitalIdentity(connectedDIs);
     const saveDiRes = (await this.diRepository.save(di)).mapErr((err) =>
@@ -217,15 +223,16 @@ export class EntityService {
     if (!di.connectedEntityId?.equals(entityId)) {
       return err(EntityIsNotConnectedError.create(disconnectDTO.id, disconnectDTO.uniqueId));
     }
+    // disconnect the digital identity to the entity
     // disconnect the entityy to the digital identity
     di.disconnectEntity();
-    // disconnect the digital identity to the entity
+
+    const saveDiRes = (await this.diRepository.removeFields(di, ['entityId'])).mapErr((err) =>
+      AppError.RetryableConflictError.create(err.message)
+    );
     const connectedDIs = (await this.diRepository.getByEntityId(entityId)).map((di) => di.connectedDigitalIdentity);
 
     entity.choosePrimaryDigitalIdentity(connectedDIs);
-    const saveDiRes = (await this.diRepository.save(di)).mapErr((err) =>
-      AppError.RetryableConflictError.create(err.message)
-    );
     if (saveDiRes.isErr()) return saveDiRes;
     const saveEntityRes = (await this.entityRepository.save(entity)).mapErr((err) =>
       AppError.RetryableConflictError.create(err.message)
