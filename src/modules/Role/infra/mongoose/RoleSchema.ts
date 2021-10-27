@@ -29,7 +29,7 @@ const schema = new Schema<RoleDoc, Model<RoleDoc>, RoleDoc> ({
   timestamps: true,
 });
 
-schema.index({ source: 1 })
-schema.index({ directGroup: 1 })
+// schema.index({ source: 1 })
+// schema.index({ directGroup: 1 })
 
 export default schema;

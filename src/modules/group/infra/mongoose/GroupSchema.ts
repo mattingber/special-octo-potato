@@ -27,10 +27,10 @@ const schema = new Schema<GroupDoc, Model<GroupDoc>, GroupDoc> ({
 });
 
 // ensure name is unique under the same parent group
-schema.index({ name: 1 }); 
-schema.index({ source: 1 })
-schema.index({ directGroup: 1 })
-schema.index({ akaUnit: 1 })
-schema.index({ status: 1 })
+// schema.index({ name: 1 }); 
+// schema.index({ source: 1 })
+// schema.index({ directGroup: 1 })
+// schema.index({ akaUnit: 1 })
+// schema.index({ status: 1 })
 
 export default schema;
