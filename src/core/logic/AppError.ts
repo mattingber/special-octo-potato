@@ -80,7 +80,6 @@ export namespace AppError {
     }
   }
 
-
   export class RetryableConflictError extends BaseError {
     private constructor(message: string) {
       super(message);

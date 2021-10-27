@@ -177,10 +177,9 @@ export class EntityService {
     // connect the entityy to the digital identity
     const res = di.connectToEntity(entity);
 
-    // TODO: return error
-    // if (res.isErr()) {
-    //   return res.error as any;
-    // }
+    if (res.isErr()) {
+      return err(AppError.LogicError.create(res.error.message));;
+    }
 
     const connectedDIs = (await this.diRepository.getByEntityId(entityId)).map((di) => di.connectedDigitalIdentity);
     entity.choosePrimaryDigitalIdentity(connectedDIs);
