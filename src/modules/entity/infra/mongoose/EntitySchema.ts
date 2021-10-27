@@ -75,9 +75,9 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc>(
   }
 );
 
-schema.index({ personalNumber: 1 })
-schema.index({ identityCard: 1 })
-schema.index({ goalUserId: 1 })
+// schema.index({ personalNumber: 1 })
+// schema.index({ identityCard: 1 })
+// schema.index({ goalUserId: 1 })
 // schema.index({ entityType: 1 })
 
 export default schema;
