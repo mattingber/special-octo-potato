@@ -78,7 +78,7 @@ export class GroupRepository implements IGroupRepository {
       session.startTransaction();
       const raw = await this._model.findOne({ directGroup: parentId.toString(), name: name }).lean();
       if (!!raw) {
-        groupIdOrNull = GroupId.create(raw._id);
+        groupIdOrNull = GroupId.create(raw._id.toHexString());
       }
       await session.commitTransaction();
     } catch (error) {
