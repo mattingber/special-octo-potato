@@ -10,7 +10,7 @@ export type CreateEntityDTO = {
   akaUnit?: string;
   clearance?: string;
   sex?: string;
-  serviceType?: string; 
+  serviceType?: string;
   dischargeDay?: Date;
   birthDate?: Date;
   jobTitle?: string;
@@ -20,8 +20,8 @@ export type CreateEntityDTO = {
   goalUserId?: string;
   pictures?: {
     profile?: {
-      url: string;
       meta: {
+        path: string;
         format: string;
         createdAt: Date;
         updatedAt?: Date
@@ -30,7 +30,7 @@ export type CreateEntityDTO = {
   }
 }
 
-export const joiSchema =  Joi.object({
+export const joiSchema = Joi.object({
   firstName: Joi.string().min(1).required(),
   entityType: Joi.string().required(),
   lastName: Joi.string(),
@@ -50,11 +50,12 @@ export const joiSchema =  Joi.object({
   birthDate: Joi.date(),
   pictures: Joi.object({
     profile: Joi.object({
-      url: Joi.string(),
       meta: Joi.object({
+        path: Joi.string(),
+        format: Joi.string(),
         createdAt: Joi.date(),
         updatedAt: Joi.date(),
-      }).and('url', 'meta'),
+      }).and('meta'),
     }),
   }),
 });

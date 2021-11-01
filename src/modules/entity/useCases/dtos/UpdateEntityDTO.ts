@@ -10,7 +10,7 @@ export type UpdateEntityDTO = { entityId: string } & Partial<{
   akaUnit: string;
   clearance: string;
   sex: string;
-  serviceType: string; 
+  serviceType: string;
   dischargeDay: Date;
   birthDate: Date;
   address: string; // value?
@@ -19,8 +19,9 @@ export type UpdateEntityDTO = { entityId: string } & Partial<{
   goalUserId: string;
   pictures: {
     profile?: {
-      url?: string;
       meta?: {
+        path: string;
+        format: string;
         createdAt?: Date;
         updatedAt?: Date;
       } | {}
@@ -49,8 +50,9 @@ export const joiSchema = Joi.object({
   birthDate: Joi.date(),
   pictures: Joi.object({
     profile: Joi.object({
-      url: Joi.string(),
       meta: Joi.object({
+        path: Joi.string(),
+        format: Joi.string(),
         createdAt: Joi.date(),
         updatedAt: Joi.date(),
       }),

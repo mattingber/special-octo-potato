@@ -24,8 +24,8 @@ export interface EntityDoc {
   primaryDigitalIdentityId?: string;
   pictures?: {
     profile?: {
-      path: string;
       meta: {
+        path: string;
         format: string;
         createdAt: Date;
         updatedAt?: Date;
@@ -59,8 +59,8 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc>(
     primaryDigitalIdentityId: String,
     pictures: {
       profile: {
-        path: String,
         meta: {
+          path: String,
           format: String,
           createdAt: Date,
           updatedAt: Date,
