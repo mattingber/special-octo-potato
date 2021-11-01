@@ -29,7 +29,7 @@ import { HasDigitalIdentityAttached } from './errors/HasDigitalIdentityAttached'
 import { BaseError } from '../../../core/logic/BaseError';
 
 export class EntityService {
-  constructor(private entityRepository: EntityRepository, private diRepository: DigitalIdentityRepository) {}
+  constructor(private entityRepository: EntityRepository, private diRepository: DigitalIdentityRepository) { }
 
   async createEntity(
     createEntityDTO: CreateEntityDTO
@@ -117,8 +117,7 @@ export class EntityService {
     }
     if (has(createEntityDTO, 'pictures') && has(createEntityDTO.pictures, 'profile')) {
       const {
-        url: path,
-        meta: { createdAt, updatedAt, format },
+        meta: { createdAt, updatedAt, format, path },
       } = createEntityDTO.pictures.profile;
       profilePicture = {
         path,
