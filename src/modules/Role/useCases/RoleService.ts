@@ -57,8 +57,11 @@ export class RoleService {
       jobTitle: createRoleDTO.jobTitle,
       clearance: createRoleDTO.clearance,
     });
-    return (await this.roleRepository.save(role)).mapErr((err) => AppError.RetryableConflictError.create(err.message));
-  }
+    return (await this.roleRepository.save(role)).mapErr((err) => {
+      return AppError.RetryableConflictError.create(err.message);
+    })
+      
+  } 
 
   /**
    * Connect Role to a Digital Identity
@@ -96,7 +99,9 @@ export class RoleService {
     if (res.isErr()) {
       return err(res.error);
     }
-    return (await this.roleRepository.save(role)).mapErr((err) => AppError.RetryableConflictError.create(err.message));
+    return (await this.roleRepository.save(role)).mapErr((err) => {
+      return AppError.RetryableConflictError.create(err.message)
+    });
   }
 
   /**
@@ -129,7 +134,9 @@ export class RoleService {
       // TODO: better error type
     }
     role.disconnectDigitalIdentity();
-    return (await this.roleRepository.save(role)).mapErr((err) => AppError.RetryableConflictError.create(err.message));
+    return (await this.roleRepository.save(role)).mapErr((err) => {
+      return AppError.RetryableConflictError.create(err.message)
+    });
   }
 
   /**
