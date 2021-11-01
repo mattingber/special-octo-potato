@@ -63,7 +63,7 @@ export const castToSex = (val: string): Result<string, string> => {
 //   firstName: string;
 //   entityType: EntityType;
 //   hierarchy?: Hierarchy;
-//   clearance?: number; // value object
+//   clearance?: string; // value object
 //   mail?: string; //value object, should be required??
 //   jobTitle?: string;
 // }
@@ -121,7 +121,7 @@ type EntityState = {
   identityCard?: IdentityCard;
   rank?: Rank;
   akaUnit?: string;
-  clearance?: number; // value object
+  clearance?: string; // value object
   mail?: Mail;
   sex?: string;
   serviceType?: ServiceType;

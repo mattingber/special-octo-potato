@@ -10,7 +10,7 @@ export interface EntityDoc {
   identityCard?: string;
   rank?: string; //use vale object / enum
   akaUnit?: string;
-  clearance?: number; // value object
+  clearance?: string; // value object
   mail?: string; //value object
   sex?: string;
   serviceType?: string; //value object
@@ -45,7 +45,7 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc>(
     identityCard: String,
     rank: String, //use vale object / enum
     akaUnit: String,
-    clearance: Number, // value object
+    clearance: String, // value object
     mail: String, //value object
     sex: String,
     serviceType: String, //value object

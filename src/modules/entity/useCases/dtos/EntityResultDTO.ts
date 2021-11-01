@@ -9,7 +9,7 @@ export type EntityResultDTO = {
   // identityCard?: string;
   // rank?: string;
   // akaUnit?: string;
-  // clearance?: number;
+  // clearance?: string;
   // sex?: string;
   // serviceType?: string; 
   // dischargeDate?: Date;
