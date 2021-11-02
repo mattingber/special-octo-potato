@@ -46,8 +46,8 @@ export class GroupRepository implements IGroupRepository {
       session.startTransaction();
       const [raw, ancestors, childrenNames] = await Promise.all([
         this._model.findById(groupId.toString()).lean(),
-        this.calculateAncestors(groupId, session),
-        this.calculateChildrenNames(groupId, session),
+        this.calculateAncestors(groupId),
+        this.calculateChildrenNames(groupId),
       ]);
       if (!!raw) {
         groupOrNull = Mapper.toDomain({
@@ -56,10 +56,11 @@ export class GroupRepository implements IGroupRepository {
           childrenNames: childrenNames || [],
         });
       }
-      // await session.commitTransaction();
+      await session.commitTransaction();
     } catch (error) {
-      groupOrNull = null;
-      // await session.abortTransaction();
+      console.log(error);
+      // groupOrNull = null;
+      await session.abortTransaction();
     } finally {
       session.endSession();
     }
@@ -77,6 +78,25 @@ export class GroupRepository implements IGroupRepository {
     try {
       session.startTransaction();
       const raw = await this._model.findOne({ directGroup: parentId.toString(), name: name }).lean();
+      if (!!raw) {
+        groupIdOrNull = GroupId.create(raw._id.toHexString());
+      }
+      await session.commitTransaction();
+    } catch (error) {
+      groupIdOrNull = null;
+      await session.abortTransaction();
+    } finally {
+      session.endSession();
+    }
+    return groupIdOrNull;
+  }
+
+  async getRootByName(name: string): Promise<GroupId | null> {
+    let groupIdOrNull: GroupId | null = null;
+    const session = await this._model.startSession();
+    try {
+      session.startTransaction();
+      const raw = await this._model.findOne({ directGroup: null, name: name }).lean();
       if (!!raw) {
         groupIdOrNull = GroupId.create(raw._id.toHexString());
       }

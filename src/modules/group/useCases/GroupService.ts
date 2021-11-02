@@ -59,6 +59,10 @@ export class GroupService {
       if (createDTO.name !== createDTO.source) {
         return err(AppError.ValueValidationError.create(createDTO.name));
       }
+      const rootId = await this.groupRepository.getRootByName(createDTO.name);
+      if (rootId) {
+        return err(AppError.AlreadyExistsError.create('group', { id: rootId.toString() }));
+      } 
       group = ok(
         Group.createRoot(groupId, {
           name: createDTO.name,
@@ -70,7 +74,9 @@ export class GroupService {
 
     return (await this.groupRepository.save(group.value))
       .map(() => groupToDTO(group._unsafeUnwrap())) // TODO why the fuck TS doesn't recognize the correct type
-      .mapErr((err) => AppError.RetryableConflictError.create(err.message));
+      .mapErr((err) => {
+        return AppError.RetryableConflictError.create(err.message)
+      });
   }
 
   async moveGroup(
