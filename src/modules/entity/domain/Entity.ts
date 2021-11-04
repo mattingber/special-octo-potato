@@ -110,7 +110,6 @@ type PictureData = {
   path: string;
   format: string;
   updatedAt?: Date;
-  createdAt: Date;
 };
 
 type EntityState = {
@@ -273,7 +272,7 @@ export class Entity extends AggregateRoot {
   ): Result<void, IllegalEntityStateError> {
     const pictureData = { ...this._state.profilePicture, ...update };
     // update only if the resulting data has the required keys
-    if (hasAll(pictureData, ["path", "createdAt", "format", "takenAt"])) {
+    if (hasAll(pictureData, ["path", "format", "takenAt"])) {
       this._state.profilePicture = pictureData;
       this.markModified();
       return ok(undefined);

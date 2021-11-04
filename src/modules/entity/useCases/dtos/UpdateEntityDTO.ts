@@ -22,7 +22,6 @@ export type UpdateEntityDTO = { entityId: string } & Partial<{
       meta?: {
         path: string;
         format: string;
-        createdAt?: Date;
         updatedAt?: Date;
       } | {}
     }

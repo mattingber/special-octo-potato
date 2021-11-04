@@ -64,7 +64,6 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc>(
           takenAt: Date,
           path: String,
           format: String,
-          createdAt: Date,
           updatedAt: Date,
         },
       },

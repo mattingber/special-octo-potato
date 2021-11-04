@@ -117,13 +117,12 @@ export class EntityService {
     }
     if (has(createEntityDTO, 'pictures') && has(createEntityDTO.pictures, 'profile')) {
       const {
-        meta: { takenAt, createdAt, updatedAt, format, path },
+        meta: { takenAt, updatedAt, format, path },
       } = createEntityDTO.pictures.profile;
       profilePicture = {
         takenAt,
         path,
         format,
-        createdAt,
         updatedAt,
       };
     }

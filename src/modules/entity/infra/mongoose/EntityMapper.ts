@@ -43,7 +43,6 @@ export class EntityMapper {
             takenAt: entity.profilePicture.takenAt,
             path: entity.profilePicture.path,
             format: entity.profilePicture.format,
-            createdAt: entity.profilePicture.createdAt,
             updatedAt: entity.profilePicture.updatedAt,
           }
         }
