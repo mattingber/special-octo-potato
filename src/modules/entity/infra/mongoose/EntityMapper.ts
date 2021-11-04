@@ -40,6 +40,7 @@ export class EntityMapper {
       pictures: entity.profilePicture ? {
         profile: {
           meta: {
+            takenAt: entity.profilePicture.takenAt,
             path: entity.profilePicture.path,
             format: entity.profilePicture.format,
             createdAt: entity.profilePicture.createdAt,

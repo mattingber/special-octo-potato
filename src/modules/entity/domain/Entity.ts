@@ -106,6 +106,7 @@ export const castToSex = (val: string): Result<string, string> => {
 // type CreateCivilianProps = CommonEntityProps & PersonProps & CivilianEntityProps;
 
 type PictureData = {
+  takenAt: Date,
   path: string;
   format: string;
   updatedAt?: Date;
@@ -272,7 +273,7 @@ export class Entity extends AggregateRoot {
   ): Result<void, IllegalEntityStateError> {
     const pictureData = { ...this._state.profilePicture, ...update };
     // update only if the resulting data has the required keys
-    if (hasAll(pictureData, ["path", "createdAt", "format"])) {
+    if (hasAll(pictureData, ["path", "createdAt", "format", "takenAt"])) {
       this._state.profilePicture = pictureData;
       this.markModified();
       return ok(undefined);

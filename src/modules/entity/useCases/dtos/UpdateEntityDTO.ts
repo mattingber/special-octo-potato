@@ -51,6 +51,7 @@ export const joiSchema = Joi.object({
   pictures: Joi.object({
     profile: Joi.object({
       meta: Joi.object({
+        takenAt: Joi.date(),
         path: Joi.string(),
         format: Joi.string(),
         createdAt: Joi.date(),

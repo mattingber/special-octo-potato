@@ -25,6 +25,7 @@ export interface EntityDoc {
   pictures?: {
     profile?: {
       meta: {
+        takenAt: Date;
         path: string;
         format: string;
         createdAt: Date;
@@ -60,6 +61,7 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc>(
     pictures: {
       profile: {
         meta: {
+          takenAt: Date,
           path: String,
           format: String,
           createdAt: Date,
