@@ -30,7 +30,7 @@ const schema = new Schema<GroupDoc, Model<GroupDoc>, GroupDoc> ({
 schema.index({ name: 1, directGroup: 1} , {unique: true} ); 
 // schema.index({ name: 1 }); 
 // schema.index({ source: 1 })
-// schema.index({ directGroup: 1 })
+schema.index({ directGroup: 1 })
 // schema.index({ akaUnit: 1 })
 // schema.index({ status: 1 })
 
