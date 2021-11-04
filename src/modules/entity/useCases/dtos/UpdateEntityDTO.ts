@@ -54,7 +54,6 @@ export const joiSchema = Joi.object({
         takenAt: Joi.date(),
         path: Joi.string(),
         format: Joi.string(),
-        createdAt: Joi.date(),
         updatedAt: Joi.date(),
       }),
     }),
