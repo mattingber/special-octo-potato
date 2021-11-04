@@ -24,7 +24,6 @@ export type CreateEntityDTO = {
         takenAt: Date;
         path: string;
         format: string;
-        createdAt: Date;
         updatedAt?: Date
       }
     }
