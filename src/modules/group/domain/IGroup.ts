@@ -6,6 +6,7 @@ export interface IGroup {
   source: Source; 
   akaUnit?: string;
   // hierarchy: string;
+  diPrefix?: string;
   ancestors: GroupId[];
   groupId: GroupId;
   status?: string;

@@ -14,9 +14,10 @@ import { IsNotLeafError } from '../domain/errors/IsNotLeafError';
 import { BaseError } from '../../../core/logic/BaseError';
 import { RoleRepository } from '../../Role/repository/RoleRepository';
 import { HasRolesAttachedError } from '../domain/errors/HasRolesAttachedError';
+import { PatchGroupDTO } from './dto/PatchGroupDTO';
 
 export class GroupService {
-  constructor(private groupRepository: GroupRepository, private roleRepository: RoleRepository) {}
+  constructor(private groupRepository: GroupRepository, private roleRepository: RoleRepository) { }
 
   async createGroup(
     createDTO: CreateGroupDTO
@@ -45,6 +46,7 @@ export class GroupService {
         source: source.value,
         name: createDTO.name,
         akaUnit: createDTO.akaUnit,
+        diPrefix: createDTO.diPrefix
       });
       if (group.isErr()) {
         const childGroupId = await this.groupRepository.getByNameAndParentId(createDTO.name, parentId);
@@ -62,12 +64,13 @@ export class GroupService {
       const rootId = await this.groupRepository.getRootByName(createDTO.name);
       if (rootId) {
         return err(AppError.AlreadyExistsError.create('group', { id: rootId.toString() }));
-      } 
+      }
       group = ok(
         Group.createRoot(groupId, {
           name: createDTO.name,
           source: source.value,
           akaUnit: createDTO.akaUnit,
+          diPrefix: createDTO.diPrefix
         })
       );
     }
@@ -77,6 +80,28 @@ export class GroupService {
       .mapErr((err) => {
         return AppError.RetryableConflictError.create(err.message)
       });
+  }
+  async patchGroup(patchGroupDTO: PatchGroupDTO): Promise<Result<void, AppError.ResourceNotFound | AppError.RetryableConflictError>> {
+    const groupId = GroupId.create(patchGroupDTO.id);
+    let group: Group | null = await this.groupRepository.getByGroupId(groupId);
+    if (!group) {
+      return err(AppError.ResourceNotFound.create(patchGroupDTO.id, 'Group'));
+    }
+
+    const newGroup =
+      Group.createRoot(groupId, {
+        name: group.name,
+        source: group.source,
+        akaUnit: group.akaUnit,
+        diPrefix: patchGroupDTO.diPrefix
+      })
+      ;
+    return (await this.groupRepository.save(newGroup)).mapErr((err) =>
+      AppError.RetryableConflictError.create(err.message)
+    );
+
+
+
   }
 
   async moveGroup(

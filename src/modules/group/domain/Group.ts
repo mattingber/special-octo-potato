@@ -12,6 +12,7 @@ type CreateGroupProps = {
   name: string;
   source: Source;
   akaUnit?: string;
+  diPrefix?: string;
 }
 
 type ChildGroupProps = CreateGroupProps & {
@@ -25,6 +26,7 @@ interface GroupState {
   // hierarchy?: Hierarchy;
   ancestors?: GroupId[];
   status?: string;
+  diPrefix?: string;
   childrenNames?: Set<string>;
 }
 
@@ -39,6 +41,7 @@ export class Group
   private _ancestors: GroupId[];
   // private _hierarchy: Hierarchy;
   private _source: Source;
+  private _diPrefix?: string;
   private _childrenNames: Set<string>;
 
   private constructor(id: GroupId, state: GroupState, opts: CreateOpts) {
@@ -47,6 +50,7 @@ export class Group
     this._akaUnit = state.akaUnit;
     this._source = state.source;
     this._status = state.status || 'active';
+    this._diPrefix = state.diPrefix;
     // this._hierarchy = state.hierarchy || Hierarchy.create('');
     this._ancestors = state.ancestors || [];
     this._childrenNames = state.childrenNames || new Set();
@@ -110,6 +114,9 @@ export class Group
   }
   get childrenNames() {
     return Array.from(this._childrenNames);
+  }
+  get diPrefix() {
+    return this._diPrefix
   }
   
   public createChild(groupId: GroupId, props: CreateGroupProps): Result<Group, DuplicateChildrenError> {

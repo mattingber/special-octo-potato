@@ -5,6 +5,7 @@ export type CreateGroupDTO = {
   source: string;
   directGroup?: string;
   akaUnit?: string;
+  diPrefix?: string;
 }
 
 export const joiSchema = Joi.object({
@@ -12,5 +13,6 @@ export const joiSchema = Joi.object({
   source: Joi.string().required(),
   directGroup: Joi.string(),
   akaUnit: Joi.string(),
+  diPrefix: Joi.string(),
 });
 
