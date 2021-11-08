@@ -17,6 +17,7 @@ export class GroupMapper {
       directGroup: !!group.parentId ? Types.ObjectId(group.parentId.toString()) : undefined,
       // hierarchy: group.hierarchy,
       akaUnit: group.akaUnit,
+      diPrefix: group.diPrefix,
       status: group.status,
       version: group.version,
     }
@@ -40,6 +41,7 @@ export class GroupMapper {
         childrenNames: new Set(raw.childrenNames),
         akaUnit: raw.akaUnit,
         status: raw.status,
+        diPrefix: raw.diPrefix,
         // hierarchy: Hierarchy.create(raw.hierarchy),
       },
       { isNew: false, savedVersion: raw.version },
