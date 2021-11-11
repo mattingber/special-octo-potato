@@ -8,6 +8,9 @@ import {
   joiSchema as DeleteGroupSchema
 } from '../../useCases/dto/DeleteGroupDTO';
 import {
+  joiSchema as PatchGroupSchema, PatchGroupDTO
+} from '../../useCases/dto/PatchGroupDTO';
+import {
   MoveGroupDTO,
   joiSchema as MoveGroupSchema
 } from '../../useCases/dto/MoveGroupDTO';
@@ -31,6 +34,27 @@ export class GroupController {
     }
     const result = await this._groupService.createGroup(dto as CreateGroupDTO);
     if(result.isErr()) {
+      return ErrorResponseHandler.defaultErrorHandler(res, result.error);
+    }
+    return ResponseHandler.ok(res, result.value);
+  }
+
+  /**
+   * PATCH 
+   * @param req 
+   * @param res 
+   * @returns 
+   */
+   patchGroup = async (req: Request, res: Response) => {
+    const { error, value: dto } = PatchGroupSchema.validate({
+      ...req.body,
+      id: req.params.id
+    });
+    if (!!error) {
+      return ResponseHandler.clientError(res, error.message);
+    }
+    const result = await this._groupService.patchGroup(dto as PatchGroupDTO);
+    if (result.isErr()) {
       return ErrorResponseHandler.defaultErrorHandler(res, result.error);
     }
     return ResponseHandler.ok(res, result.value);

@@ -78,6 +78,29 @@ export class GroupService {
         return AppError.RetryableConflictError.create(err.message)
       });
   }
+  async patchGroup(patchGroupDTO: PatchGroupDTO): Promise<Result<GroupResultDTO, AppError.ResourceNotFound | AppError.RetryableConflictError>> {
+    const groupId = GroupId.create(patchGroupDTO.id);
+    let group: Group | null = await this.groupRepository.getByGroupId(groupId);
+    if (!group) {
+      return err(AppError.ResourceNotFound.create(patchGroupDTO.id, 'Group'));
+    }
+
+    const newGroup =ok(
+      Group._create(groupId, {
+        name: group.name,
+        source: group.source,
+        akaUnit: group.akaUnit,
+        diPrefix: patchGroupDTO.diPrefix,
+        
+      },{savedVersion: group.version, isNew:false}))
+      ;
+    return (await this.groupRepository.save(newGroup.value)).map(() => groupToDTO(newGroup._unsafeUnwrap())) .mapErr((err) =>
+      AppError.RetryableConflictError.create(err.message)
+    );
+
+
+
+  }
 
   async moveGroup(
     moveGroupDTO: MoveGroupDTO

@@ -8,6 +8,7 @@ export interface GroupDoc {
   // hierarchy: string;
   directGroup?: Types.ObjectId | null; // TODO: is it ok null?
   status?: string;
+  diPrefix?: string;
   akaUnit?: string;
   version: number;
 }
@@ -18,6 +19,7 @@ const schema = new Schema<GroupDoc, Model<GroupDoc>, GroupDoc> ({
   // hierarchy: String,
   status: String,
   akaUnit: String,
+  diPrefix: String,
   // ancestors: [Schema.Types.ObjectId],
   directGroup: Schema.Types.ObjectId,
   version: Number,
