@@ -14,6 +14,7 @@ import { IsNotLeafError } from '../domain/errors/IsNotLeafError';
 import { BaseError } from '../../../core/logic/BaseError';
 import { RoleRepository } from '../../Role/repository/RoleRepository';
 import { HasRolesAttachedError } from '../domain/errors/HasRolesAttachedError';
+import { PatchGroupDTO } from './dto/PatchGroupDTO';
 
 export class GroupService {
   constructor(private groupRepository: GroupRepository, private roleRepository: RoleRepository) {}
