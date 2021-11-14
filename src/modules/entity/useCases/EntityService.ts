@@ -143,7 +143,7 @@ export class EntityService {
       sex: sex?.value,
       mobilePhone: mobilePhone?.value,
       phone: phone?.value,
-      profilePicture,
+      pictures: profilePicture,
     });
     if (entityOrError.isErr()) {
       return err(entityOrError.error);
@@ -264,7 +264,7 @@ export class EntityService {
     if (!entity) {
       return err(AppError.ResourceNotFound.create(updateDTO.entityId, 'entity'));
     }
-    const { personalNumber, identityCard, goalUserId, serviceType, rank, sex, phone, mobilePhone, ...rest } = updateDTO;
+    const { pictures, personalNumber, identityCard, goalUserId, serviceType, rank, sex, phone, mobilePhone, ...rest } = updateDTO;
     // try to update entity for each existing field in the DTO
     if (personalNumber) {
       const newPersonalNumber = PersonalNumber.create(personalNumber).mapErr(AppError.ValueValidationError.create);
@@ -346,6 +346,9 @@ export class EntityService {
       } else {
         return err(newMobilePhone.error);
       }
+    }
+    if (pictures) {
+      changes.push(entity.updatePictureData(pictures));
     }
 
     // update the rest fields that dont require value validation
