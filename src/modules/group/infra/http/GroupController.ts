@@ -8,8 +8,8 @@ import {
   joiSchema as DeleteGroupSchema
 } from '../../useCases/dto/DeleteGroupDTO';
 import {
-  joiSchema as PatchGroupSchema, PatchGroupDTO
-} from '../../useCases/dto/PatchGroupDTO';
+  joiSchema as UpdateGroupSchema, UpdateGroupDTO
+} from '../../useCases/dto/UpdateGroupDTO';
 import {
   MoveGroupDTO,
   joiSchema as MoveGroupSchema
@@ -45,15 +45,15 @@ export class GroupController {
    * @param res 
    * @returns 
    */
-   patchGroup = async (req: Request, res: Response) => {
-    const { error, value: dto } = PatchGroupSchema.validate({
+   updateGroup = async (req: Request, res: Response) => {
+    const { error, value: dto } = UpdateGroupSchema.validate({
       ...req.body,
       id: req.params.id
     });
     if (!!error) {
       return ResponseHandler.clientError(res, error.message);
     }
-    const result = await this._groupService.patchGroup(dto as PatchGroupDTO);
+    const result = await this._groupService.updateGroup(dto as UpdateGroupDTO);
     if (result.isErr()) {
       return ErrorResponseHandler.defaultErrorHandler(res, result.error);
     }

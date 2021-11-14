@@ -1,6 +1,8 @@
 import Joi from 'joi';
 
-export type PatchGroupDTO = {
+
+
+export type UpdateGroupDTO = {
   id: string;
   diPrefix: string;
 }

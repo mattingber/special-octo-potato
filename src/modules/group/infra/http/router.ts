@@ -8,6 +8,6 @@ const router = Router();
 router.post('/', groupController.createGroup);
 router.put('/:id/parent/:parentId', groupController.moveGroup);
 router.delete('/:id',groupController.deleteGroup)
-router.patch('/:id', groupController.patchGroup)
+router.patch('/:id', groupController.updateGroup)
 
 export default router;

@@ -7,6 +7,8 @@ import { DuplicateChildrenError } from "./errors/DuplicateChildrenError";
 import { IGroup } from "./IGroup";
 import { Source } from "../../digitalIdentity/domain/Source";
 import { TreeCycleError } from "./errors/TreeCycleError";
+import { AppError } from "../../../core/logic/AppError";
+import { has } from "../../../utils/ObjectUtils";
 
 type CreateGroupProps = {
   name: string;
@@ -32,13 +34,18 @@ interface GroupState {
 
 }
 
-export class Group 
-  extends AggregateRoot 
-  implements IGroup
-{
+
+type UpdateDto = Partial<Omit<GroupState, "childrenNames" | "ancestors" | "source">>;
+export type UpdateResult = Result<
+  void,
+  | AppError.CannotUpdateFieldError
+>;
+export class Group
+  extends AggregateRoot
+  implements IGroup {
 
   private _name: string;
-  private _akaUnit? : string; // maybe value object
+  private _akaUnit?: string; // maybe value object
   private _status: string; // maybe value object
   private _ancestors: GroupId[];
   // private _hierarchy: Hierarchy;
@@ -57,18 +64,33 @@ export class Group
     this._ancestors = state.ancestors || [];
     this._childrenNames = state.childrenNames || new Set();
   }
+  public updateDetails(updateDto: UpdateDto): UpdateResult {
+
+    // check for illegal 'entityType' transition
+
+
+    if (
+      has(updateDto, "diPrefix")
+    ) {
+      this._diPrefix = updateDto.diPrefix
+    }
+
+    this.markModified();
+    return ok(undefined);
+  }
+
 
 
   public moveToParent(parent: Group): Result<void, DuplicateChildrenError | TreeCycleError> {
-    if(parent._childrenNames.has(this._name)) {
+    if (parent._childrenNames.has(this._name)) {
       return err(DuplicateChildrenError.create(this._name, parent.name));
     }
     // check for cycles: if 'parent' is actually a decendant of this group
-    if(!!parent.ancestors.find(ancestorId => ancestorId.equals(this.id))) {
+    if (!!parent.ancestors.find(ancestorId => ancestorId.equals(this.id))) {
       return err(TreeCycleError.create(this.name, parent.name));
     }
     const previousParentId = this.parentId;
-    this._ancestors = [ parent.id, ...parent._ancestors ];
+    this._ancestors = [parent.id, ...parent._ancestors];
     // this._hierarchy = createChildHierarchy(parent);
     this.markModified();
     return ok(undefined);
@@ -102,7 +124,7 @@ export class Group
     return [...this._ancestors]
   }
   get parentId() {
-    return this._ancestors.length > 0 ? 
+    return this._ancestors.length > 0 ?
       this._ancestors[0] : undefined;
   }
   get akaUnit() {
@@ -120,13 +142,13 @@ export class Group
   get diPrefix() {
     return this._diPrefix
   }
-  
+
   public createChild(groupId: GroupId, props: CreateGroupProps): Result<Group, DuplicateChildrenError> {
-    if(this._childrenNames.has(props.name)) {
+    if (this._childrenNames.has(props.name)) {
       return err(DuplicateChildrenError.create(props.name, this.name));
     }
     const child = Group._create(
-      groupId, 
+      groupId,
       {
         name: props.name,
         akaUnit: props.akaUnit,
@@ -138,7 +160,7 @@ export class Group
     return ok(child);
   }
 
-  public createRole(roleId: RoleId, props: Omit<RoleState, 'directGroup' |'digitalIdentityUniqueId'>) {
+  public createRole(roleId: RoleId, props: Omit<RoleState, 'directGroup' | 'digitalIdentityUniqueId'>) {
     return Role.createNew(
       roleId,
       {
@@ -147,7 +169,7 @@ export class Group
       }
     );
   }
-  
+
   static createRoot(groupId: GroupId, props: CreateGroupProps) {
     return Group._create(groupId, props, { isNew: true })
   }
