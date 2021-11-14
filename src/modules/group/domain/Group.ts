@@ -66,8 +66,11 @@ export class Group
   }
   public updateDetails(updateDto: UpdateDto): UpdateResult {
 
-    // check for illegal 'entityType' transition
-
+    if (
+      has(updateDto, "name")
+    ) {
+      this._name = updateDto.name
+    }
 
     if (
       has(updateDto, "diPrefix")

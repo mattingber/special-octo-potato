@@ -113,7 +113,7 @@ export class GroupRepository implements IGroupRepository {
   private async calculateAncestors(groupId: GroupId, session?: ClientSession) {
     const res = await this._model
       .aggregate([
-        { $match: { _id: groupId.toString() } },
+        { $match: { _id: Types.ObjectId(groupId.toString()) } },
         {
           $graphLookup: {
             from: 'groups',

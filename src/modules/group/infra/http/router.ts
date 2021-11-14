@@ -9,5 +9,6 @@ router.post('/', groupController.createGroup);
 router.put('/:id/parent/:parentId', groupController.moveGroup);
 router.delete('/:id',groupController.deleteGroup)
 router.patch('/:id', groupController.updateGroup)
+router.patch('/:id/rename', groupController.renameGroup);
 
 export default router;

@@ -11,6 +11,9 @@ import {
   joiSchema as UpdateGroupSchema, UpdateGroupDTO
 } from '../../useCases/dto/UpdateGroupDTO';
 import {
+  joiSchema as RenameGroupSchema, RenameGroupDTO
+} from '../../useCases/dto/RenameGroupDTO';
+import {
   MoveGroupDTO,
   joiSchema as MoveGroupSchema
 } from '../../useCases/dto/MoveGroupDTO';
@@ -59,6 +62,27 @@ export class GroupController {
     }
     return ResponseHandler.ok(res, result.value);
   }
+
+    /**
+   * PATCH 
+   * @param req 
+   * @param res 
+   * @returns 
+   */
+     renameGroup = async (req: Request, res: Response) => {
+      const { error, value: dto } = RenameGroupSchema.validate({
+        ...req.body,
+        id: req.params.id
+      });
+      if (!!error) {
+        return ResponseHandler.clientError(res, error.message);
+      }
+      const result = await this._groupService.renameGroup(dto as RenameGroupDTO);
+      if (result.isErr()) {
+        return ErrorResponseHandler.defaultErrorHandler(res, result.error);
+      }
+      return ResponseHandler.ok(res, result.value);
+    }
 
   /**
    * PUT /groups/:id/parent/:parentId

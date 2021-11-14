@@ -1,3 +1,5 @@
+import { RenameGroupDTO } from './dto/RenameGroupDTO';
+import { RenameRootError } from './../domain/errors/RenameRootError';
 import { GroupRepository } from '../repository/GroupRepository';
 import { CreateGroupDTO } from './dto/CreateGroupDTO';
 import { Source } from '../../digitalIdentity/domain/Source';
@@ -114,6 +116,28 @@ export class GroupService {
 
     }
     const result = combine(changes);
+    if (result.isErr()) {
+      return err(result.error);
+    }
+    return (await this.groupRepository.save(group))
+      .map(() => groupToDTO(group as Group)) // return DTO
+      .mapErr((err) => AppError.RetryableConflictError.create(err.message)); // or Error
+  }
+
+  async renameGroup(renameGroupDTO: RenameGroupDTO): Promise<Result<GroupResultDTO, AppError.ResourceNotFound | AppError.RetryableConflictError>> {
+    const groupId = GroupId.create(renameGroupDTO.id);
+    let group: Group | null= await this.groupRepository.getByGroupId(groupId);
+    if (!group) {
+      return err(AppError.ResourceNotFound.create(renameGroupDTO.id, 'Group'));
+    }
+    if (!group.parentId) {
+      return err(RenameRootError.create(group.name));
+    }
+    const childGroupId = await this.groupRepository.getByNameAndParentId(renameGroupDTO.name, group.parentId);
+    if (childGroupId) {
+      return err(DuplicateChildrenError.create(renameGroupDTO.name, group.parentId.toString()))
+    }
+    const result = group.updateDetails({ name: renameGroupDTO.name });
     if (result.isErr()) {
       return err(result.error);
     }
