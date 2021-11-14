@@ -2,7 +2,7 @@ import { GroupRepository } from '../repository/GroupRepository';
 import { CreateGroupDTO } from './dto/CreateGroupDTO';
 import { Source } from '../../digitalIdentity/domain/Source';
 import { AppError } from '../../../core/logic/AppError';
-import { err, ok, Result } from 'neverthrow';
+import { combine, err, ok, Result } from 'neverthrow';
 import { GroupId } from '../domain/GroupId';
 import { has } from '../../../utils/ObjectUtils';
 import { Group } from '../domain/Group';
@@ -14,6 +14,8 @@ import { IsNotLeafError } from '../domain/errors/IsNotLeafError';
 import { BaseError } from '../../../core/logic/BaseError';
 import { RoleRepository } from '../../Role/repository/RoleRepository';
 import { HasRolesAttachedError } from '../domain/errors/HasRolesAttachedError';
+import { UpdateGroupDTO } from './dto/UpdateGroupDTO';
+import { UpdateResult } from '../../group/domain/Group';
 
 export class GroupService {
   constructor(private groupRepository: GroupRepository, private roleRepository: RoleRepository) {}
@@ -77,6 +79,47 @@ export class GroupService {
       .mapErr((err) => {
         return AppError.RetryableConflictError.create(err.message)
       });
+  }
+  // async updateGroup(updateGroupDTO: UpdateGroupDTO): Promise<Result<GroupResultDTO, AppError.ResourceNotFound | AppError.RetryableConflictError>> {
+  //   const groupId = GroupId.create(updateGroupDTO.id);
+  //   let group: Group | null = await this.groupRepository.getByGroupId(groupId);
+  //   if (!group) {
+  //     return err(AppError.ResourceNotFound.create(updateGroupDTO.id, 'Group'));
+  //   }
+
+  //   const newGroup =ok(
+  //     Group._create(groupId, {
+  //       name: group.name,
+  //       source: group.source,
+  //       akaUnit: group.akaUnit,
+  //       diPrefix: updateGroupDTO.diPrefix,
+        
+  //     },{savedVersion: group.version, isNew:false}))
+  //     ;
+  //   return (await this.groupRepository.save(newGroup.value)).map(() => groupToDTO(newGroup._unsafeUnwrap())) .mapErr((err) =>
+  //     AppError.RetryableConflictError.create(err.message)
+  //   );
+  // }
+  async updateGroup(updateGroupDTO: UpdateGroupDTO): Promise<Result<GroupResultDTO, AppError.ResourceNotFound | AppError.RetryableConflictError>> {
+    const groupId = GroupId.create(updateGroupDTO.id);
+    let group: Group | null= await this.groupRepository.getByGroupId(groupId);
+    if (!group) {
+      return err(AppError.ResourceNotFound.create(updateGroupDTO.id, 'Group'));
+    }
+    const {diPrefix} = updateGroupDTO;
+    let changes: UpdateResult[] = []
+    if(diPrefix){
+      const newDiPrefix = diPrefix;
+      changes.push(group.updateDetails({ diPrefix: newDiPrefix }));
+
+    }
+    const result = combine(changes);
+    if (result.isErr()) {
+      return err(result.error);
+    }
+    return (await this.groupRepository.save(group))
+      .map(() => groupToDTO(group as Group)) // return DTO
+      .mapErr((err) => AppError.RetryableConflictError.create(err.message)); // or Error
   }
 
   async moveGroup(
