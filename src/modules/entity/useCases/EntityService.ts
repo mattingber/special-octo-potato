@@ -117,13 +117,14 @@ export class EntityService {
     }
     if (has(createEntityDTO, 'pictures') && has(createEntityDTO.pictures, 'profile')) {
       const {
-        meta: { takenAt, updatedAt, format, path },
+        meta: { updatedAt, format, path },
       } = createEntityDTO.pictures.profile;
       profilePicture = {
-        takenAt,
-        path,
-        format,
-        updatedAt,
+        meta: {
+          path,
+          format,
+          updatedAt,
+        }
       };
     }
     const entityOrError = Entity.createNew(this.entityRepository.generateEntityId(), {
@@ -143,7 +144,9 @@ export class EntityService {
       sex: sex?.value,
       mobilePhone: mobilePhone?.value,
       phone: phone?.value,
-      pictures: profilePicture,
+      pictures: {
+        profile: profilePicture
+      },
     });
     if (entityOrError.isErr()) {
       return err(entityOrError.error);
@@ -348,7 +351,9 @@ export class EntityService {
       }
     }
     if (pictures) {
-      changes.push(entity.updatePictureData(pictures));
+      if (pictures.profile) {
+        changes.push(entity.updateProfilePicture(pictures.profile));
+      }
     }
 
     // update the rest fields that dont require value validation

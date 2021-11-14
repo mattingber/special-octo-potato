@@ -25,7 +25,6 @@ export interface EntityDoc {
   pictures?: {
     profile?: {
       meta: {
-        takenAt: Date;
         path: string;
         format: string;
         updatedAt?: Date;

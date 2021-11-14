@@ -37,16 +37,7 @@ export class EntityMapper {
       goalUserId: entity.goalUserId?.toString(),
       primaryDigitalIdentityId: entity.primaryDigitalIdentityId?.toString(),
       version: entity.version,
-      pictures: entity.profilePicture ? {
-        profile: {
-          meta: {
-            takenAt: entity.profilePicture.takenAt,
-            path: entity.profilePicture.path,
-            format: entity.profilePicture.format,
-            updatedAt: entity.profilePicture.updatedAt,
-          }
-        }
-      } : undefined,
+      pictures: entity.pictures,
     }
   }
 
@@ -83,8 +74,8 @@ export class EntityMapper {
             DigitalIdentityId.create(raw.goalUserId)._unsafeUnwrap() : undefined,
           primaryDigitalIdentityId: !!raw.primaryDigitalIdentityId ?
             DigitalIdentityId.create(raw.primaryDigitalIdentityId)._unsafeUnwrap() : undefined,
-          profilePicture: !!raw.pictures?.profile ? {
-            ...raw.pictures.profile.meta,
+          pictures: !!raw.pictures ? {
+            ...raw.pictures
           } : undefined,
         },
         { isNew: false, savedVersion: raw.version },

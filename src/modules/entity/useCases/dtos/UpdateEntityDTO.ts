@@ -1,3 +1,4 @@
+import { Pictures } from './../../domain/Entity';
 import Joi from 'joi';
 
 export type UpdateEntityDTO = { entityId: string } & Partial<{
@@ -17,15 +18,7 @@ export type UpdateEntityDTO = { entityId: string } & Partial<{
   phone: string | string[]; //value object
   mobilePhone: string | string[]; //value object
   goalUserId: string;
-  pictures: {
-    profile?: {
-      meta?: {
-        path: string;
-        format: string;
-        updatedAt?: Date;
-      } | {}
-    }
-  }
+  pictures: Pictures;
 }>
 
 export const joiSchema = Joi.object({

@@ -105,15 +105,16 @@ export const castToSex = (val: string): Result<string, string> => {
 // type CreateSoldierProps = CommonEntityProps & PersonProps & SoldierEntityProps;
 // type CreateCivilianProps = CommonEntityProps & PersonProps & CivilianEntityProps;
 
-type PictureData = {
-  profile: {
-    meta: {
-      takenAt?: Date,
-      path: string;
-      format: string;
-      updatedAt?: Date;
-    }
+type ProfilePicture = {
+  meta: {
+    path: string;
+    format: string;
+    updatedAt?: Date;
   }
+}
+
+export type Pictures = {
+  profile?: ProfilePicture
 };
 
 type EntityState = {
@@ -137,7 +138,7 @@ type EntityState = {
   mobilePhone?: UniqueArray<MobilePhone>; //value object
   goalUserId?: DigitalIdentityId;
   primaryDigitalIdentityId?: DigitalIdentityId;
-  pictures?: PictureData;
+  pictures?: Pictures;
 };
 
 type CreateEntityProps = Omit<EntityState, "mail" | "primaryDigitalIdentity">;
@@ -271,13 +272,16 @@ export class Entity extends AggregateRoot {
     return isValid;
   }
 
-  public updatePictureData(
-    update: Partial<PictureData>
+  public updateProfilePicture(
+    update: ProfilePicture
   ): Result<void, IllegalEntityStateError> {
-    const pictureData = { ...this._state.pictures, ...update };
+    if (!this._state.pictures) { 
+      this._state.pictures = {};
+    }
+    const profile = { ...this._state.pictures.profile, ...update };
     // update only if the resulting data has the required keys
-    if (hasAll(pictureData, ["profile"])) {
-      this._state.pictures = pictureData;
+    if (hasAll(profile , ["meta"])) {
+      this._state.pictures.profile = update;
       this.markModified();
       return ok(undefined);
     }
