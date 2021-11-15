@@ -134,9 +134,10 @@ export class RoleService {
       // TODO: better error type
     }
     role.disconnectDigitalIdentity();
-    return (await this.roleRepository.save(role)).mapErr((err) => {
-      return AppError.RetryableConflictError.create(err.message)
-    });
+    const saveRoleRes = (await this.roleRepository.removeFields(role, ['digitalIdentityUniqueId'])).mapErr((err) =>
+    AppError.RetryableConflictError.create(err.message)
+    );
+    return saveRoleRes;
   }
 
   /**
