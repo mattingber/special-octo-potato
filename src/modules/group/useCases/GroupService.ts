@@ -49,6 +49,7 @@ export class GroupService {
         source: source.value,
         name: createDTO.name,
         akaUnit: createDTO.akaUnit,
+        diPrefix: createDTO.diPrefix,
       });
       if (group.isErr()) {
         const childGroupId = await this.groupRepository.getByNameAndParentId(createDTO.name, parentId);
@@ -72,6 +73,7 @@ export class GroupService {
           name: createDTO.name,
           source: source.value,
           akaUnit: createDTO.akaUnit,
+          diPrefix: createDTO.diPrefix
         })
       );
     }
