@@ -118,9 +118,6 @@ export class DigitalIdentityService {
       return err(DigitalIdentityConnectedToEntity.create(id));
     }
     const role = await this.roleRepository.getByDigitalIdentityId(diId.value)
-    if(!role) {
-      return err(AppError.ResourceNotFound.create(id, 'Role'));
-    }
     if(!!role && !!role.roleId){ 
       return err(DigitalIdentityConnectedToRole.create(id));
     }
