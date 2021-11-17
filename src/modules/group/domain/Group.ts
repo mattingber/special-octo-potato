@@ -156,6 +156,7 @@ export class Group
         name: props.name,
         akaUnit: props.akaUnit,
         source: props.source,
+        diPrefix: props.diPrefix
       },
       { isNew: true }
     );
