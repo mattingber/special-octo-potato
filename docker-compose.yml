@@ -3,16 +3,19 @@ version: '3.4'
 services:
   mongo:
     image: mongo
-    command: mongod --port 27017
+    # command: mongod --port 27017
     ports:
       - 27017:27017
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${ROOT_PASSWORD}
+    entrypoint: [ "/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0" ]
 
-  write-service:
-    build: .
+  mongo-client:
+    image: mongo
+    depends_on:
+    - mongo
     volumes:
-    - ./config:/config
-    ports:
-      - 4000:4000
+    - ./scripts:/scripts
+    entrypoint:
+    - /scripts/initiate_replica.sh

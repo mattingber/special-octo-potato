@@ -5,6 +5,7 @@ import { RoleId } from "../../domain/RoleId";
 import { RoleDoc } from "./RoleSchema";
 import { Source } from "../../../digitalIdentity/domain/Source";
 import { Types } from "mongoose";
+import { wrapResult } from "../../../../utils/resultUtils";
 
 export class RoleMapper {
 
@@ -23,11 +24,13 @@ export class RoleMapper {
   static toDomain(raw: RoleDoc): Role {
     const roleId = RoleId.create(raw.roleId);
     const di_uid = raw.digitalIdentityUniqueId;
+    const sourceRes = Source.create(raw.source);
+    const sourceExtracted = wrapResult(sourceRes)
     return Role._create(
       roleId,
       {
+        source: sourceExtracted!, // 
         directGroup:  GroupId.create(raw.directGroup.toHexString()),
-        source: Source.create (raw.source)._unsafeUnwrap(),
         jobTitle: raw.jobTitle,
         digitalIdentityUniqueId: !!di_uid ? DigitalIdentityId.create(di_uid)._unsafeUnwrap() : undefined,
         clearance: raw.clearance,

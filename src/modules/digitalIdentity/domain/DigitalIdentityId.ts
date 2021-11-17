@@ -10,7 +10,7 @@ const re = new RegExp(`^.+@(${escapedDomains.join('|')})$`, 'i');
 
 export class DigitalIdentityId extends UniqueEntityId {
   private constructor(id: string) {
-    super(id);
+    super(id.toLowerCase());
   }
 
   private static isValid(id: string) {

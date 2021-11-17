@@ -1,28 +1,41 @@
 {
   "valueObjects": {
     "source": {
-      "values": ["OA","AD","ES","MM"],
-      "strongSources": ["OA"],
+      "values": ["oa_name","es_name","sf_name", "aka", "adNN_name", "city_name", "mir_name"], 
+      "strongSources": ["oa_name"],
       "primaryMap": {
-        "unit1": "AD",
-        "unit2": "ES"
+        "ads": "sf_name",
+        "unit2": "es"
       }
     },
     "rank": {
-      "values": ["rookie", "champion", "ultimate"]
+      "values": ["unknown", "rookie", "champion", "ultimate"]
     },
     "serviceType": {
-      "values": ["hov", "kev"]
+      "values": ["A", "B", "C", "D", "E", "F", "G"]
     },
     "digitalIdentityId": {
       "domain": {
-        "values": ["mm", "sirutim.com"]
+        "values": ["rabiran.com", "jello.com", "adnn.com", "leonardo.com", "city.com"]
       }
+    },
+    "EntityType": {
+      "Soldier" : "agumon",
+      "Civilian" : "digimon",
+      "GoalUser" : "tamar"
+    },
+    "Sex": {
+      "Male" : "male",
+      "Female" : "female"
+    },
+    "digitalIdentityType": {
+      "DomainUser" : "domainUser",
+      "VirtualUser" : "virtualUser" 
     }
   },
   "db": {
     "mongo": {
-      "connectionString": "mongodb://mongo:27017/octo?replicaSet=rs0&directConnection=true&ssl=false",
+      "connectionString": "mongodb://nitro:password123@localhost:27017/kartoffelMock?replicaSet=rs0&directConnection=true&ssl=false",
       "poolSize": 10,
       "modelNames": {
         "group": "Group",
@@ -36,5 +49,4 @@
   "server": {
     "port": 4000
   }
-
 }
