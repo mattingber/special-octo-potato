@@ -89,9 +89,9 @@ describe('PATCH entity ', () => {
 
 const digitalIdentity = {
     type: "domainUser",
-    source: "es",
-    mail: "you@sirutim.com",
-    uniqueId: "uniqueId@sirutim.com",
+    source: "es_name",
+    mail: "barakkk@leonardo.com",
+    uniqueId: "barakkk@leonardo.com",
     isRoleAttachable: true
 }
 

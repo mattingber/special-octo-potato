@@ -380,10 +380,10 @@ export class EntityService {
     // if(!!entity.connectedDIs && entity.connectedDIs.length != 0){
     //   return err(HasDigitalIdentityAttached.create(id));
     // }
-    // const digitalIdentities = await this.diRepository.getByEntityId(entityId); Without CONNECTEDDIs property
-    // if(!digitalIdentities){
-    //   return err(AppError.ResourceNotFound.create(id, 'Digital Identity'));
-    // }
+    const digitalIdentities = await this.diRepository.getByEntityId(entityId); 
+    if(digitalIdentities){
+      return err(HasDigitalIdentityAttached.create(id));
+    }
     // if(digitalIdentities.length !=0){
     //   return err(HasDigitalIdentityAttached.create(id));
     // }
