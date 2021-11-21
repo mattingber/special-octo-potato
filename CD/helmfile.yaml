@@ -12,8 +12,8 @@ releases:
   namespace: kartoffel
   chart: yesodot/common
   version: {{ requiredEnv "COMMON_VERSION" | default "0.1.0" }}
-  # values:
-  #   - ./write-service/values.yaml
+  values:
+    - ./values.yaml
 
 helmDefaults:
   createNamespace: true
