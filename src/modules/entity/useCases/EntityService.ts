@@ -183,12 +183,13 @@ export class EntityService {
       return err(AppError.LogicError.create(res.error.message));;
     }
 
-    const connectedDIs = (await this.diRepository.getByEntityId(entityId)).map((di) => di.connectedDigitalIdentity);
-    entity.choosePrimaryDigitalIdentity(connectedDIs);
+
     const saveDiRes = (await this.diRepository.save(di)).mapErr((err) =>
       AppError.RetryableConflictError.create(err.message)
     );
     if (saveDiRes.isErr()) return saveDiRes;
+    const connectedDIs = (await this.diRepository.getByEntityId(entityId)).map((di) => di.connectedDigitalIdentity);
+    entity.choosePrimaryDigitalIdentity(connectedDIs);
     const saveEntityRes = (await this.entityRepository.save(entity)).mapErr((err) =>
       AppError.RetryableConflictError.create(err.message)
     );
@@ -231,10 +232,10 @@ export class EntityService {
     const saveDiRes = (await this.diRepository.removeFields(di, ['entityId'])).mapErr((err) =>
       AppError.RetryableConflictError.create(err.message)
     );
-    const connectedDIs = (await this.diRepository.getByEntityId(entityId)).map((di) => di.connectedDigitalIdentity);
-
-    entity.choosePrimaryDigitalIdentity(connectedDIs);
     if (saveDiRes.isErr()) return saveDiRes;
+
+    const connectedDIs = (await this.diRepository.getByEntityId(entityId)).map((di) => di.connectedDigitalIdentity);
+    entity.choosePrimaryDigitalIdentity(connectedDIs);
     const saveEntityRes = (await this.entityRepository.save(entity)).mapErr((err) =>
       AppError.RetryableConflictError.create(err.message)
     );

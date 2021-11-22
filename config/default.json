@@ -21,7 +21,7 @@
     },
     "roleIdSuffixes": {
       "domain": {
-        "values": ["rabiran.com", "jello.com", "adnn.com", "leonardo.com", "city.com", "turtle.com", "rafael.turtle.com"]
+        "values": ["rabiran", "jello", "adnn", "leonardo", "city", "turtle", "rafael.turtle.com"]
       }
     },
     "EntityType": {
