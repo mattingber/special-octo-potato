@@ -16,7 +16,12 @@
     },
     "digitalIdentityId": {
       "domain": {
-        "values": ["rabiran.com", "jello.com", "adnn.com", "leonardo.com", "city.com"]
+        "values": ["rabiran.com", "jello.com", "adnn.com", "leonardo.com", "city.com", "turtle.com", "rafael.turtle.com"]
+      }
+    },
+    "roleIdSuffixes": {
+      "domain": {
+        "values": ["rabiran.com", "jello.com", "adnn.com", "leonardo.com", "city.com", "turtle.com", "rafael.turtle.com"]
       }
     },
     "EntityType": {

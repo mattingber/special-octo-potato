@@ -22,12 +22,13 @@ export class RoleMapper {
   }
 
   static toDomain(raw: RoleDoc): Role {
-    const roleId = RoleId.create(raw.roleId);
+    const roleIdRes = RoleId.create(raw.roleId);
+    const roleIdExtracted = wrapResult(roleIdRes)
     const di_uid = raw.digitalIdentityUniqueId;
     const sourceRes = Source.create(raw.source);
     const sourceExtracted = wrapResult(sourceRes)
     return Role._create(
-      roleId,
+      roleIdExtracted,
       {
         source: sourceExtracted!, // 
         directGroup:  GroupId.create(raw.directGroup.toHexString()),

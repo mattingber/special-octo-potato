@@ -1,3 +1,4 @@
+import { RoleIdSuffixError } from '../domain/errors/RoleIdSuffixError';
 import { RoleAlreadyExists } from './../domain/errors/RoleAlreadyExists';
 import { RoleRepository } from '../repository/RoleRepository';
 import { GroupRepository } from '../../group/repository/GroupRepository';
@@ -36,14 +37,17 @@ export class RoleService {
   ): Promise<
     Result<void, AppError.ValueValidationError | AppError.ResourceNotFound | AppError.RetryableConflictError>
   > {
-    const roleId = RoleId.create(createRoleDTO.roleId);
+    const roleIdRes = RoleId.create(createRoleDTO.roleId);
+    if(roleIdRes.isErr()){
+      return err(RoleIdSuffixError.create(createRoleDTO.roleId));
+    }
     const sourceOrError = Source.create(createRoleDTO.source).mapErr((msg) =>
       AppError.ValueValidationError.create(msg)
     );
     if (sourceOrError.isErr()) {
       return err(sourceOrError.error);
     }
-    const doesExist = await this.roleRepository.exists(roleId);
+    const doesExist = await this.roleRepository.exists(roleIdRes.value);
     if (doesExist) {
       return err(RoleAlreadyExists.create(createRoleDTO.roleId));
     }
@@ -52,7 +56,7 @@ export class RoleService {
     if (!group) {
       return err(AppError.ResourceNotFound.create(createRoleDTO.directGroup, 'group id'));
     }
-    const role = Role.createRole(roleId, groupId, {
+    const role = Role.createRole(roleIdRes.value, groupId, {
       source: sourceOrError.value,
       jobTitle: createRoleDTO.jobTitle,
       clearance: createRoleDTO.clearance,
@@ -79,7 +83,10 @@ export class RoleService {
       | AlreadyConnectedToDigitalIdentity
     >
   > {
-    const roleId = RoleId.create(connectDTO.roleId);
+    const roleIdRes = RoleId.create(connectDTO.roleId);
+    if(roleIdRes.isErr()){
+      return err(RoleIdSuffixError.create(connectDTO.roleId));
+    }
     const idOrError = DigitalIdentityId.create(connectDTO.digitalIdentityUniqueId).mapErr((msg) =>
       AppError.ValueValidationError.create(msg)
     );
@@ -87,7 +94,7 @@ export class RoleService {
       // invalid DI unique id value provided
       return err(idOrError.error);
     }
-    const role = await this.roleRepository.getByRoleId(roleId);
+    const role = await this.roleRepository.getByRoleId(roleIdRes.value);
     if (!role) {
       return err(AppError.ResourceNotFound.create(connectDTO.roleId, 'role id'));
     }
@@ -113,7 +120,10 @@ export class RoleService {
   ): Promise<
     Result<void, AppError.ResourceNotFound | AppError.ValueValidationError | AppError.RetryableConflictError>
   > {
-    const roleId = RoleId.create(disconnectDTO.roleId);
+    const roleIdRes = RoleId.create(disconnectDTO.roleId);
+    if(roleIdRes.isErr()){
+      return err(RoleIdSuffixError.create(disconnectDTO.roleId));
+    }
     const uidOrError = DigitalIdentityId.create(disconnectDTO.digitalIdentityUniqueId).mapErr((msg) =>
       AppError.ValueValidationError.create(msg)
     );
@@ -121,7 +131,7 @@ export class RoleService {
       // invalid DI unique id value provided
       return err(uidOrError.error);
     }
-    const role = await this.roleRepository.getByRoleId(roleId);
+    const role = await this.roleRepository.getByRoleId(roleIdRes.value);
     if (!role) {
       return err(AppError.ResourceNotFound.create(disconnectDTO.roleId, 'role'));
     }
@@ -151,8 +161,11 @@ export class RoleService {
   async updateRole(
     updateDTO: UpdateRoleDTO
   ): Promise<Result<void, AppError.ResourceNotFound | AppError.RetryableConflictError>> {
-    const roleId = RoleId.create(updateDTO.roleId);
-    const role = await this.roleRepository.getByRoleId(roleId);
+    const roleIdRes = RoleId.create(updateDTO.roleId);
+    if(roleIdRes.isErr()){
+      return err(RoleIdSuffixError.create(updateDTO.roleId));
+    }
+    const role = await this.roleRepository.getByRoleId(roleIdRes.value);
     if (!role) {
       return err(AppError.ResourceNotFound.create(updateDTO.roleId, 'role id'));
     }
@@ -173,9 +186,12 @@ export class RoleService {
   async moveToGroup(
     moveGroupDTO: MoveGroupDTO
   ): Promise<Result<void, AppError.ResourceNotFound | AppError.RetryableConflictError>> {
-    const roleId = RoleId.create(moveGroupDTO.roleId);
+    const roleIdRes = RoleId.create(moveGroupDTO.roleId);
+    if(roleIdRes.isErr()){
+      return err(RoleIdSuffixError.create(moveGroupDTO.roleId));
+    }
     const groupId = GroupId.create(moveGroupDTO.groupId);
-    const role = await this.roleRepository.getByRoleId(roleId);
+    const role = await this.roleRepository.getByRoleId(roleIdRes.value);
     if (!role) {
       return err(AppError.ResourceNotFound.create(moveGroupDTO.roleId, 'role'));
     }
@@ -187,16 +203,19 @@ export class RoleService {
     return (await this.roleRepository.save(role)).mapErr((err) => AppError.RetryableConflictError.create(err.message));
   }
 
-  async deleteRole(id: string): Promise<Result<any, BaseError>> {
-    const roleId = RoleId.create(id);
-    const role = await this.roleRepository.getByRoleId(roleId);
+  async deleteRole(roleId: string): Promise<Result<any, BaseError>> {
+    const roleIdRes = RoleId.create(roleId);
+    if(roleIdRes.isErr()){
+      return err(RoleIdSuffixError.create(roleId));
+    }
+    const role = await this.roleRepository.getByRoleId(roleIdRes.value);
     if (!role) {
-      return err(AppError.ResourceNotFound.create(id, 'role'));
+      return err(AppError.ResourceNotFound.create(roleId, 'role'));
     }
     if (role?.digitalIdentityUniqueId != null) {
-      return err(HasDigitalIdentityAttached.create(id));
+      return err(HasDigitalIdentityAttached.create(roleId));
     }
-    return (await this.roleRepository.delete(roleId)).mapErr((err) =>
+    return (await this.roleRepository.delete(roleIdRes.value)).mapErr((err) =>
       AppError.RetryableConflictError.create(err.message)
     );
   }
