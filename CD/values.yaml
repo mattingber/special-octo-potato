@@ -4,31 +4,16 @@ replicaCount: 1
 images:
   PullSecrets: 
     name: kartoffelreg
-  repository: rabazhub.azurecr.io/values-test
+  repository: genesisproject.azurecr.io/write-service
   tag: "latest"
 
-service:
-  type: ClusterIP
-  ports:
-  - name: http
-    port: 3000
-
-# volume:
-#   -name:
-#    mountPath:
-#    type:
-#    claimName:
-
+volume:
+  - name: gate-volume
+    mountPath: /config/
+    secretName: azure-secret 
+    shareName: system-genesis/ 
+    type: azurefile 
+    
 config:
   configmaps: 
     name: write-service
-
-ingress:
-  enabled: true
-  hosts:
-  - host: test-cd.branch-yesodot.org
-    paths:
-      - path: /message
-        service: testname
-        port: "3000"
-  
