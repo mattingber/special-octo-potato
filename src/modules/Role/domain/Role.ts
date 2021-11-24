@@ -58,7 +58,7 @@ export class Role extends AggregateRoot {
   ): Result<void, DigitalIdentityCannotBeConnected | AlreadyConnectedToDigitalIdentity> {
     if (!!this._digitalIdentityUniqueId) {
       return err(
-        AlreadyConnectedToDigitalIdentity.create(this.roleId.toString(), this._digitalIdentityUniqueId.toString())
+        AlreadyConnectedToDigitalIdentity.create(this.id.toString(), this._digitalIdentityUniqueId.toString())
       );
     }
     if (digitalIdentity.canConnectRole) {
@@ -131,8 +131,9 @@ export class Role extends AggregateRoot {
   get digitalIdentityUniqueId() {
     return this._digitalIdentityUniqueId;
   }
+  // TODO: remove unsafeUnwrap!
   get roleId() {
-    return RoleId.create(this.id.toValue());
+    return RoleId.create(this.id.toValue())._unsafeUnwrap();
   }
   get directGroup() {
     return this._directGroup;

@@ -1,3 +1,4 @@
+import { Result } from 'neverthrow';
 import { ok, err } from 'neverthrow';
 import { UniqueEntityId } from "../../../core/domain/UniqueEntityId";
 import config from 'config';
@@ -19,7 +20,7 @@ export class RoleId extends UniqueEntityId {
     return id.trim();
   }
 
-  public static create(id: string) {
+  public static create(id: string): Result<RoleId, string> {
     if(!RoleId.isValid(id)) {
       return err(`invalid roleId: ${id}`);
     }
