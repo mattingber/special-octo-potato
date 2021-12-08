@@ -40,8 +40,8 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc>(
     lastName: String,
     entityType: String,
     displayName: String,
-    personalNumber: String, // use value object
-    identityCard: String,
+    personalNumber: { type: String, unique: true, sparse: true }, // use value object
+    identityCard: { type: String, unique: true, sparse: true  },
     rank: String, //use vale object / enum
     akaUnit: String,
     clearance: String, // value object
@@ -54,7 +54,7 @@ const schema = new Schema<EntityDoc, Model<EntityDoc>, EntityDoc>(
     address: String, // value
     phone: [String], //value object
     mobilePhone: [String], //value object
-    goalUserId: String,
+    goalUserId: { type: String, unique: true, sparse: true  },
     primaryDigitalIdentityId: String,
     pictures: {
       profile: {

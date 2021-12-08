@@ -326,7 +326,7 @@ export class Entity extends AggregateRoot {
       if (
         !!state.goalUserId &&
         !!state.primaryDigitalIdentityId &&
-        ~state.goalUserId.equals(state.primaryDigitalIdentityId)
+        !state.goalUserId.equals(state.primaryDigitalIdentityId)
       ) {
         return err(
           IllegalEntityStateError.create(

@@ -382,7 +382,7 @@ export class EntityService {
     //   return err(HasDigitalIdentityAttached.create(id));
     // }
     const digitalIdentities = await this.diRepository.getByEntityId(entityId); 
-    if(digitalIdentities){
+    if(digitalIdentities.length){
       return err(HasDigitalIdentityAttached.create(id));
     }
     // if(digitalIdentities.length !=0){
