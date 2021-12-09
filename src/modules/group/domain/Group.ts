@@ -30,6 +30,7 @@ interface GroupState {
   ancestors?: GroupId[];
   status?: string;
   diPrefix?: string;
+  isLeaf?: boolean;
   childrenNames?: Set<string>;
 
 }
@@ -49,6 +50,7 @@ export class Group
   private _status: string; // maybe value object
   private _ancestors: GroupId[];
   // private _hierarchy: Hierarchy;
+  private _isLeaf: boolean;
   private _source: Source;
   private _diPrefix?: string;
   private _childrenNames: Set<string>;
@@ -60,6 +62,7 @@ export class Group
     this._source = state.source;
     this._status = state.status || 'active';
     this._diPrefix = state.diPrefix;
+    this._isLeaf = state.isLeaf || true;
     // this._hierarchy = state.hierarchy || Hierarchy.create('');
     this._ancestors = state.ancestors || [];
     this._childrenNames = state.childrenNames || new Set();
@@ -118,7 +121,7 @@ export class Group
     return this._name;
   }
   get isLeaf() {
-    return this._childrenNames.size === 0;
+    return this._isLeaf;
   }
   // get hierarchy() {
   //   return this._hierarchy.value();
@@ -156,7 +159,7 @@ export class Group
         name: props.name,
         akaUnit: props.akaUnit,
         source: props.source,
-        diPrefix: props.diPrefix
+        diPrefix: props.diPrefix,
       },
       { isNew: true }
     );
