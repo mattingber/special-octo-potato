@@ -10,6 +10,7 @@ export interface GroupDoc {
   status?: string;
   diPrefix?: string;
   akaUnit?: string;
+  isLeaf: boolean;
   version: number;
 }
 
@@ -20,6 +21,7 @@ const schema = new Schema<GroupDoc, Model<GroupDoc>, GroupDoc> ({
   status: String,
   akaUnit: String,
   diPrefix: String,
+  isLeaf: Boolean,
   // ancestors: [Schema.Types.ObjectId],
   directGroup: Schema.Types.ObjectId,
   version: Number,

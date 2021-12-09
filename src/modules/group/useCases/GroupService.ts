@@ -180,6 +180,9 @@ export class GroupService {
     if (!group) {
       return err(AppError.ResourceNotFound.create(id, 'Group'));
     }
+    if(!group.isLeaf){
+      return err(IsNotLeafError.create(id));
+    }
     if (group.childrenNames.length != 0) {
       return err(IsNotLeafError.create(id));
     }

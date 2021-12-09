@@ -20,6 +20,7 @@ export class GroupMapper {
       diPrefix: group.diPrefix,
       status: group.status,
       version: group.version,
+      isLeaf: group.isLeaf
     }
   }
 
@@ -42,6 +43,7 @@ export class GroupMapper {
         akaUnit: raw.akaUnit,
         status: raw.status,
         diPrefix: raw.diPrefix,
+        isLeaf: raw.isLeaf,
         // hierarchy: Hierarchy.create(raw.hierarchy),
       },
       { isNew: false, savedVersion: raw.version },
