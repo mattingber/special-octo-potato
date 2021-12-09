@@ -173,6 +173,9 @@ export class GroupRepository implements IGroupRepository {
               await this._model.create([persistanceState], { session });
               result = ok(undefined);
             }          
+        }else{
+          await this._model.create([persistanceState], { session });
+          result = ok(undefined);
         }
       }
       await session.commitTransaction();
